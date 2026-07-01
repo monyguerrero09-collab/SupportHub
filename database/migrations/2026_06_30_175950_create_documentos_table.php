@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('tipo_archivo');
             $table->unsignedBigInteger('tamaño');
             $table->string('categoria')->default('General');
-            $table->foreignId('usuario_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
             $table->timestamps();
         });
     }
