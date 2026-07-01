@@ -82,6 +82,15 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Mis Tickets</span>
                 </button>
+                <button @click="activeTab = 'gestion_archivos'"
+                    :class="activeTab === 'gestion_archivos' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" /></svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
+                </button>
             @else
                 {{-- Rutas de Admin/Agente --}}
                 <button @click="activeTab = 'statistics'"
@@ -110,6 +119,15 @@
                         <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inventario</span>
+                </button>
+                <button @click="activeTab = 'gestion_archivos'"
+                    :class="activeTab === 'gestion_archivos' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" /></svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
                 </button>
             @endif
             <button @click="activeTab = 'map'"
@@ -249,6 +267,21 @@
 
         <div class="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 lg:p-10 space-y-6 md:space-y-10">
             
+            {{-- Welcome Greeting Banner --}}
+            <div class="animate-in fade-in slide-in-from-top-5 duration-700 shrink-0">
+                <div class="bg-gradient-to-r from-blue-600/10 via-indigo-600/5 to-transparent border border-white/5 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-blue-500/[0.02] rounded-2xl blur-lg pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <h1 class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
+                            ¡Hola, {{ strtoupper(Auth::user()->name) }}! 👋
+                        </h1>
+                        <p class="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">
+                            Bienvenido a la plataforma • Rol: <span class="text-blue-400 font-black">{{ auth()->user()->role === 'user' ? 'Operativo' : (auth()->user()->role === 'admin' ? 'Administrador' : 'Agente TI') }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <template x-if="activeTab === 'tickets'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-6 md:space-y-10">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -587,6 +620,37 @@
                                              class="w-full flex-1 min-h-[140px] bg-[#131b2f] border border-[#1e293b]/50 rounded-[0.75rem] p-5 text-[14px] text-white font-[500] focus:outline-none focus:border-[#3b82f6] shadow-sm resize-none transition-all placeholder:text-slate-600 focus:bg-[#162035] leading-relaxed"
                                          ></textarea>
                                      </div>
+
+                                     {{-- Adjuntar Archivos --}}
+                                     <div class="pt-3">
+                                         <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Adjuntar Archivos (PDF, Word, Imágenes)</label>
+                                         <div class="relative w-full h-16 border border-dashed border-[#1e293b]/80 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                                             <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                             <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 group-hover:text-blue-400 transition-colors">
+                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
+                                                 <span>Seleccionar archivos...</span>
+                                             </div>
+                                         </div>
+                                         
+                                         {{-- Listado de archivos cargados --}}
+                                         @if(!empty($ticketFiles))
+                                             <div class="mt-2.5 space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
+                                                 @foreach($ticketFiles as $index => $file)
+                                                     @if($file)
+                                                     <div class="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-2 text-[10px] text-slate-300">
+                                                         <div class="flex items-center gap-2 truncate">
+                                                             <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                             <span class="truncate">{{ $file->getClientOriginalName() }}</span>
+                                                         </div>
+                                                         <button type="button" wire:click="removeTicketFile({{ $index }})" class="text-red-400 hover:text-red-300 ml-2">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                         </button>
+                                                     </div>
+                                                     @endif
+                                                 @endforeach
+                                             </div>
+                                         @endif
+                                     </div>
                                  </div>
 
                                  {{-- SUBMIT BUTTON (Matches bottom paper airplane button from mock) --}}
@@ -713,10 +777,47 @@
                                         </div>
                                         <div class="col-span-1 md:col-span-2 border-t border-white/10 pt-6 mt-2">
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Declaración Inicial</h5>
-                                            <div class="bg-black/40 p-6 rounded-2xl text-xs font-medium text-gray-400 border border-white/5 shadow-inner leading-relax italic">
+                                            <div class="bg-black/40 p-6 rounded-2xl text-xs font-medium text-gray-400 border border-white/5 shadow-inner leading-relax italic mb-6">
                                                 "{{ $detTicket->descripcion }}"
                                             </div>
                                         </div>
+
+                                        @if($detTicket->archivosAdjuntos && $detTicket->archivosAdjuntos->count() > 0)
+                                        <div class="col-span-1 md:col-span-2 border-t border-white/10 pt-6 mt-2">
+                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Archivos Adjuntos</h5>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                @foreach($detTicket->archivosAdjuntos as $adjunto)
+                                                <div class="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl p-4 transition-all hover:bg-white/[0.04]">
+                                                    <div class="flex items-center gap-3 truncate min-w-0">
+                                                        <div class="w-9 h-9 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                                                            @if(Str::endsWith(strtolower($adjunto->nombre_archivo), ['.pdf']))
+                                                                📄
+                                                            @elseif(Str::endsWith(strtolower($adjunto->nombre_archivo), ['.jpg', '.jpeg', '.png', '.gif', '.svg']))
+                                                                🖼️
+                                                            @elseif(Str::endsWith(strtolower($adjunto->nombre_archivo), ['.doc', '.docx']))
+                                                                📝
+                                                            @else
+                                                                📁
+                                                            @endif
+                                                        </div>
+                                                        <div class="truncate">
+                                                            <p class="font-bold text-white text-xs truncate" title="{{ $adjunto->nombre_archivo }}">{{ $adjunto->nombre_archivo }}</p>
+                                                            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Evidencia</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex gap-2 shrink-0">
+                                                        <a href="{{ asset('storage/' . $adjunto->ruta_archivo) }}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white rounded-xl border border-blue-500/20 transition-all font-bold text-[9px] uppercase tracking-wider">
+                                                            Ver
+                                                        </a>
+                                                        <button type="button" wire:click="downloadAttachment({{ $adjunto->id }})" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl border border-white/5 transition-all font-bold text-[9px] uppercase tracking-wider">
+                                                            Bajar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
 
                                     <div class="space-y-6">
@@ -910,6 +1011,10 @@
 
             <template x-if="activeTab === 'inventory'">
                 <livewire:inventory-panel wire:key="inventory-panel-core" />
+            </template>
+
+            <template x-if="activeTab === 'gestion_archivos'">
+                <livewire:document-viewer wire:key="document-viewer-core" />
             </template>
 
             <div x-show="activeTab === 'map'" class="h-full">
@@ -1206,25 +1311,32 @@
             </div>
             <form wire:submit.prevent="saveUser" class="p-10 space-y-8">
                 <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Nombre Usuario</label>
-                    <input type="text" wire:model="userName" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all">
+                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Nombre Completo</label>
+                    <input type="text" wire:model="userName" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all" placeholder="Ej. OLVERA GUERRERO MONICA ELIZABETH">
+                    @error('userName') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
                 </div>
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Directorio Email</label>
-                    <input type="email" wire:model="userEmail" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all">
-                </div>
+                
                 <div class="grid grid-cols-2 gap-6">
                     <div class="space-y-4">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Rol</label>
-                        <select wire:model="userRole" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none appearance-none">
-                            <option value="user">Usuario</option>
-                            <option value="admin">Administrador</option>
-                        </select>
+                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Código de Acceso (ID)</label>
+                        <input type="text" wire:model="userCodigoAcceso" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all" placeholder="Ej. OP-4444, TI-2222, AD-1111">
+                        @error('userCodigoAcceso') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
                     </div>
                     <div class="space-y-4">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Contraseña</label>
-                        <input type="password" wire:model="userPassword" placeholder="********" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all">
+                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Rol</label>
+                        <select wire:model="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none appearance-none">
+                            <option value="user">Operador</option>
+                            <option value="agente">Agente TI</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        @error('userRole') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
                     </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Contraseña (Dejar vacío para usar Código)</label>
+                    <input type="password" wire:model="userPassword" placeholder="Dejar en blanco para usar el código de acceso" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all">
+                    @error('userPassword') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
                 </div>
                 <div class="pt-6">
                     <button type="submit" class="w-full py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-3xl text-[12px] font-black uppercase tracking-[.4em] shadow-2xl transition-all">
@@ -1288,6 +1400,37 @@
                 <div class="space-y-4">
                     <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Descripción del Problema</label>
                     <textarea wire:model="ticketDescription" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all"></textarea>
+                </div>
+                
+                {{-- Adjuntar Archivos --}}
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Adjuntar Archivos (PDF, Word, Imágenes)</label>
+                    <div class="relative w-full h-20 border border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl bg-white/5 flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                        <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <div class="flex items-center gap-2 text-[11px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
+                            <span>Seleccionar archivos...</span>
+                        </div>
+                    </div>
+                    
+                    {{-- Listado de archivos cargados --}}
+                    @if(!empty($ticketFiles))
+                        <div class="space-y-2 max-h-36 overflow-y-auto custom-scrollbar">
+                            @foreach($ticketFiles as $index => $file)
+                                @if($file)
+                                <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-3 text-xs text-gray-300">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        <span class="truncate">{{ $file->getClientOriginalName() }}</span>
+                                    </div>
+                                    <button type="button" wire:click="removeTicketFile({{ $index }})" class="text-red-400 hover:text-red-300 ml-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 <div class="grid grid-cols-2 gap-6">
                     <div class="space-y-4">

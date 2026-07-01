@@ -8,14 +8,19 @@ use App\Models\Equipment;
 use App\Models\Maquina;
 use App\Models\Prioridad;
 use App\Models\User;
+use App\Models\ArchivoAdjunto;
 use Auth;
 use Livewire\Attributes\Layout;
+use Livewire\WithFileUploads;
 use DB;
 
 #[Layout('layouts.blank')]
 class SupportHub extends Component
 {
-    public $activeTab = 'map'; // tickets, inventory, map, statistics, users
+    use WithFileUploads;
+
+    public $activeTab = 'map'; // tickets, inventory, map, statistics, users, gestion_archivos
+    public $ticketFiles = [];
     public $selectedEquipmentId = null;
     public $showingDetail = false;
     
@@ -138,6 +143,7 @@ class SupportHub extends Component
     public $userEmail;
     public $userPassword;
     public $userRole = 'user';
+    public $userCodigoAcceso;
     public $selectedUserId = null;
 
     protected $listeners = [
@@ -305,19 +311,28 @@ class SupportHub extends Component
 
     public function openUserModal($id = null)
     {
-        $this->reset(['userName', 'userEmail', 'userPassword', 'userRole', 'selectedUserId']);
+        $this->reset(['userName', 'userEmail', 'userPassword', 'userRole', 'userCodigoAcceso', 'selectedUserId']);
         if ($id) {
             $user = User::find($id);
             $this->selectedUserId = $id;
             $this->userName = $user->nombre_completo;
             $this->userEmail = $user->email;
             $this->userRole = $user->role ?? 'user';
+            $this->userCodigoAcceso = $user->codigo_acceso;
         }
         $this->showingUserModal = true;
     }
 
     public function saveUser()
     {
+        // Validation rules: codigo_acceso must be unique (except for the user being updated)
+        $rules = [
+            'userName' => 'required|string|max:255',
+            'userRole' => 'required|in:admin,agente,user',
+            'userCodigoAcceso' => 'required|string|max:50|unique:usuarios,codigo_acceso,' . ($this->selectedUserId ?? 'NULL'),
+        ];
+        $this->validate($rules);
+
         $rolNombre = match($this->userRole) {
             'admin' => 'Admin',
             'agente' => 'Agente TI',
@@ -326,19 +341,35 @@ class SupportHub extends Component
         };
         $rol = \App\Models\Role::where('nombre', $rolNombre)->first();
 
+        // Auto-generate unique email/id if creating a user
+        if (!$this->selectedUserId) {
+            $slugName = \Illuminate\Support\Str::slug($this->userName, '');
+            if (empty($slugName)) {
+                $slugName = 'user';
+            }
+            $this->userEmail = $slugName . rand(100, 999) . '@supporthub.com';
+        }
+
         $data = [
             'nombre_completo' => $this->userName,
             'email' => $this->userEmail,
             'rol_id' => $rol ? $rol->id : 3,
+            'codigo_acceso' => $this->userCodigoAcceso,
         ];
+        
         if ($this->userPassword) {
             $data['password'] = bcrypt($this->userPassword);
+        } else if (!$this->selectedUserId) {
+            // Default password is set to the access code on creation
+            $data['password'] = bcrypt($this->userCodigoAcceso);
         }
 
         if ($this->selectedUserId) {
             User::find($this->selectedUserId)->update($data);
+            $this->dispatch('notify', 'Usuario actualizado con éxito');
         } else {
             User::create($data);
+            $this->dispatch('notify', 'Usuario registrado con éxito');
         }
         $this->showingUserModal = false;
     }
@@ -359,6 +390,12 @@ class SupportHub extends Component
             'ticketSubcategory.required' => 'Por favor selecciona la incidencia'
         ]);
 
+        if (!empty($this->ticketFiles)) {
+            $this->validate([
+                'ticketFiles.*' => 'max:10240', // max 10MB
+            ]);
+        }
+
         $fullTitle = '[' . mb_strtoupper($this->ticketCategory) . '] ' . mb_strtoupper($this->ticketSubcategory);
         
         $finalDescription = $this->ticketDescription;
@@ -375,6 +412,18 @@ class SupportHub extends Component
             'usuario_creador_id' => Auth::id(),
             'tipo_ticket_id' => 1,
         ]);
+
+        // Guardar archivos adjuntos
+        if (!empty($this->ticketFiles)) {
+            foreach ($this->ticketFiles as $file) {
+                $path = $file->store('ticket_attachments', 'public');
+                ArchivoAdjunto::create([
+                    'ticket_id' => $ticket->id,
+                    'nombre_archivo' => $file->getClientOriginalName(),
+                    'ruta_archivo' => $path,
+                ]);
+            }
+        }
 
         // Send Email to Agent and Admin
         $adminsAndAgents = User::whereHas('rol', function ($q) {
@@ -394,7 +443,7 @@ class SupportHub extends Component
         }
 
         $this->showingNewTicket = false;
-        $this->reset(['ticketCategory', 'ticketSubcategory', 'ticketDescription', 'ticketAvailableTime', 'ticketPriority', 'ticketLocation']);
+        $this->reset(['ticketCategory', 'ticketSubcategory', 'ticketDescription', 'ticketAvailableTime', 'ticketPriority', 'ticketLocation', 'ticketFiles']);
         $this->dispatch('ticket-created');
         
         if (Auth::user()->role === 'user') {
@@ -402,6 +451,21 @@ class SupportHub extends Component
         }
         
         $this->dispatch('notify', 'Ticket generado exitosamente');
+    }
+
+    public function removeTicketFile($index)
+    {
+        if (isset($this->ticketFiles[$index])) {
+            array_splice($this->ticketFiles, $index, 1);
+        }
+    }
+
+    public function downloadAttachment($id)
+    {
+        $archivo = ArchivoAdjunto::find($id);
+        if ($archivo && $archivo->ruta_archivo) {
+            return \Storage::disk('public')->download($archivo->ruta_archivo, $archivo->nombre_archivo);
+        }
     }
 
     public function exportCSV()
