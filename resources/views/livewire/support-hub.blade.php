@@ -570,32 +570,81 @@
                              </div>
                              <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-16 flex items-center justify-center gap-2"><i class="fa-solid fa-shield-halved text-blue-500"></i> Tu información y reportes están resguardados por el equipo de TI corporativo</p>
                          </div>
-                         <div x-show="mode === 'manual'" class="w-full max-w-2xl mx-auto animate-in fade-in duration-300" style="display:none;">
-                             <button @click="mode = 'selection'" class="mb-6 flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-2 text-sm"></i> Volver a la selección</button>
-                             <div class="bg-[#0b1221]/90 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden">
-                                 <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 sm:p-8"><div class="flex items-center space-x-3"><span class="p-3 bg-white/10 rounded-2xl text-2xl"><i class="fa-solid fa-file-pen text-white"></i></span><div><h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight">Generar Ticket Manual</h2><p class="text-xs text-blue-200 mt-1">Escribe los detalles tecnológicos para que un técnico sea asignado.</p></div></div></div>
-                                 <div class="p-6 sm:p-8 space-y-6">
-                                     <div><label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><span class="flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i> Problema o Asunto *</span></label><input type="text" x-model="manualProblem" required placeholder="Ej. No puedo ingresar al correo corporativo" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-sm outline-none font-medium"></div>
-                                     <div><label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><span class="flex items-center"><i class="fa-solid fa-align-left mr-2 text-blue-400"></i> Descripción del problema *</span></label><textarea x-model="manualDescription" required rows="4" placeholder="Describe a detalle lo ocurrido..." class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-sm outline-none resize-none font-medium leading-relaxed"></textarea></div>
-                                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <div x-show="mode === 'manual'" class="w-full max-w-xl mx-auto animate-in fade-in duration-300" style="display:none;">
+                              <button @click="mode = 'selection'" class="mb-3 flex items-center text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i> Volver</button>
+                              <div class="bg-[#0b1221]/90 backdrop-blur-2xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden">
+                                  {{-- Header compacto --}}
+                                  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-4">
+                                      <div class="flex items-center gap-3">
+                                          <span class="p-2 bg-white/10 rounded-xl text-lg"><i class="fa-solid fa-file-pen text-white"></i></span>
                                           <div>
-                                              <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
-                                                  <span class="flex items-center"><i class="fa-solid fa-industry mr-2 text-purple-400"></i> Sector *</span>
+                                              <h2 class="text-sm font-black uppercase tracking-tight">Generar Ticket Manual</h2>
+                                              <p class="text-[10px] text-blue-200 mt-0.5">Describe el problema para que un técnico sea asignado.</p>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  {{-- Campos --}}
+                                  <div class="p-5 space-y-4">
+                                      {{-- Problema --}}
+                                      <div class="space-y-1">
+                                          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
+                                              <span class="flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Problema o Asunto *</span>
+                                          </label>
+                                          <input type="text" x-model="manualProblem" required placeholder="Ej. No puedo ingresar al correo corporativo"
+                                              class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none font-medium">
+                                      </div>
+                                      {{-- Descripción --}}
+                                      <div class="space-y-1">
+                                          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
+                                              <span class="flex items-center gap-1.5"><i class="fa-solid fa-align-left text-blue-400"></i> Descripción del problema *</span>
+                                          </label>
+                                          <textarea x-model="manualDescription" required rows="3" placeholder="Describe a detalle lo ocurrido..."
+                                              class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none resize-none font-medium leading-relaxed"></textarea>
+                                      </div>
+                                      {{-- Sector + Estación en grid --}}
+                                      <div class="grid grid-cols-2 gap-3">
+                                          <div class="space-y-1">
+                                              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
+                                                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-industry text-purple-400"></i> Sector *</span>
                                               </label>
-                                              <select x-model="manualSector" required class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white transition-all text-sm outline-none font-bold">
+                                              <select x-model="manualSector" required
+                                                  class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white transition-all text-xs outline-none font-bold">
                                                   <option class="bg-[#0f172a]" value="">(Seleccionar)</option>
                                                   <template x-for="sec in sectors" :key="sec.id">
                                                       <option class="bg-[#0f172a]" :value="sec.id" x-text="sec.name"></option>
                                                   </template>
                                               </select>
                                           </div>
-                                          <div><label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><span class="flex items-center"><i class="fa-solid fa-map-pin mr-2 text-rose-500"></i> Área / Estación *</span></label><input type="text" x-model="manualStation" required placeholder="Ej. Piso 2 / Estación 45" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-sm outline-none font-medium"></div>
+                                          <div class="space-y-1">
+                                              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
+                                                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-map-pin text-rose-500"></i> Área / Estación *</span>
+                                              </label>
+                                              <input type="text" x-model="manualStation" required placeholder="Ej. Estación 45"
+                                                  class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none font-medium">
+                                          </div>
                                       </div>
-                                     <div class="pt-3"><label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Adjuntar Archivos (PDF, Word, Imágenes)</label><div class="relative w-full h-16 border border-dashed border-white/10 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden"><input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" /><div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg><span>Seleccionar archivos...</span></div></div></div>
-                                     <div class="pt-4"><button @click="submitManualTicket" :disabled="!isManualReady" :class="isManualReady ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_8px_25px_rgba(37,99,235,0.4)] hover:scale-[1.01] active:scale-95' : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'" class="w-full font-bold py-4 px-6 rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2 text-sm sm:text-base border border-blue-400/20"><i class="fa-solid fa-paper-plane"></i><span>ENVIAR TICKET MANUAL</span></button></div>
-                                 </div>
-                             </div>
-                         </div>
+                                      {{-- Adjuntar Archivos --}}
+                                      <div class="space-y-1">
+                                          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">Adjuntar Archivos (PDF, Word, Imágenes)</label>
+                                          <div class="relative w-full h-12 border border-dashed border-white/10 hover:border-blue-500/50 rounded-lg bg-[#131b2f] flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                                              <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                              <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
+                                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
+                                                  <span>Seleccionar archivos...</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      {{-- Botón Enviar --}}
+                                      <button @click="submitManualTicket"
+                                          :disabled="!isManualReady"
+                                          :class="isManualReady ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_6px_20px_rgba(37,99,235,0.35)] hover:scale-[1.01] active:scale-95' : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'"
+                                          class="w-full font-black py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-xs border border-blue-400/20 uppercase tracking-widest mt-1">
+                                          <i class="fa-solid fa-paper-plane"></i>
+                                          <span>GENERAR TICKET</span>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
                          <div x-show="mode === 'intuitive'" class="w-full animate-in fade-in duration-500" style="display:none;">
                               <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-8 items-start w-full">
                                   {{-- Left Column: Stepper Indicators --}}
@@ -1195,10 +1244,21 @@
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                     Correo Electrónico
                                 </label>
-                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
-                                    <span class="text-sm font-bold text-white flex-1">{{ Auth::user()->email }}</span>
-                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">Solo lectura</span>
+                                <div class="flex gap-3">
+                                    <div class="relative flex-1">
+                                        <input type="email" wire:model="userProfileEmail" required
+                                            class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all">
+                                    </div>
+                                    <button type="button" wire:click="updateProfileEmail"
+                                        class="px-5 py-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 shrink-0">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        Guardar
+                                    </button>
                                 </div>
+                                @error('userProfileEmail') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
+                                @if(session()->has('profile_success'))
+                                    <span class="text-xs text-emerald-400 font-bold block mt-1 pl-1 animate-pulse">{{ session('profile_success') }}</span>
+                                @endif
                             </div>
 
                             {{-- Credencial / Código de acceso --}}
@@ -1732,118 +1792,155 @@
     </div>
     @endif
 
+
     {{-- MODAL: NUEVO TICKET --}}
     @if($showingNewTicket)
-    <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
-        <div class="w-full max-w-xl bg-[#0a0a1a] rounded-[3rem] border border-blue-500/20 shadow-4xl overflow-hidden pb-10">
-            <div class="p-10 flex justify-between items-center border-b border-white/5">
-                <h3 class="text-3xl font-black text-white uppercase tracking-tighter">NUEVO TICKET</h3>
-                <button wire:click="$set('showingNewTicket', false)" class="text-gray-500 hover:text-white transition-colors">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6" /></svg>
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
+        <div class="w-full max-w-xl bg-[#0a0a1a] rounded-[2rem] border border-teal-500/20 shadow-2xl flex flex-col max-h-[92vh]">
+            
+            {{-- Header --}}
+            <div class="p-6 flex justify-between items-center border-b border-white/5 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    </div>
+                    <h3 class="text-base font-black text-white uppercase tracking-tighter">Nuevo Ticket</h3>
+                </div>
+                <button wire:click="$set('showingNewTicket', false)" class="text-gray-500 hover:text-white transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <form wire:submit.prevent="createTicket" class="p-10 space-y-8">
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4 mb-2 block">Tipo de Problema</label>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button type="button" wire:click="$set('ticketCategory', 'Software'); $set('ticketSubcategory', null);" :class="$wire.ticketCategory === 'Software' ? 'bg-blue-600 border-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-white/5 border-white/5 hover:bg-white/10'" class="flex flex-col items-center justify-center p-6 rounded-2xl border transition-all">
-                            <svg class="w-8 h-8 mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                            <span class="text-white font-black uppercase tracking-widest text-[10px]">Software</span>
-                        </button>
-                        <button type="button" wire:click="$set('ticketCategory', 'Hardware'); $set('ticketSubcategory', null);" :class="$wire.ticketCategory === 'Hardware' ? 'bg-purple-600 border-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.4)]' : 'bg-white/5 border-white/5 hover:bg-white/10'" class="flex flex-col items-center justify-center p-6 rounded-2xl border transition-all">
-                            <svg class="w-8 h-8 mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            <span class="text-white font-black uppercase tracking-widest text-[10px]">Hardware</span>
-                        </button>
+
+            {{-- Scrollable form body --}}
+            <form wire:submit.prevent="createTicket" class="overflow-y-auto custom-scrollbar">
+                <div class="p-6 space-y-5">
+
+                    {{-- Tipo de Problema --}}
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Tipo de Problema</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" wire:click="$set('ticketCategory', 'Software')"
+                                :class="$wire.ticketCategory === 'Software' ? 'bg-blue-600/20 border-blue-500/50 text-blue-300' : 'bg-white/5 border-white/8 text-gray-400 hover:bg-white/8'"
+                                class="flex flex-col items-center justify-center py-5 rounded-xl border transition-all gap-2">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                <span class="font-black uppercase tracking-widest text-[10px]">Software</span>
+                            </button>
+                            <button type="button" wire:click="$set('ticketCategory', 'Hardware')"
+                                :class="$wire.ticketCategory === 'Hardware' ? 'bg-purple-600/20 border-purple-500/50 text-purple-300' : 'bg-white/5 border-white/8 text-gray-400 hover:bg-white/8'"
+                                class="flex flex-col items-center justify-center py-5 rounded-xl border transition-all gap-2">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                <span class="font-black uppercase tracking-widest text-[10px]">Hardware</span>
+                            </button>
+                        </div>
+                        @error('ticketCategory') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
-                    @error('ticketCategory') <span class="text-xs text-red-500 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
-                    
-                    {{-- Subcategory Options Modal --}}
+
+                    {{-- Subcategoría --}}
                     @if($ticketCategory)
-                    <div class="mt-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4 mb-2 block">Detalle Específico</label>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Detalle Específico</label>
+                        <div class="grid grid-cols-2 gap-3">
                             @php
-                                $options = $ticketCategory === 'Software' ? ['Problemas para iniciar sesión', 'Virus o malware', 'Aplicaciones que se congelan', 'Sistema lento', 'Otro (Software)'] : ['Impresora no imprime o atasca papel', 'Teclado no responde', 'Mouse no se mueve', 'Computadora no enciende', 'Cable de red desconectado', 'Otro (Hardware)'];
+                                $options = $ticketCategory === 'Software'
+                                    ? ['Problemas para iniciar sesión','Virus o malware','Aplicaciones que se congelan','Sistema lento','Otro (Software)']
+                                    : ['Impresora no imprime','Teclado no responde','Mouse no funciona','Computadora no enciende','Cable desconectado','Otro (Hardware)'];
                             @endphp
                             @foreach($options as $option)
                                 <button type="button" wire:click="$set('ticketSubcategory', '{{ $option }}')"
-                                    :class="$wire.ticketSubcategory === '{{ $option }}' ? 'bg-teal-500/20 text-teal-300 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.3)]' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border-transparent text-left'"
-                                    class="px-4 py-3 rounded-xl border border-white/5 text-[11px] font-bold text-center lg:text-left transition-all leading-tight">
+                                    :class="$wire.ticketSubcategory === '{{ $option }}' ? 'bg-teal-500/15 text-teal-300 border-teal-500/40 shadow-[0_0_15px_rgba(20,184,166,0.15)]' : 'bg-white/[0.03] text-gray-400 hover:bg-white/8 hover:text-white border-white/8'"
+                                    class="px-4 py-3 rounded-lg border text-[10px] font-bold text-left transition-all leading-snug">
                                     {{ $option }}
                                 </button>
                             @endforeach
                         </div>
-                        @error('ticketSubcategory') <span class="text-xs text-red-500 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
+                        @error('ticketSubcategory') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
                     @endif
-                </div>
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Título del Ticket</label>
-                    <input type="text" wire:model="ticketTitle" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all">
-                </div>
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Descripción del Problema</label>
-                    <textarea wire:model="ticketDescription" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all"></textarea>
-                </div>
-                
-                {{-- Adjuntar Archivos --}}
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Adjuntar Archivos (PDF, Word, Imágenes)</label>
-                    <div class="relative w-full h-20 border border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl bg-white/5 flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
-                        <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                        <div class="flex items-center gap-2 text-[11px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
-                            <span>Seleccionar archivos...</span>
-                        </div>
+
+                    {{-- Título --}}
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Título del Ticket</label>
+                        <input type="text" wire:model="ticketTitle" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-teal-500/60 transition-all placeholder:text-gray-600"
+                            placeholder="Describe brevemente el problema">
+                        @error('ticketTitle') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
-                    
-                    {{-- Listado de archivos cargados --}}
-                    @if(!empty($ticketFiles))
-                        <div class="space-y-2 max-h-36 overflow-y-auto custom-scrollbar">
-                            @foreach($ticketFiles as $index => $file)
-                                @if($file)
-                                <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-3 text-xs text-gray-300">
-                                    <div class="flex items-center gap-2 truncate">
-                                        <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                        <span class="truncate">{{ $file->getClientOriginalName() }}</span>
+
+                    {{-- Descripción --}}
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Descripción del Problema</label>
+                        <textarea wire:model="ticketDescription" required rows="3"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-teal-500/60 transition-all resize-none placeholder:text-gray-600"
+                            placeholder="Describe con detalle lo ocurrido..."></textarea>
+                        @error('ticketDescription') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
+                    </div>
+
+                    {{-- Adjuntar Archivos --}}
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Adjuntar Archivos (PDF, Word, Imágenes)</label>
+                        <div class="relative w-full h-14 border border-dashed border-white/10 hover:border-teal-500/40 rounded-xl bg-white/[0.03] flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                            <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10"/>
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 group-hover:text-teal-400 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1"/></svg>
+                                <span>Seleccionar archivos...</span>
+                            </div>
+                        </div>
+                        {{-- Listado de archivos --}}
+                        @if(!empty($ticketFiles))
+                            <div class="space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                                @foreach($ticketFiles as $index => $file)
+                                    @if($file)
+                                    <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-3 py-2.5 text-xs text-gray-300">
+                                        <div class="flex items-center gap-2 truncate">
+                                            <svg class="w-3.5 h-3.5 text-teal-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            <span class="truncate">{{ $file->getClientOriginalName() }}</span>
+                                        </div>
+                                        <button type="button" wire:click="removeTicketFile({{ $index }})" class="text-red-400 hover:text-red-300 ml-2 shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
                                     </div>
-                                    <button type="button" wire:click="removeTicketFile({{ $index }})" class="text-red-400 hover:text-red-300 ml-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                                    </button>
-                                </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Prioridad</label>
-                        <select wire:model="ticketPriority" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none appearance-none">
-                            @foreach($prioridades as $prioridad)
-                                <option value="{{ $prioridad->id }}">{{ $prioridad->nombre }}</option>
-                            @endforeach
-                        </select>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
-                    <div class="space-y-4">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Ubicación / Máquina</label>
-                        <select wire:model="ticketLocation" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none appearance-none">
+
+                    {{-- Ubicación / Máquina --}}
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Ubicación / Máquina</label>
+                        <select wire:model="ticketLocation" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none focus:border-teal-500/60 transition-all">
                             <option value="">(Ninguna)</option>
                             @foreach($maquinas as $maquina)
                                 <option value="{{ $maquina->id }}">{{ $maquina->nombre }}</option>
                             @endforeach
                         </select>
                     </div>
+
                 </div>
-                <div class="pt-6">
-                    <button type="submit" class="w-full py-6 bg-teal-600 hover:bg-teal-700 text-white rounded-3xl text-[12px] font-black uppercase tracking-[.4em] shadow-2xl transition-all">
-                        GENERAR TICKET
+
+                {{-- Footer con botones --}}
+                <div class="p-6 border-t border-white/5 flex gap-4 shrink-0">
+                    <button type="button" 
+                        @if($ticketCategory)
+                            wire:click="$set('ticketCategory', null)"
+                        @else
+                            wire:click="$set('showingNewTicket', false)"
+                        @endif
+                        class="flex-1 py-3.5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        Regresar
+                    </button>
+                    <button type="submit"
+                        class="flex-[2] py-3.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        Generar Ticket
                     </button>
                 </div>
             </form>
         </div>
     </div>
     @endif
+
 
     {{-- MODAL: GESTIONAR TICKET (ADMIN / AGENTE) --}}
     @if($showingAdminTicket)

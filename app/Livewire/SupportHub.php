@@ -23,6 +23,7 @@ class SupportHub extends Component
     #[Url]
     public $activeTab = 'generar_ticket'; // tickets, inventory, map, statistics, users, gestion_archivos
     public $ticketFiles = [];
+    public $userProfileEmail = '';
     public $selectedEquipmentId = null;
     public $showingDetail = false;
     
@@ -153,6 +154,10 @@ class SupportHub extends Component
             } else {
                 $this->activeTab = 'generar_ticket';
             }
+        }
+
+        if (Auth::check()) {
+            $this->userProfileEmail = Auth::user()->email;
         }
     }
 
@@ -467,6 +472,19 @@ class SupportHub extends Component
     public function deleteUser($id)
     {
         User::find($id)->delete();
+    }
+
+    public function updateProfileEmail()
+    {
+        $this->validate([
+            'userProfileEmail' => 'required|email|unique:usuarios,email,' . Auth::id(),
+        ]);
+
+        $user = Auth::user();
+        $user->email = $this->userProfileEmail;
+        $user->save();
+
+        session()->flash('profile_success', '¡Correo electrónico actualizado correctamente!');
     }
 
     public function createTicket()
