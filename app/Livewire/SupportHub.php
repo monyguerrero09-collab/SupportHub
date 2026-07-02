@@ -55,6 +55,7 @@ class SupportHub extends Component
     public $aTicketPriority = null;
     public $aTicketStatus = null;
     public $notificationsList = [];
+    public $notifCount = 0;
     public $adminTicketModel = null;
     public $aTicketAgent = null;
     public $aTicketKoment = '';
@@ -158,6 +159,16 @@ class SupportHub extends Component
 
         if (Auth::check()) {
             $this->userProfileEmail = Auth::user()->email;
+            
+            $userRole = Auth::user()->role;
+            $dismissedIds = session()->get('dismissed_notification_ids', []);
+            if ($userRole === 'user') {
+                $this->notifCount = Ticket::where('usuario_creador_id', Auth::id())
+                    ->whereNotIn('id', $dismissedIds)
+                    ->count();
+            } else {
+                $this->notifCount = Ticket::whereNotIn('id', $dismissedIds)->count();
+            }
         }
     }
 
@@ -250,6 +261,7 @@ class SupportHub extends Component
         $dismissed = session()->get('dismissed_notification_ids', []);
         $dismissed[] = (int)$id;
         session()->put('dismissed_notification_ids', array_unique($dismissed));
+        $this->notifCount = max(0, $this->notifCount - 1);
     }
 
     public function clearAllNotifications()
@@ -260,6 +272,7 @@ class SupportHub extends Component
         }
         session()->put('dismissed_notification_ids', array_unique($dismissed));
         $this->notificationsList = [];
+        $this->notifCount = 0;
     }
 
     public function updateAdminTicket()
@@ -626,8 +639,14 @@ class SupportHub extends Component
                     'read' => false
                 ])->toArray();
             }
+            $currentCount = count($this->notificationsList);
+            if ($currentCount > $this->notifCount) {
+                $this->dispatch('play-notification-sound');
+            }
+            $this->notifCount = $currentCount;
         } else {
             $this->notificationsList = [];
+            $this->notifCount = 0;
         }
 
         $tickets = Ticket::with(['estado', 'prioridad', 'creador'])->latest()->get();

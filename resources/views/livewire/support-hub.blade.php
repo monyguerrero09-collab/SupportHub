@@ -4,7 +4,9 @@
         sidebarOpen: false, 
         activeTab: @entangle('activeTab')
      }"
-     @resize.window="if(window.innerWidth < 768) sidebarOpen = false;">
+     @resize.window="if(window.innerWidth < 768) sidebarOpen = false;"
+     wire:poll.5s
+     @play-notification-sound.window="playChime()">
     
     {{-- Scripts for Charts --}}
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -2033,8 +2035,37 @@
     </div>
     @endif
 
-    {{-- Script de Partículas --}}
+    {{-- Script de Notificaciones y Partículas --}}
     <script>
+        function playChime() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const playNote = (frequency, startTime, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(frequency, startTime);
+                    
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.25, startTime + 0.03); 
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration); 
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+                
+                // Double chime sound
+                playNote(587.33, audioCtx.currentTime, 0.35); // D5
+                playNote(880.00, audioCtx.currentTime + 0.1, 0.5); // A5
+            } catch (e) {
+                console.error("Autoplay/Web Audio blocked or not supported:", e);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('particleContainer');
             if(!container) return;

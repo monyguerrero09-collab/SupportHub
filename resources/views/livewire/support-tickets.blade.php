@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.5s>
     
     {{-- Header Button --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
