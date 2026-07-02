@@ -177,10 +177,10 @@
                             Configuración
                         </button>
                         @endif
-                        <a href="/profile" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                        <button @click="activeTab = 'mi_perfil'; profileMenuOpen = false" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-gray-400 hover:bg-white/5 hover:text-white transition-all w-full">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             Mi Perfil
-                        </a>
+                        </button>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
@@ -1120,6 +1120,134 @@
                 </div>
             </template>
 
+
+            {{-- MI PERFIL - Integrated Profile View (Read-only for all roles) --}}
+            <template x-if="activeTab === 'mi_perfil'">
+                <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 max-w-2xl mx-auto">
+                    {{-- Header --}}
+                    <div class="mb-8 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-3xl font-black text-white uppercase tracking-tighter">Mi Perfil</h3>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Información de tu cuenta — solo lectura</p>
+                        </div>
+                        <button @click="activeTab = 'generar_ticket'" class="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black text-gray-400 hover:text-white uppercase tracking-widest transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                            Volver
+                        </button>
+                    </div>
+
+                    {{-- Profile Card --}}
+                    <div class="bg-[#0d0d20]/80 backdrop-blur-2xl border border-white/8 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+                        
+                        {{-- Avatar / Hero Section --}}
+                        <div class="relative px-8 pt-10 pb-8 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent border-b border-white/5">
+                            <div class="absolute inset-0 pointer-events-none">
+                                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl"></div>
+                                <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl"></div>
+                            </div>
+                            <div class="relative z-10 flex items-center gap-6">
+                                {{-- Avatar Circle --}}
+                                <div class="w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 flex items-center justify-center text-white font-black text-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-black text-white tracking-tight uppercase leading-tight">
+                                        {{ Auth::user()->name }}
+                                    </h2>
+                                    @php
+                                        $roleLabel = match(auth()->user()->role) {
+                                            'admin' => 'Administrador',
+                                            'agente' => 'Agente TI',
+                                            default => 'Operador',
+                                        };
+                                        $roleColor = match(auth()->user()->role) {
+                                            'admin' => 'text-emerald-400',
+                                            'agente' => 'text-purple-400',
+                                            default => 'text-blue-400',
+                                        };
+                                    @endphp
+                                    <p class="text-sm font-bold uppercase tracking-widest mt-1 {{ $roleColor }}">{{ $roleLabel }}</p>
+                                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">
+                                        Cuenta activa desde {{ Auth::user()->created_at ? Auth::user()->created_at->format('M Y') : 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Fields --}}
+                        <div class="p-8 space-y-5">
+
+                            {{-- Nombre --}}
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    Nombre Completo
+                                </label>
+                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
+                                    <span class="text-sm font-bold text-white flex-1">{{ Auth::user()->name }}</span>
+                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">Solo lectura</span>
+                                </div>
+                            </div>
+
+                            {{-- Email --}}
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    Correo Electrónico
+                                </label>
+                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
+                                    <span class="text-sm font-bold text-white flex-1">{{ Auth::user()->email }}</span>
+                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">Solo lectura</span>
+                                </div>
+                            </div>
+
+                            {{-- Credencial / Código de acceso --}}
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                    Credencial de Acceso
+                                </label>
+                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
+                                    <div class="flex items-center gap-3 flex-1">
+                                        <span class="font-black text-sm tracking-widest {{ $roleColor }}">
+                                            {{ Auth::user()->codigo_acceso ?? '—' }}
+                                        </span>
+                                    </div>
+                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">No editable</span>
+                                </div>
+                                <p class="text-[9px] text-gray-600 uppercase tracking-widest ml-1">
+                                    🔒 La credencial es administrada exclusivamente por el área de TI.
+                                </p>
+                            </div>
+
+                            {{-- Rol Badge --}}
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                    Rol en el Sistema
+                                </label>
+                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
+                                    <span class="text-sm font-black uppercase tracking-widest {{ $roleColor }}">{{ $roleLabel }}</span>
+                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded ml-auto">No editable</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {{-- Footer note --}}
+                        <div class="px-8 pb-8">
+                            <div class="bg-blue-600/5 border border-blue-500/10 rounded-xl p-4 flex items-start gap-3">
+                                <svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                                    Para actualizar tu información o credencial de acceso, contacta al <span class="text-blue-400 font-black">Administrador del Sistema</span> o al área de TI.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+
             {{-- ADMIN CONFIGURATION / SETTINGS --}}
             <template x-if="activeTab === 'settings'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 max-w-6xl mx-auto space-y-12">
@@ -1549,48 +1677,54 @@
     @endif
 
 
-    {{-- MODAL: USER MANAGEMENT (Edit/Create) --}}
+    {{-- MODAL: USER MANAGEMENT (Edit/Create) - Compact size --}}
     @if($showingUserModal)
-    <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
-        <div class="w-full max-w-xl bg-[#0a0a1a] rounded-[3rem] border border-blue-500/20 shadow-4xl overflow-hidden pb-10">
-            <div class="p-10 flex justify-between items-center border-b border-white/5">
-                <h3 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $selectedUserId ? 'EDITAR PERFIL' : 'NUEVO ACCESO' }}</h3>
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
+        <div class="w-full max-w-md bg-[#0a0a1a] rounded-[2rem] border border-blue-500/20 shadow-4xl overflow-y-auto max-h-[92vh]">
+            <div class="p-5 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#0a0a1a] z-10">
+                <h3 class="text-lg font-black text-white uppercase tracking-tighter">{{ $selectedUserId ? 'EDITAR USUARIO' : 'NUEVO ACCESO' }}</h3>
                 <button wire:click="$set('showingUserModal', false)" class="text-gray-500 hover:text-white transition-colors">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6" /></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
-            <form wire:submit.prevent="saveUser" class="p-10 space-y-8">
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Nombre Completo</label>
-                    <input type="text" wire:model="userName" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all" placeholder="Ej. OLVERA GUERRERO MONICA ELIZABETH">
-                    @error('userName') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
+            <form wire:submit.prevent="saveUser" class="p-5 space-y-4 pb-6">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Nombre Completo</label>
+                    <input type="text" wire:model="userName" required
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
+                        placeholder="">
+                    @error('userName') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                 </div>
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Código de Acceso (ID)</label>
-                        <input type="text" wire:model="userCodigoAcceso" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all" placeholder="Ej. OP-4444, TI-2222, AD-1111">
-                        @error('userCodigoAcceso') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Código de Acceso</label>
+                        <input type="text" wire:model="userCodigoAcceso" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
+                            placeholder="Ej. OP-0001">
+                        @error('userCodigoAcceso') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
-                    <div class="space-y-4">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Rol</label>
-                        <select wire:model="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none appearance-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Rol</label>
+                        <select wire:model="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none">
                             <option value="user">Operador</option>
                             <option value="agente">Agente TI</option>
                             <option value="admin">Administrador</option>
                         </select>
-                        @error('userRole') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
+                        @error('userRole') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest ml-4">Contraseña (Dejar vacío para usar Código)</label>
-                    <input type="password" wire:model="userPassword" placeholder="Dejar en blanco para usar el código de acceso" class="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-blue-500 transition-all">
-                    @error('userPassword') <span class="text-xs text-red-400 mt-1 font-bold ml-4">{{ $message }}</span> @enderror
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Contraseña (Opcional)</label>
+                    <input type="password" wire:model="userPassword"
+                        placeholder="Dejar en blanco para usar código de acceso"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
+                    @error('userPassword') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                 </div>
-                <div class="pt-6">
-                    <button type="submit" class="w-full py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-3xl text-[12px] font-black uppercase tracking-[.4em] shadow-2xl transition-all">
-                        {{ $selectedUserId ? 'ACTUALIZAR NEXUS' : 'REGISTRAR EN NEXUS' }}
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg transition-all">
+                        {{ $selectedUserId ? 'ACTUALIZAR' : 'REGISTRAR EN NEXUS' }}
                     </button>
                 </div>
             </form>

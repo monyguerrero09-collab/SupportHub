@@ -114,12 +114,19 @@
                             </div>
                         </div>
 
-                        {{-- Origen label --}}
-                        <div class="absolute top-4 right-4 text-[7px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded border 
-                            {{ $doc['origen'] === 'general' ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' : 
-                               ($doc['origen'] === 'tickets' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 
-                               'bg-blue-500/10 text-blue-400 border-blue-500/20') }}">
-                            {{ $doc['origen'] }}
+                        {{-- Origen label + Visibilidad badge --}}
+                        <div class="absolute top-4 right-4 flex flex-col items-end gap-1">
+                            <span class="text-[7px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded border 
+                                {{ $doc['origen'] === 'general' ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' : 
+                                   ($doc['origen'] === 'tickets' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 
+                                   'bg-blue-500/10 text-blue-400 border-blue-500/20') }}">
+                                {{ $doc['origen'] }}
+                            </span>
+                            @if(auth()->user()->role !== 'user' && isset($doc['visible_ops']))
+                            <span class="text-[7px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded border {{ $doc['visible_ops'] ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-600/10 text-gray-500 border-gray-600/20' }}">
+                                {{ $doc['visible_ops'] ? '👁️ OPS' : '🔒 Solo TI' }}
+                            </span>
+                            @endif
                         </div>
                     </div>
                     @empty
@@ -471,6 +478,31 @@
                             ></textarea>
                             @error('generalDescription') <span class="text-xs text-red-500 mt-1 font-bold ml-2 block">{{ $message }}</span> @enderror
                         </div>
+
+                        {{-- Control de Visibilidad para Operadores --}}
+                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'agente')
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-blue-500 uppercase tracking-widest ml-2">Visibilidad</label>
+                            <div class="flex items-center gap-4 bg-[#131b2f] border border-white/10 rounded-xl px-4 py-3.5">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <div class="relative cursor-pointer" @click="$wire.set('generalVisibleOperadores', !$wire.generalVisibleOperadores)">
+                                        <div class="w-12 h-6 rounded-full transition-all duration-300 {{ $generalVisibleOperadores ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-gray-700' }}">
+                                        </div>
+                                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 {{ $generalVisibleOperadores ? 'translate-x-6' : 'translate-x-0' }}">
+                                        </div>
+                                        <input type="checkbox" wire:model="generalVisibleOperadores" class="sr-only" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-white">{{ $generalVisibleOperadores ? 'Visible para Operadores' : 'Solo TI / Admin' }}</p>
+                                        <p class="text-[9px] text-gray-500 mt-0.5">{{ $generalVisibleOperadores ? 'Los operadores podrán ver y descargar este archivo' : 'Solo agentes TI y administradores tienen acceso' }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-2xl">
+                                    {{ $generalVisibleOperadores ? '👁️' : '🔒' }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
 
                         {{-- Submit Button --}}
                         <div class="pt-4 flex justify-center">

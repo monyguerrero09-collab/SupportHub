@@ -154,16 +154,6 @@
                     </label>
                 </div>
 
-                <!-- Demo Credentials helper badge -->
-                <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">
-                        Código de acceso Demo:
-                    </p>
-                    <span class="text-xs font-black select-all" 
-                          :class="selectedRole === 'Operador' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" 
-                          x-text="selectedRole === 'Operador' ? 'OP-4444' : (selectedRole === 'Agente TI' ? 'TI-2222' : 'AD-1111')">
-                    </span>
-                </div>
 
                 <!-- Submit Button -->
                 <div class="pt-2">
