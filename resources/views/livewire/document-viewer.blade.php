@@ -34,7 +34,6 @@
             </div>
 
             {{-- Filtros por Origen (Tickets, Inventario, General) --}}
-            @if(auth()->user()->role !== 'user')
             <div class="flex gap-2 p-1.5 bg-[#080816]/60 border border-white/5 rounded-2xl overflow-x-auto shrink-0 custom-scrollbar">
                 @php
                     $sources = [
@@ -53,7 +52,6 @@
                 </button>
                 @endforeach
             </div>
-            @endif
 
             {{-- Filtros por Tipo de Archivo (PDF, Imagen, Word, Texto, Otros) --}}
             <div class="flex gap-2 overflow-x-auto pb-1 shrink-0 custom-scrollbar">

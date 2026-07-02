@@ -255,7 +255,7 @@
 
                     {{-- Botón Inferior --}}
                     <div class="p-8 border-t border-white/10 bg-[#050510]/50 flex-shrink-0">
-                        <button wire:click="$dispatch('openNewTicket')" class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[.4em] shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-3">
+                        <button wire:click="$dispatch('openNewTicket', { stationId: {{ $selectedStation['db_id'] }} })" class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[.4em] shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-3">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 4v16m8-8H4"/>
                             </svg>

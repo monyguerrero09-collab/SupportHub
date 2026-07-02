@@ -12,6 +12,7 @@ use App\Models\ArchivoAdjunto;
 use Auth;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Url;
 use DB;
 
 #[Layout('layouts.blank')]
@@ -19,7 +20,8 @@ class SupportHub extends Component
 {
     use WithFileUploads;
 
-    public $activeTab = 'map'; // tickets, inventory, map, statistics, users, gestion_archivos
+    #[Url]
+    public $activeTab = 'generar_ticket'; // tickets, inventory, map, statistics, users, gestion_archivos
     public $ticketFiles = [];
     public $selectedEquipmentId = null;
     public $showingDetail = false;
@@ -40,6 +42,7 @@ class SupportHub extends Component
     public $ticketPriority = 1;
     public $ticketLocation;
     public $ticketAvailableTime;
+    public $ticketSectorId = null;
     
     // User Modal interaction
     public $userComment = '';
@@ -50,6 +53,8 @@ class SupportHub extends Component
     public $aTicketId = null;
     public $aTicketPriority = null;
     public $aTicketStatus = null;
+    public $notificationsList = [];
+    public $adminTicketModel = null;
     public $aTicketAgent = null;
     public $aTicketKoment = '';
 
@@ -129,6 +134,26 @@ class SupportHub extends Component
     public function mount() {
         $this->CATEGORIES_BY_SERVICE['ntb'] = $this->PROBLEMAS_EQUIPOS;
         $this->CATEGORIES_BY_SERVICE['wks'] = $this->PROBLEMAS_EQUIPOS;
+
+        // Load database sectors if they exist, otherwise fallback to static
+        if (\Schema::hasTable('sectors')) {
+            $dbSectors = \App\Models\Sector::all();
+            if ($dbSectors->isNotEmpty()) {
+                $this->SECTORS = $dbSectors->map(fn($s) => [
+                    'id' => $s->id,
+                    'name' => $s->nombre,
+                    'icon' => '🏢'
+                ])->toArray();
+            }
+        }
+
+        if (!request()->has('activeTab')) {
+            if (Auth::check() && in_array(Auth::user()->role, ['admin', 'agente'])) {
+                $this->activeTab = 'statistics';
+            } else {
+                $this->activeTab = 'generar_ticket';
+            }
+        }
     }
 
     // Form fields for Add Equipment (Match image "Alta de Hardware")
@@ -149,8 +174,22 @@ class SupportHub extends Component
     protected $listeners = [
         'openEquipmentDetail' => 'openEquipmentDetail',
         'openAddEquipment' => 'openAddEquipment',
-        'openNewTicket' => 'openNewTicket'
+        'openNewTicket' => 'openNewTicket',
+        'refresh-inventory' => '$refresh',
+        'viewDocument' => 'handleViewDocument'
     ];
+
+    public function handleViewDocument($uniqueId)
+    {
+        $this->activeTab = 'gestion_archivos';
+        $this->dispatch('select-document', uniqueId: $uniqueId)->to(DocumentViewer::class);
+    }
+
+    public function viewAttachment($id)
+    {
+        $this->showingDetail = false;
+        $this->handleViewDocument('tk_' . $id);
+    }
 
     public function setTab($tab)
     {
@@ -178,8 +217,9 @@ class SupportHub extends Component
 
     public function viewAdminTicket($id)
     {
-        $ticket = Ticket::find($id);
+        $ticket = Ticket::with(['creador', 'sector'])->find($id);
         if ($ticket) {
+            $this->adminTicketModel = $ticket;
             $this->aTicketId = $id;
             $this->aTicketPriority = $ticket->prioridad_id;
             $this->aTicketStatus = $ticket->estado_id;
@@ -187,6 +227,34 @@ class SupportHub extends Component
             $this->aTicketKoment = '';
             $this->showingAdminTicket = true;
         }
+    }
+
+    public function viewNotificationTicket($id)
+    {
+        if (Auth::check() && in_array(Auth::user()->role, ['admin', 'agente'])) {
+            $this->activeTab = 'tickets';
+            $this->viewAdminTicket($id);
+        } else {
+            $this->activeTab = 'mis_tickets';
+            $this->viewUserTicket($id);
+        }
+    }
+
+    public function dismissNotification($id)
+    {
+        $dismissed = session()->get('dismissed_notification_ids', []);
+        $dismissed[] = (int)$id;
+        session()->put('dismissed_notification_ids', array_unique($dismissed));
+    }
+
+    public function clearAllNotifications()
+    {
+        $dismissed = session()->get('dismissed_notification_ids', []);
+        foreach ($this->notificationsList as $notif) {
+            $dismissed[] = (int)$notif['id'];
+        }
+        session()->put('dismissed_notification_ids', array_unique($dismissed));
+        $this->notificationsList = [];
     }
 
     public function updateAdminTicket()
@@ -282,6 +350,15 @@ class SupportHub extends Component
         }
     }
 
+    public function openNewTicket($stationId = null)
+    {
+        $this->reset(['ticketCategory', 'ticketSubcategory', 'ticketDescription', 'ticketAvailableTime', 'ticketPriority', 'ticketFiles']);
+        if ($stationId) {
+            $this->ticketLocation = $stationId;
+        }
+        $this->activeTab = 'generar_ticket';
+    }
+
     public function openAddEquipment()
     {
         $this->reset(['equipmentName', 'equipmentCategory', 'equipmentModel', 'equipmentBarcode', 'equipmentPhysLocation']);
@@ -297,16 +374,29 @@ class SupportHub extends Component
             'equipmentBarcode' => 'required',
         ]);
 
+        $maquinaId = null;
+        $status = 'in-stock';
+        $installedAt = null;
+
+        if (is_numeric($this->equipmentPhysLocation)) {
+            $maquinaId = (int)$this->equipmentPhysLocation;
+            $status = 'deployed';
+            $installedAt = now();
+        }
+
         Equipment::create([
             'name' => $this->equipmentName,
             'type' => $this->equipmentCategory,
             'model' => $this->equipmentModel,
             'barcode' => $this->equipmentBarcode,
-            'status' => 'in-stock',
+            'status' => $status,
+            'maquina_id' => $maquinaId,
+            'installed_at' => $installedAt,
         ]);
 
         $this->showingAddEquipment = false;
         $this->dispatch('notify', 'Hardware registrado con éxito');
+        $this->dispatch('refresh-inventory');
     }
 
     public function openUserModal($id = null)
@@ -403,11 +493,20 @@ class SupportHub extends Component
             $finalDescription .= "\n\n[Horario Disponible Indicado por el Usuario]:\n" . $this->ticketAvailableTime;
         }
 
+        $sectorId = $this->ticketSectorId;
+        if (empty($sectorId) && !empty($this->ticketLocation)) {
+            $machine = Maquina::find($this->ticketLocation);
+            if ($machine) {
+                $sectorId = $machine->sector_id;
+            }
+        }
+
         $ticket = Ticket::create([
             'titulo' => $fullTitle,
             'descripcion' => $finalDescription,
             'prioridad_id' => $this->ticketPriority,
             'maquina_id' => $this->ticketLocation ?: null,
+            'sector_id' => $sectorId ?: null,
             'estado_id' => 1,
             'usuario_creador_id' => Auth::id(),
             'tipo_ticket_id' => 1,
@@ -443,7 +542,7 @@ class SupportHub extends Component
         }
 
         $this->showingNewTicket = false;
-        $this->reset(['ticketCategory', 'ticketSubcategory', 'ticketDescription', 'ticketAvailableTime', 'ticketPriority', 'ticketLocation', 'ticketFiles']);
+        $this->reset(['ticketCategory', 'ticketSubcategory', 'ticketDescription', 'ticketAvailableTime', 'ticketPriority', 'ticketLocation', 'ticketFiles', 'ticketSectorId']);
         $this->dispatch('ticket-created');
         
         if (Auth::user()->role === 'user') {
@@ -475,6 +574,44 @@ class SupportHub extends Component
 
     public function render()
     {
+        // Dynamic Notification List Query
+        if (Auth::check()) {
+            $userRole = Auth::user()->role;
+            $dismissedIds = session()->get('dismissed_notification_ids', []);
+            if ($userRole === 'user') {
+                $notifTickets = Ticket::where('usuario_creador_id', Auth::id())
+                    ->whereNotIn('id', $dismissedIds)
+                    ->with(['estado'])
+                    ->latest()
+                    ->take(5)
+                    ->get();
+                $this->notificationsList = $notifTickets->map(fn($t) => [
+                    'id' => $t->id,
+                    'icon' => $t->estado_id == 3 ? '✅' : ($t->estado_id == 4 ? '🔒' : '🎫'),
+                    'title' => 'Ticket #' . str_pad($t->id, 5, '0', STR_PAD_LEFT) . ' ' . ($t->estado?->nombre ?? 'Abierto'),
+                    'msg' => $t->titulo ?: $t->descripcion,
+                    'time' => $t->created_at->diffForHumans(),
+                    'read' => false
+                ])->toArray();
+            } else {
+                $notifTickets = Ticket::whereNotIn('id', $dismissedIds)
+                    ->with(['creador', 'estado'])
+                    ->latest()
+                    ->take(5)
+                    ->get();
+                $this->notificationsList = $notifTickets->map(fn($t) => [
+                    'id' => $t->id,
+                    'icon' => '🎫',
+                    'title' => 'Nuevo Ticket #' . str_pad($t->id, 5, '0', STR_PAD_LEFT),
+                    'msg' => 'De ' . ($t->creador?->nombre_completo ?? 'Sistema') . ' - ' . ($t->titulo ?: $t->descripcion),
+                    'time' => $t->created_at->diffForHumans(),
+                    'read' => false
+                ])->toArray();
+            }
+        } else {
+            $this->notificationsList = [];
+        }
+
         $tickets = Ticket::with(['estado', 'prioridad', 'creador'])->latest()->get();
         $users = User::all();
         

@@ -56,4 +56,9 @@ class Ticket extends Model
     {
         return $this->hasMany(ArchivoAdjunto::class);
     }
+
+    public function comentarios(): HasMany
+    {
+        return $this->hasMany(Comentario::class);
+    }
 }

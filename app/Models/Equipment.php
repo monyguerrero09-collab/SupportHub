@@ -12,4 +12,9 @@ class Equipment extends Model
     {
         return $this->belongsTo(Maquina::class, 'maquina_id');
     }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

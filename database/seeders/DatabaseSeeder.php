@@ -78,7 +78,18 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed Sectors first if needed (already in file above, but making sure)
-        $sectores = ['Oficina A', 'Oficina B', 'Servidores', 'Soporte'];
+        $sectores = [
+            'Administración',
+            'Producción - Compresión',
+            'Producción - Tensión',
+            'Producción - Torsión',
+            'Producción - Plat',
+            'Producción - Wire Standing',
+            'Producción - Wipers',
+            'Producción - Mecatrónicos',
+            'Producción - Welding',
+            'Producción - Bending'
+        ];
         foreach ($sectores as $sec) {
             \App\Models\Sector::firstOrCreate(['nombre' => $sec]);
         }
@@ -96,7 +107,7 @@ class DatabaseSeeder extends Seeder
                 'external_id' => $s['id'],
                 'nombre' => $s['name'],
                 'descripcion' => $s['description'],
-                'sector_id' => ($index % 4) + 1,
+                'sector_id' => ($index % 10) + 1,
                 'pos_x' => $s['pos_x'],
                 'pos_y' => $s['pos_y'],
                 'status' => $s['status'],
@@ -117,9 +128,17 @@ class DatabaseSeeder extends Seeder
             ['id' => 'INV-010', 'name' => 'CPU HP ProDesk (Nueva)', 'type' => 'CPU', 'barcode' => 'HP-PD-002', 'model' => '400 G7', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
             ['id' => 'INV-011', 'name' => 'Monitor Samsung 24"', 'type' => 'Pantalla', 'barcode' => 'SM-24-001', 'model' => 'F24T35', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
             ['id' => 'INV-012', 'name' => 'Impresora Epson EcoTank', 'type' => 'Impresora', 'barcode' => 'EP-EC-055', 'model' => 'L3250', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
+            ['id' => 'INV-013', 'name' => 'Laptop Lenovo ThinkPad', 'type' => 'Laptop', 'barcode' => 'LN-TP-088', 'model' => 'L14 Gen 2', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
+            ['id' => 'INV-014', 'name' => 'Mouse Óptico HP', 'type' => 'Mouse', 'barcode' => 'HP-MS-441', 'model' => 'M100', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
+            ['id' => 'INV-015', 'name' => 'Teclado Dell KB216', 'type' => 'Teclado', 'barcode' => 'DL-KB-901', 'model' => 'KB216', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
+            ['id' => 'INV-016', 'name' => 'UPS Koblenz 1410R', 'type' => 'UPS', 'barcode' => 'KB-UP-230', 'model' => '1410 R', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
+            ['id' => 'INV-017', 'name' => 'Monitor Dell 27"', 'type' => 'Pantalla', 'barcode' => 'DL-27-044', 'model' => 'S2721HN', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
+            ['id' => 'INV-018', 'name' => 'Impresora Zebra ZD220', 'type' => 'Impresora', 'barcode' => 'ZB-TM-552', 'model' => 'ZD220', 'status' => 'in-stock', 'stationId' => null, 'installedAt' => null],
         ];
 
         foreach ($inventoryData as $i) {
+            $minVal = $i['type'] === 'Pantalla' ? 3 : ($i['type'] === 'CPU' ? 2 : 5);
+            $maxVal = $i['type'] === 'Pantalla' ? 10 : ($i['type'] === 'CPU' ? 8 : 25);
             \App\Models\Equipment::create([
                 'name' => $i['name'],
                 'type' => $i['type'],
@@ -128,8 +147,28 @@ class DatabaseSeeder extends Seeder
                 'status' => $i['status'],
                 'maquina_id' => $i['stationId'] ? $stationMap[$i['stationId']] : null,
                 'installed_at' => $i['installedAt'],
+                'min_stock' => $minVal,
+                'max_stock' => $maxVal,
             ]);
         }
+
+        // 5. Create Sample Inventory Movements
+        \App\Models\InventoryMovement::create([
+            'action' => 'Ingreso',
+            'details' => 'Ingreso de 12 Computadoras ThinkPad L14 Gen 3 a Bodega',
+            'created_at' => '2026-05-10 10:00:00',
+        ]);
+        \App\Models\InventoryMovement::create([
+            'action' => 'Asignación',
+            'details' => 'Asignado 1 Computadora ThinkPad L14 Gen 3 a Estación de Carga A',
+            'created_at' => '2026-06-01 14:30:00',
+        ]);
+        \App\Models\InventoryMovement::create([
+            'action' => 'Retorno',
+            'details' => 'Retornado 1 Computadora ThinkPad L14 Gen 3 de Estación Recepción a Bodega',
+            'created_at' => '2026-06-15 09:15:00',
+        ]);
+
         // 5. Create Sample Tickets linked to equipment
         $firstEquipment = \App\Models\Equipment::first();
         if ($firstEquipment) {

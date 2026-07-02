@@ -210,17 +210,15 @@
                     <p class="text-[10px] text-gray-500 font-medium mt-0.5 truncate" x-show="activeTab === 'generar_ticket'">Configura los detalles de tu requerimiento técnico</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 sm:gap-3 shrink-0" x-data="{ notifOpen: false, notifications: [
-                { id: 1, icon: '🎫', title: 'Ticket #00042 actualizado', msg: 'Tu ticket fue tomado por un agente.', time: 'Hace 5 min', read: false },
-                { id: 2, icon: '✅', title: 'Ticket #00039 resuelto', msg: 'El problema fue solucionado.', time: 'Hace 1h', read: false },
-                { id: 3, icon: '💬', title: 'Nuevo comentario', msg: 'El agente dejó un mensaje en tu ticket.', time: 'Hace 3h', read: true }
-            ]}">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0" x-data="{ notifOpen: false }">
                 {{-- NOTIFICATION BELL --}}
                 <div class="relative">
                     <button @click="notifOpen = !notifOpen" @click.outside="notifOpen = false"
                             class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all relative">
                         <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                        <span x-show="notifications.some(n => !n.read)" class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-[#050510] animate-pulse"></span>
+                        @if(count($notificationsList) > 0)
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-[#050510] animate-pulse"></span>
+                        @endif
                     </button>
 
                     {{-- DROPDOWN PANEL --}}
@@ -236,29 +234,43 @@
 
                         <div class="flex items-center justify-between px-5 py-4 border-b border-white/8">
                             <h4 class="text-sm font-black text-white tracking-tight">Notificaciones</h4>
-                            <button @click="notifications = notifications.map(n => ({...n, read:true}))" class="text-[10px] font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider transition-colors">Marcar todo leído</button>
+                            @if(count($notificationsList) > 0)
+                                <button wire:click="clearAllNotifications" class="text-[10px] font-black text-rose-400 hover:text-rose-300 uppercase tracking-wider transition-colors flex items-center gap-1 focus:outline-none">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    Borrar Todo
+                                </button>
+                            @else
+                                <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Recientes</span>
+                            @endif
                         </div>
 
                         <div class="max-h-80 overflow-y-auto custom-scrollbar">
-                            <template x-for="n in notifications" :key="n.id">
-                                <div class="flex gap-3 px-4 py-3.5 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/5"
-                                     :class="!n.read ? 'bg-blue-500/5' : ''">
-                                    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
-                                         :class="!n.read ? 'bg-blue-600/20' : 'bg-white/5'">
-                                        <span x-text="n.icon"></span>
+                            @forelse($notificationsList as $notif)
+                                <div class="flex items-center justify-between gap-2 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 bg-blue-500/5 group relative">
+                                    {{-- Main clickable area --}}
+                                    <div wire:click="viewNotificationTicket({{ $notif['id'] }}); notifOpen = false" class="flex gap-3 min-w-0 flex-1 cursor-pointer">
+                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 bg-blue-600/20">
+                                            <span>{{ $notif['icon'] }}</span>
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-bold text-white truncate">{{ $notif['title'] }}</p>
+                                            <p class="text-[11px] text-gray-300 mt-0.5 leading-relaxed truncate">{{ $notif['msg'] }}</p>
+                                            <p class="text-[10px] text-gray-500 mt-1 font-medium">{{ $notif['time'] }}</p>
+                                        </div>
                                     </div>
-                                    <div class="min-w-0 flex-1">
-                                        <p class="text-xs font-bold text-white truncate" x-text="n.title"></p>
-                                        <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed" x-text="n.msg"></p>
-                                        <p class="text-[10px] text-gray-600 mt-1 font-medium" x-text="n.time"></p>
-                                    </div>
-                                    <div x-show="!n.read" class="w-2 h-2 bg-blue-500 rounded-full mt-1 shrink-0"></div>
+                                    
+                                    {{-- Delete/dismiss button --}}
+                                    <button wire:click.stop="dismissNotification({{ $notif['id'] }})"
+                                            class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors focus:outline-none shrink-0"
+                                            title="Eliminar notificación">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
                                 </div>
-                            </template>
-                        </div>
-
-                        <div class="px-5 py-3 border-t border-white/8 text-center">
-                            <button class="text-[11px] font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">Ver todas las notificaciones</button>
+                            @empty
+                                <div class="px-5 py-8 text-center text-gray-500 text-xs font-bold uppercase tracking-wider">
+                                    Sin notificaciones recientes
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -370,303 +382,538 @@
 
             {{-- Tabs for Normal User --}}
             <template x-if="activeTab === 'generar_ticket'">
-                <div class="animate-in fade-in duration-500 w-full h-full absolute inset-0 z-40 overflow-y-auto flex justify-center text-left" 
+                <div class="animate-in fade-in duration-500 w-full block text-left" 
                      style="background: linear-gradient(135deg, #020210 0%, #06051a 40%, #030318 70%, #010108 100%); position: relative;"
                      x-data="{
-                        area: null,
-                        service: null,
+                        mode: 'selection',
+                        step: 1,
+                        selectedSector: null,
+                        selectedSectorName: '',
+                        selectedArea: null,
+                        selectedAreaName: '',
+                        selectedService: null,
+                        selectedServiceName: '',
+                        selectedProblem: null,
+                        selectedProblemText: '',
+                        sectors: {{ json_encode($SECTORS) }},
+                        areas: {{ json_encode($AREAS) }},
+                        servicesByArea: {{ json_encode($SERVICES_BY_AREA) }},
+                        categoriesByService: {{ json_encode($CATEGORIES_BY_SERVICE) }},
+                        manualProblem: '',
+                        manualDescription: '',
+                        manualStation: '',
+                        manualPriority: '2',
+                        manualSector: '',
+                        showProduccionSub: false,
                         category: null,
-                        description: '',
-                        
-                        areas: [
-                            { id: 'sec', name: 'SEGURIDAD TI', icon: 'ShieldCheck' },
-                            { id: 'red', name: 'REDES/WIFI', icon: 'Globe' },
-                            { id: 'serv', name: 'ARCHIVOS', icon: 'HardDrive' },
-                            { id: 'software', name: 'SOFT Y LICENCIAS', icon: 'Cpu' },
-                            { id: 'print', name: 'IMPRESIÓN', icon: 'Printer' },
-                            { id: 'equipos', name: 'EQUIPOS', icon: 'Monitor' }
-                        ],
-                        
-                        servicesData: {
-                            sec: ['Accesos y contraseñas', 'Antivirus y amenazas', 'Phishing'],
-                            red: ['WiFi Local', 'VPN Remota', 'Cableado'],
-                            serv: ['Carpetas Compartidas', 'Permisos de OneDrive', 'Respaldos'],
-                            software: ['Instalación de App', 'Licencia Vencida', 'Sistema ERP'],
-                            print: ['Problema con Tóner', 'Atasco de Papel', 'Falla Mantenimiento'],
-                            equipos: ['Computadora PC', 'Laptop', 'Periféricos (Mouse/Teclado)']
+                        subcategory: null,
+                        intStation: '',
+                        intComment: '',
+                        maquinas: {{ json_encode($maquinas ?? []) }},
+                        findMachineId(name) {
+                            if (!name) return null;
+                            let lower = name.toLowerCase().trim();
+                            let match = this.maquinas.find(m => m.nombre.toLowerCase().includes(lower) || m.external_id.toLowerCase() === lower);
+                            return match ? match.id : null;
                         },
-                        
-                        categoriesData: {
-                            'Accesos y contraseñas': ['Olvidé mi clave', 'Usuario bloqueado'],
-                            'Antivirus y amenazas': ['Alerta de virus', 'Página bloqueada'],
-                            'Phishing': ['Correo sospechoso'],
-                            
-                            'WiFi Local': ['No conecta', 'Intermitencia', 'Muy lento'],
-                            'VPN Remota': ['No conecta desde casa', 'Se desconecta seguido'],
-                            'Cableado': ['Cable roto', 'No hay link'],
-                            
-                            'Carpetas Compartidas': ['Falta de permisos', 'No veo la carpeta'],
-                            'Permisos de OneDrive': ['No sincroniza'],
-                            'Respaldos': ['Deseo restaurar archivo'],
-                            
-                            'Instalación de App': ['Necesito instalar un programa', 'No abre sistema ERP'],
-                            'Licencia Vencida': ['Office sin licencia', 'Windows pide activación'],
-                            'Sistema ERP': ['Error 500', 'No carga módulo'],
-                            
-                            'Problema con Tóner': ['Macha hoja', 'Nivel bajo'],
-                            'Atasco de Papel': ['Atasco en bandeja 1'],
-                            'Falla Mantenimiento': ['Hace ruido extraño', 'No enciende panel'],
-                            
-                            'Computadora PC': ['No enciende', 'Pantalla Azul recurrentemente'],
-                            'Laptop': ['Batería no carga', 'No da video', 'Se reinicia sola'],
-                            'Periféricos (Mouse/Teclado)': ['No funciona clic', 'Teclas rotas']
-                        },
-
-                        get isReady() {
-                            return Boolean(this.area && this.service && this.category && this.description.trim() !== '');
-                        },
-
+                        get isManualReady() { return Boolean(this.manualProblem.trim() && this.manualDescription.trim() && this.manualStation.trim() && this.manualSector); },
+                        get isIntuitiveReady() { return Boolean(this.category && this.subcategory && this.intStation.trim()); },
                         clearAll() {
-                            this.area = null;
-                            this.service = null;
-                            this.category = null;
-                            this.description = '';
+                            this.manualProblem = ''; this.manualDescription = ''; this.manualStation = ''; this.manualPriority = '2'; this.manualSector = '';
+                            this.showProduccionSub = false;
+                            this.category = null; this.subcategory = null; this.intStation = ''; this.intComment = '';
+                            this.step = 1;
+                            this.clearStepsFrom(1);
                         },
-
-                        get areaName() { return this.areas.find(a => a.id === this.area)?.name; },
-
-                        submitTicket() {
-                            if (!this.isReady) return;
-                            $wire.set('ticketCategory', this.areaName);
-                            $wire.set('ticketSubcategory', this.service + ' -> ' + this.category);
-                            $wire.set('ticketDescription', this.description);
+                        clearStepsFrom(stepNum) {
+                            if (stepNum <= 1) {
+                                this.selectedSector = null;
+                                this.selectedSectorName = '';
+                            }
+                            if (stepNum <= 2) {
+                                this.selectedArea = null;
+                                this.selectedAreaName = '';
+                                this.category = null;
+                            }
+                            if (stepNum <= 3) {
+                                this.selectedService = null;
+                                this.selectedServiceName = '';
+                            }
+                            if (stepNum <= 4) {
+                                this.selectedProblem = null;
+                                this.selectedProblemText = '';
+                                this.subcategory = null;
+                            }
+                        },
+                        getIconClass(icon) {
+                            let map = {
+                                'ShieldCheck': 'fa-solid fa-shield-halved',
+                                'Globe': 'fa-solid fa-earth-americas',
+                                'HardDrive': 'fa-solid fa-server',
+                                'Cpu': 'fa-solid fa-microchip',
+                                'Printer': 'fa-solid fa-print',
+                                'Monitor': 'fa-solid fa-desktop',
+                                'Key': 'fa-solid fa-key',
+                                'ShieldAlert': 'fa-solid fa-shield-virus',
+                                'MailWarning': 'fa-solid fa-envelope-open-text',
+                                'Lock': 'fa-solid fa-lock',
+                                'Smartphone': 'fa-solid fa-mobile-screen-button',
+                                'Wifi': 'fa-solid fa-wifi',
+                                'Network': 'fa-solid fa-network-wired',
+                                'Shield': 'fa-solid fa-shield-halved',
+                                'Files': 'fa-solid fa-folder-tree',
+                                'Package': 'fa-solid fa-box-archive',
+                                'FileKey': 'fa-solid fa-file-signature',
+                                'FileText': 'fa-regular fa-file-lines',
+                                'Binary': 'fa-solid fa-code',
+                                'Scan': 'fa-solid fa-expand'
+                            };
+                            return map[icon] || 'fa-solid fa-circle-question';
+                        },
+                        init() {
+                            let initialLocation = $wire.get('ticketLocation');
+                            if (initialLocation) {
+                                let machine = this.maquinas.find(m => m.id == initialLocation);
+                                if (machine) {
+                                    this.manualStation = machine.nombre;
+                                    this.intStation = machine.nombre;
+                                    if (machine.sector_id) {
+                                        this.selectedSector = machine.sector_id;
+                                        let sMatch = this.sectors.find(s => s.id == machine.sector_id);
+                                        this.selectedSectorName = sMatch ? sMatch.name : '';
+                                        this.step = 2;
+                                    }
+                                }
+                            }
+                            this.$watch('$wire.ticketLocation', value => {
+                                if (value) {
+                                    let machine = this.maquinas.find(m => m.id == value);
+                                    if (machine) {
+                                        this.manualStation = machine.nombre;
+                                        this.intStation = machine.nombre;
+                                        if (machine.sector_id) {
+                                            this.selectedSector = machine.sector_id;
+                                            let sMatch = this.sectors.find(s => s.id == machine.sector_id);
+                                            this.selectedSectorName = sMatch ? sMatch.name : '';
+                                            if (this.step === 1) {
+                                                this.step = 2;
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        submitManualTicket() {
+                            if (!this.isManualReady) return;
+                            $wire.set('ticketSectorId', this.manualSector);
+                            $wire.set('ticketCategory', 'MANUAL');
+                            $wire.set('ticketSubcategory', this.manualProblem);
+                            $wire.set('ticketDescription', this.manualDescription + '\n\n[Estación/Área Ingresada]: ' + this.manualStation);
+                            $wire.set('ticketPriority', 2);
+                            let mId = this.findMachineId(this.manualStation);
+                            $wire.set('ticketLocation', mId);
+                            $wire.createTicket();
+                        },
+                        submitIntuitiveTicket() {
+                            if (!this.isIntuitiveReady) return;
+                            $wire.set('ticketSectorId', this.selectedSector);
+                            $wire.set('ticketCategory', this.category);
+                            $wire.set('ticketSubcategory', this.subcategory);
+                            let desc = 'Generado automáticamente por Botón rápido de TI.';
+                            if (this.intComment.trim()) desc += '\n\nComentario extra: ' + this.intComment;
+                            desc += '\n\n[Estación/Área Ingresada]: ' + this.intStation;
+                            $wire.set('ticketDescription', desc);
+                            let pri = 2;
+                            if (this.category === 'Seguridad TI' || this.category === 'Redes/Wifi') pri = 3;
+                            else if (this.category === 'Impresión') pri = 1;
+                            $wire.set('ticketPriority', pri);
+                            let mId = this.findMachineId(this.intStation);
+                            $wire.set('ticketLocation', mId);
                             $wire.createTicket();
                         }
                      }"
-                     @ticket-created.window="clearAll();">
-
-                     {{-- GALAXY NEBULA LAYERS (decorative, fixed to this panel) --}}
+                     @ticket-created.window="clearAll(); mode = 'selection'; step = 1; clearStepsFrom(1);">
                      <div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
                          <div style="position:absolute;width:60vw;height:60vh;top:-10vh;right:-10vw;border-radius:50%;filter:blur(90px);background:radial-gradient(circle, rgba(45,27,150,0.25) 0%, rgba(30,15,100,0.1) 40%, transparent 70%);animation:nebulaDrift 28s ease-in-out infinite alternate;"></div>
                          <div style="position:absolute;width:50vw;height:50vh;bottom:-10vh;left:-5vw;border-radius:50%;filter:blur(80px);background:radial-gradient(circle, rgba(10,50,150,0.2) 0%, transparent 70%);animation:nebulaDrift 22s ease-in-out infinite alternate;animation-delay:-10s;"></div>
                          <div style="position:absolute;width:40vw;height:40vh;top:40vh;left:40vw;border-radius:50%;filter:blur(100px);background:radial-gradient(circle, rgba(80,20,120,0.15) 0%, transparent 70%);animation:nebulaDrift 35s ease-in-out infinite alternate;animation-delay:-5s;"></div>
-                         <!-- Star dust grid -->
                          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px);background-size:70px 70px;opacity:0.08;"></div>
                          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.7) 1.5px, transparent 1.5px);background-size:130px 130px;background-position:35px 35px;opacity:0.06;"></div>
                      </div>
-                     
-                     <div class="max-w-[1300px] w-full px-4 sm:px-6 py-5 md:px-8 flex flex-col" style="min-height: 100%; position: relative; z-index: 2;">
-                         
-                         {{-- SUBTITLE ONLY (title is in header already) --}}
-                         <div class="mb-4 shrink-0">
-                            <p class="text-gray-500 font-medium text-[12px]">Selecciona el área, servicio e incidencia, luego describe el problema.</p>
-                         </div>
-
-                         {{-- RESPONSIVE TWO-COLUMN LAYOUT: stacks on mobile --}}
-                         <div class="flex-1 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 pb-6 sm:pb-8 min-h-0 min-w-0 w-full">
-                             
-                             {{-- LEFT: DARK GALAXY INTERACTION CONTAINER --}}
-                             <div class="flex-1 min-w-0 rounded-2xl border border-white/8 p-4 sm:p-6 flex flex-col overflow-hidden transition-all duration-300" style="background: rgba(10,12,30,0.7); backdrop-filter: blur(20px); min-height: 380px;">
-                                 
-                                 <div class="shrink-0 mb-4 pb-4 border-b border-white/10">
-                                     <h2 class="text-lg sm:text-xl font-[800] text-white tracking-tight mb-1">
-                                         <span x-show="!area">Selecciona el Área</span>
-                                         <span x-show="area && !service">Selecciona el Servicio</span>
-                                         <span x-show="area && service && !category">Selecciona la Incidencia</span>
-                                         <span x-show="area && service && category">¡Listo! Revisa tu selección →</span>
-                                     </h2>
-                                     <p class="text-gray-500 text-sm">
-                                         <span x-show="!category" class="select-none">Haz clic en una opción para continuar</span>
-                                         <span x-show="category" class="select-none">Redacta el comentario en el panel de la derecha.</span>
-                                     </p>
-                                 </div>
-
-                                 <div class="flex-1 overflow-y-auto pb-2 custom-scrollbar">
-                                     {{-- STEP 1: AREAS GRID - DARK GALAXY STYLE --}}
-                                     <div x-show="!area" class="grid grid-cols-2 sm:grid-cols-3 gap-3 animate-in fade-in duration-300">
-                                         <template x-for="a in areas" :key="a.id">
-                                             <button 
-                                                 @click="area = a.id; service = null; category = null;"
-                                                 class="rounded-2xl border border-white/10 hover:border-blue-500/60 hover:shadow-[0_0_20px_rgba(37,99,235,0.15)] transition-all text-center flex flex-col items-center justify-center gap-3 p-4 group outline-none focus:border-blue-500/60"
-                                                 style="background: rgba(255,255,255,0.04); aspect-ratio: 4/3;"
-                                             >
-                                                 <div class="text-gray-400 group-hover:text-blue-400 transition-colors duration-200 group-hover:scale-110 transform">
-                                                     <svg x-show="a.icon === 'ShieldCheck'" class="w-9 h-9 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                                                     <svg x-show="a.icon === 'Globe'" class="w-9 h-9 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                                                     <svg x-show="a.icon === 'HardDrive'" class="w-9 h-9 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-                                                     <svg x-show="a.icon === 'Cpu'" class="w-9 h-9 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg>
-                                                     <svg x-show="a.icon === 'Printer'" class="w-9 h-9 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-                                                     <svg x-show="a.icon === 'Monitor'" class="w-9 h-9 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                                                 </div>
-                                                 <span class="text-[10px] font-[700] text-gray-300 uppercase leading-tight" x-text="a.name"></span>
-                                             </button>
-                                         </template>
-                                     </div>
-
-                                     {{-- STEP 2: SERVICES LIST --}}
-                                     <div x-show="area && !service" style="display:none;" class="animate-in fade-in duration-300">
-                                         <button @click="area = null" class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-widest text-gray-500 hover:text-blue-400 font-bold transition group select-none outline-none">
-                                             <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                                             Volver
-                                         </button>
-                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                             <template x-for="(s, index) in servicesData[area]" :key="s">
-                                                 <button 
-                                                     @click="service = s; category = null;"
-                                                     class="px-4 py-3.5 rounded-xl border border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all text-left flex items-center justify-between group outline-none"
-                                                     style="background: rgba(255,255,255,0.04);"
-                                                 >
-                                                    <div class="font-[600] text-gray-200 text-sm" x-text="s"></div>
-                                                    <svg class="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                                                 </button>
-                                             </template>
+                     <div class="max-w-[1200px] w-full px-4 sm:px-6 py-6 md:px-8 mx-auto relative z-20">
+                         <div x-show="mode === 'selection'" class="w-full max-w-4xl text-center py-8 animate-in fade-in duration-300">
+                             <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight uppercase">¿Cómo deseas generar tu ticket?</h2>
+                             <p class="text-gray-400 max-w-lg mx-auto mb-12 text-sm sm:text-base">Selecciona el método que mejor se adapte a tu reporte de tecnología.</p>
+                             <div class="grid md:grid-cols-2 gap-8 px-4">
+                                 <button @click="mode = 'manual'" class="group text-left bg-[#1a1a2e]/40 border-2 border-white/5 hover:border-blue-500/50 rounded-[2rem] p-8 shadow-2xl hover:shadow-[0_0_40px_rgba(37,99,235,0.25)] transition-all duration-300 focus:outline-none relative overflow-hidden flex flex-col justify-between h-80 backdrop-blur-md">
+                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] group-hover:bg-blue-500/5 rounded-bl-full transition-colors duration-300 -z-0"></div>
+                                     <div class="relative z-10">
+                                         <div class="w-16 h-16 bg-white/5 group-hover:bg-blue-600 text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 mb-6 shadow-sm border border-white/10 group-hover:border-transparent">
+                                             <i class="fa-solid fa-file-signature"></i>
                                          </div>
+                                         <h3 class="text-xl sm:text-2xl font-black text-white mb-3 group-hover:text-blue-400 transition-colors uppercase tracking-tight">Modo Manual</h3>
+                                         <p class="text-gray-400 text-sm leading-relaxed font-medium">Escribe detalladamente todo el problema que ocurrió con tus equipos o software. Ideal para fallos únicos o situaciones complejas que requieran explicaciones minuciosas.</p>
                                      </div>
-
-                                     {{-- STEP 3: CATEGORIES LIST --}}
-                                     <div x-show="area && service && !category" style="display:none;" class="animate-in fade-in duration-300">
-                                         <button @click="service = null" class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-widest text-gray-500 hover:text-blue-400 font-bold transition group select-none outline-none">
-                                             <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                                             Volver
-                                         </button>
-                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                             <template x-for="(c, index) in (categoriesData[service] || ['Falla General', 'Otro problema'])" :key="c">
-                                                 <button 
-                                                     @click="category = c"
-                                                     class="px-4 py-3.5 rounded-xl border border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all text-left flex items-center justify-between group outline-none"
-                                                     style="background: rgba(255,255,255,0.04);"
-                                                 >
-                                                    <div class="font-[600] text-gray-200 text-sm" x-text="c"></div>
-                                                    <svg class="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                                                 </button>
-                                             </template>
-                                         </div>
-                                     </div>
-
-                                     {{-- STEP 4: CONFIRMED --}}
-                                     <div x-show="area && service && category" style="display:none;" class="animate-in fade-in duration-400">
-                                         <button @click="category = null" class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-widest text-gray-500 hover:text-blue-400 font-bold transition group select-none outline-none">
-                                             <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                                             Cambiar Incidencia
-                                         </button>
-                                         <div class="flex flex-col items-center text-center py-6">
-                                            <div class="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mb-4 relative">
-                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                            </div>
-                                            <h3 class="text-lg font-[800] text-white">¡Selección Completa!</h3>
-                                            <p class="text-gray-500 text-sm mt-1 mb-5">Redacta el comentario en el panel de la derecha y envía.</p>
-                                            <div class="w-full space-y-2">
-                                                <p class="text-[10px] text-gray-600 uppercase tracking-widest mb-2 text-left">Frases rápidas:</p>
-                                                <template x-for="text in ['El problema ocurrió de repente, necesito apoyo urgente.', 'El error aparece tal como fue descrito arriba.']" :key="text">
-                                                    <button @click="description = text" class="w-full text-left px-4 py-2.5 rounded-xl border border-white/10 text-gray-400 text-xs hover:text-blue-300 hover:border-blue-500/40 transition-all" style="background:rgba(255,255,255,0.04);">
-                                                        <span x-text="text"></span>
-                                                    </button>
-                                                </template>
-                                            </div>
-                                         </div>
-                                     </div>
-
-                                 </div>
-                             </div>
-
-                             {{-- RIGHT: DARK TICKET PREVIEW CARD --}}
-                             <div class="w-full lg:w-[350px] xl:w-[400px] shrink-0 bg-[#0b1221] rounded-[1.5rem] p-5 sm:p-6 lg:p-8 shadow-[0_20px_50px_rgba(15,23,42,0.3)] flex flex-col overflow-y-auto custom-scrollbar-dark relative border border-[#1e293b]/50 transition-all duration-300 transform" :class="isReady ? 'scale-[1.01] shadow-[0_30px_60px_rgba(15,23,42,0.6)] border-indigo-500/30' : ''" style="min-height: 300px; max-height: 70vh;">
-                                 
-                                 {{-- TICKET HEADER --}}
-                                 <div class="flex justify-between items-center pb-8 border-b border-[#1e293b] mb-8 shrink-0">
-                                     <div class="flex items-center gap-3">
-                                         <div class="w-10 h-10 flex justify-center items-center bg-[#1e293b] rounded-xl text-[#3b82f6]">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                                         </div>
-                                         <h3 class="text-[20px] font-[800] text-white tracking-tight">Detalle Ticket</h3>
-                                     </div>
-                                 </div>
-
-                                 <div class="space-y-6 flex-1 flex flex-col">
-                                     
-                                     {{-- 1. AREA --}}
-                                     <div>
-                                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Área Seleccionada</label>
-                                         <div class="w-full bg-[#131b2f] border border-[#1e293b]/50 rounded-[0.75rem] px-5 h-[52px] flex items-center text-[13px] font-[600] transition-colors"
-                                              :class="area ? 'text-white border-[#334155]/80' : 'text-slate-600'">
-                                             <span x-text="areaName || 'Pendiente...'"></span>
-                                         </div>
-                                     </div>
-
-                                     {{-- 2. SERVICIO --}}
-                                     <div>
-                                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Servicio / Motivo</label>
-                                         <div class="w-full bg-[#131b2f] border border-[#1e293b]/50 rounded-[0.75rem] px-5 h-[52px] flex items-center text-[13px] font-[600] transition-colors"
-                                             :class="service ? 'text-white border-[#334155]/80' : 'text-slate-600'">
-                                             <span x-text="service || 'Esperando servicio...'"></span>
-                                         </div>
-                                     </div>
-
-                                     {{-- 3. INCIDENCIA --}}
-                                     <div>
-                                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Incidencia</label>
-                                         <div class="w-full border rounded-[0.75rem] px-5 h-[52px] flex items-center text-[13px] font-[600] transition-all duration-300"
-                                            :class="category ? 'border-[#3b82f6] bg-[#1e3a8a]/20 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]' : 'border-[#1e293b]/50 bg-[#131b2f] text-slate-600'">
-                                             <span x-text="category || 'Esperando problema...'"></span>
-                                         </div>
-                                     </div>
-
-                                     {{-- 4. COMENTARIO --}}
-                                     <div class="flex-1 flex flex-col pt-1">
-                                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Comentario</label>
-                                         <textarea 
-                                             x-model="description"
-                                             placeholder="Describe aquí lo ocurrido..."
-                                             class="w-full flex-1 min-h-[140px] bg-[#131b2f] border border-[#1e293b]/50 rounded-[0.75rem] p-5 text-[14px] text-white font-[500] focus:outline-none focus:border-[#3b82f6] shadow-sm resize-none transition-all placeholder:text-slate-600 focus:bg-[#162035] leading-relaxed"
-                                         ></textarea>
-                                     </div>
-
-                                     {{-- Adjuntar Archivos --}}
-                                     <div class="pt-3">
-                                         <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Adjuntar Archivos (PDF, Word, Imágenes)</label>
-                                         <div class="relative w-full h-16 border border-dashed border-[#1e293b]/80 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
-                                             <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                                             <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 group-hover:text-blue-400 transition-colors">
-                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
-                                                 <span>Seleccionar archivos...</span>
-                                             </div>
-                                         </div>
-                                         
-                                         {{-- Listado de archivos cargados --}}
-                                         @if(!empty($ticketFiles))
-                                             <div class="mt-2.5 space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
-                                                 @foreach($ticketFiles as $index => $file)
-                                                     @if($file)
-                                                     <div class="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-2 text-[10px] text-slate-300">
-                                                         <div class="flex items-center gap-2 truncate">
-                                                             <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                                             <span class="truncate">{{ $file->getClientOriginalName() }}</span>
-                                                         </div>
-                                                         <button type="button" wire:click="removeTicketFile({{ $index }})" class="text-red-400 hover:text-red-300 ml-2">
-                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                                                         </button>
-                                                     </div>
-                                                     @endif
-                                                 @endforeach
-                                             </div>
-                                         @endif
-                                     </div>
-                                 </div>
-
-                                 {{-- SUBMIT BUTTON (Matches bottom paper airplane button from mock) --}}
-                                 <button 
-                                     @click="submitTicket"
-                                     :disabled="!isReady"
-                                     :class="isReady ? 'bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-[0_8px_25px_rgba(37,99,235,0.4)]' : 'bg-[#1e293b]/50 text-slate-500 cursor-not-allowed border border-[#334155]/20'"
-                                     class="mt-8 w-full h-[54px] rounded-[0.75rem] flex items-center justify-center gap-3 font-bold text-[13px] tracking-wide transition-all duration-300 shrink-0"
-                                 >
-                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                                     <span class="mt-0.5">Generar Ticket</span>
+                                     <div class="relative z-10 flex items-center text-blue-400 font-bold text-xs uppercase tracking-wider mt-4">Redactar problema <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i></div>
                                  </button>
-
+                                 <button @click="mode = 'intuitive'" class="group text-left bg-[#1a1a2e]/40 border-2 border-white/5 hover:border-blue-500/50 rounded-[2rem] p-8 shadow-2xl hover:shadow-[0_0_40px_rgba(37,99,235,0.25)] transition-all duration-300 focus:outline-none relative overflow-hidden flex flex-col justify-between h-80 backdrop-blur-md">
+                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] group-hover:bg-blue-500/5 rounded-bl-full transition-colors duration-300 -z-0"></div>
+                                     <div class="relative z-10">
+                                         <div class="w-16 h-16 bg-white/5 group-hover:bg-blue-600 text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 mb-6 shadow-sm border border-white/10 group-hover:border-transparent">
+                                             <i class="fa-solid fa-circle-nodes"></i>
+                                         </div>
+                                         <h3 class="text-xl sm:text-2xl font-black text-white mb-3 group-hover:text-blue-400 transition-colors uppercase tracking-tight">Modo Botones</h3>
+                                         <p class="text-gray-400 text-sm leading-relaxed font-medium">Selecciona los problemas más frecuentes en el área de TI mediante botones dinámicos clasificados. ¡Genera tu ticket con solo un par de clics y sin escribir de más!</p>
+                                     </div>
+                                     <div class="relative z-10 flex items-center text-blue-400 font-bold text-xs uppercase tracking-wider mt-4">Seleccionar botones rápidos <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i></div>
+                                 </button>
                              </div>
-
+                             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-16 flex items-center justify-center gap-2"><i class="fa-solid fa-shield-halved text-blue-500"></i> Tu información y reportes están resguardados por el equipo de TI corporativo</p>
                          </div>
+                         <div x-show="mode === 'manual'" class="w-full max-w-2xl mx-auto animate-in fade-in duration-300" style="display:none;">
+                             <button @click="mode = 'selection'" class="mb-6 flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-2 text-sm"></i> Volver a la selección</button>
+                             <div class="bg-[#0b1221]/90 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden">
+                                 <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 sm:p-8"><div class="flex items-center space-x-3"><span class="p-3 bg-white/10 rounded-2xl text-2xl"><i class="fa-solid fa-file-pen text-white"></i></span><div><h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight">Generar Ticket Manual</h2><p class="text-xs text-blue-200 mt-1">Escribe los detalles tecnológicos para que un técnico sea asignado.</p></div></div></div>
+                                 <div class="p-6 sm:p-8 space-y-6">
+                                     <div><label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><span class="flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i> Problema o Asunto *</span></label><input type="text" x-model="manualProblem" required placeholder="Ej. No puedo ingresar al correo corporativo" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-sm outline-none font-medium"></div>
+                                     <div><label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><span class="flex items-center"><i class="fa-solid fa-align-left mr-2 text-blue-400"></i> Descripción del problema *</span></label><textarea x-model="manualDescription" required rows="4" placeholder="Describe a detalle lo ocurrido..." class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-sm outline-none resize-none font-medium leading-relaxed"></textarea></div>
+                                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                          <div>
+                                              <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                                                  <span class="flex items-center"><i class="fa-solid fa-industry mr-2 text-purple-400"></i> Sector *</span>
+                                              </label>
+                                              <select x-model="manualSector" required class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white transition-all text-sm outline-none font-bold">
+                                                  <option class="bg-[#0f172a]" value="">(Seleccionar)</option>
+                                                  <template x-for="sec in sectors" :key="sec.id">
+                                                      <option class="bg-[#0f172a]" :value="sec.id" x-text="sec.name"></option>
+                                                  </template>
+                                              </select>
+                                          </div>
+                                          <div><label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><span class="flex items-center"><i class="fa-solid fa-map-pin mr-2 text-rose-500"></i> Área / Estación *</span></label><input type="text" x-model="manualStation" required placeholder="Ej. Piso 2 / Estación 45" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-sm outline-none font-medium"></div>
+                                      </div>
+                                     <div class="pt-3"><label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Adjuntar Archivos (PDF, Word, Imágenes)</label><div class="relative w-full h-16 border border-dashed border-white/10 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden"><input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" /><div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg><span>Seleccionar archivos...</span></div></div></div>
+                                     <div class="pt-4"><button @click="submitManualTicket" :disabled="!isManualReady" :class="isManualReady ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_8px_25px_rgba(37,99,235,0.4)] hover:scale-[1.01] active:scale-95' : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'" class="w-full font-bold py-4 px-6 rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2 text-sm sm:text-base border border-blue-400/20"><i class="fa-solid fa-paper-plane"></i><span>ENVIAR TICKET MANUAL</span></button></div>
+                                 </div>
+                             </div>
+                         </div>
+                         <div x-show="mode === 'intuitive'" class="w-full animate-in fade-in duration-500" style="display:none;">
+                              <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-8 items-start w-full">
+                                  {{-- Left Column: Stepper Indicators --}}
+                                  <div class="col-span-1 md:col-span-1 lg:col-span-3 flex flex-col gap-6 py-4">
+                                      <div class="space-y-6">
+                                          <!-- Step 1: SECTOR -->
+                                          <div class="flex items-center space-x-4 cursor-pointer group" @click="if(step > 1) { step = 1; clearStepsFrom(1); }">
+                                              <div class="relative flex items-center justify-center">
+                                                  <!-- Connector line -->
+                                                  <div class="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-white/5 -z-10"></div>
+                                                  
+                                                  <div x-show="step > 1" class="w-10 h-10 rounded-full bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition-all duration-300">
+                                                      <i class="fa-solid fa-check text-sm"></i>
+                                                  </div>
+                                                  <div x-show="step === 1" class="w-10 h-10 rounded-full bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      1
+                                                  </div>
+                                                  <div x-show="step < 1" class="w-10 h-10 rounded-full bg-[#131b2f] border border-white/5 text-gray-600 flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      1
+                                                  </div>
+                                              </div>
+                                              <div>
+                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 1 ? 'text-white' : 'text-gray-500'">SECTOR</p>
+                                                  <p x-show="step === 1" class="text-[9px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">Paso Actual</p>
+                                              </div>
+                                          </div>
+                                          
+                                          <!-- Step 2: ÁREA -->
+                                          <div class="flex items-center space-x-4 cursor-pointer group" @click="if(step > 2) { step = 2; clearStepsFrom(2); }">
+                                              <div class="relative flex items-center justify-center">
+                                                  <div class="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-white/5 -z-10"></div>
+                                                  
+                                                  <div x-show="step > 2" class="w-10 h-10 rounded-full bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition-all duration-300">
+                                                      <i class="fa-solid fa-check text-sm"></i>
+                                                  </div>
+                                                  <div x-show="step === 2" class="w-10 h-10 rounded-full bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      2
+                                                  </div>
+                                                  <div x-show="step < 2" class="w-10 h-10 rounded-full bg-[#131b2f] border border-white/5 text-gray-600 flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      2
+                                                  </div>
+                                              </div>
+                                              <div>
+                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 2 ? 'text-white' : 'text-gray-500'">ÁREA</p>
+                                                  <p x-show="step === 2" class="text-[9px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">Paso Actual</p>
+                                              </div>
+                                          </div>
+
+                                          <!-- Step 3: SERVICIO -->
+                                          <div class="flex items-center space-x-4 cursor-pointer group" @click="if(step > 3) { step = 3; clearStepsFrom(3); }">
+                                              <div class="relative flex items-center justify-center">
+                                                  <div class="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-white/5 -z-10"></div>
+                                                  
+                                                  <div x-show="step > 3" class="w-10 h-10 rounded-full bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition-all duration-300">
+                                                      <i class="fa-solid fa-check text-sm"></i>
+                                                  </div>
+                                                  <div x-show="step === 3" class="w-10 h-10 rounded-full bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      3
+                                                  </div>
+                                                  <div x-show="step < 3" class="w-10 h-10 rounded-full bg-[#131b2f] border border-white/5 text-gray-600 flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      3
+                                                  </div>
+                                              </div>
+                                              <div>
+                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 3 ? 'text-white' : 'text-gray-500'">SERVICIO</p>
+                                                  <p x-show="step === 3" class="text-[9px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">Paso Actual</p>
+                                              </div>
+                                          </div>
+
+                                          <!-- Step 4: PROBLEMA -->
+                                          <div class="flex items-center space-x-4 cursor-pointer group" @click="if(step > 4) { step = 4; clearStepsFrom(4); }">
+                                              <div class="relative flex items-center justify-center">
+                                                  <div class="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-white/5 -z-10"></div>
+                                                  
+                                                  <div x-show="step > 4" class="w-10 h-10 rounded-full bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition-all duration-300">
+                                                      <i class="fa-solid fa-check text-sm"></i>
+                                                  </div>
+                                                  <div x-show="step === 4" class="w-10 h-10 rounded-full bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      4
+                                                  </div>
+                                                  <div x-show="step < 4" class="w-10 h-10 rounded-full bg-[#131b2f] border border-white/5 text-gray-600 flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      4
+                                                  </div>
+                                              </div>
+                                              <div>
+                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 4 ? 'text-white' : 'text-gray-500'">PROBLEMA</p>
+                                                  <p x-show="step === 4" class="text-[9px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">Paso Actual</p>
+                                              </div>
+                                          </div>
+
+                                          <!-- Step 5: SOLICITUD -->
+                                          <div class="flex items-center space-x-4 cursor-pointer group" @click="if(step > 5) { step = 5; clearStepsFrom(5); }">
+                                              <div class="relative flex items-center justify-center">
+                                                  <div x-show="step > 5" class="w-10 h-10 rounded-full bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition-all duration-300">
+                                                      <i class="fa-solid fa-check text-sm"></i>
+                                                  </div>
+                                                  <div x-show="step === 5" class="w-10 h-10 rounded-full bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      5
+                                                  </div>
+                                                  <div x-show="step < 5" class="w-10 h-10 rounded-full bg-[#131b2f] border border-white/5 text-gray-600 flex items-center justify-center font-black text-sm transition-all duration-300">
+                                                      5
+                                                  </div>
+                                              </div>
+                                              <div>
+                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 5 ? 'text-white' : 'text-gray-500'">SOLICITUD</p>
+                                                  <p x-show="step === 5" class="text-[9px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">Paso Actual</p>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                                  {{-- Right Column: Active Step Card --}}
+                                  <div class="col-span-1 md:col-span-3 lg:col-span-9 bg-[#0b0c16]/80 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl border border-white/5 flex flex-col min-h-[500px] justify-between relative overflow-hidden">
+                                      <div class="absolute -right-24 -bottom-24 w-80 h-80 bg-blue-600/5 rounded-full blur-[80px] pointer-events-none"></div>
+                                      
+                                      <div class="w-full">
+                                          {{-- Step Header --}}
+                                          <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-8 tracking-tight"
+                                              x-text="step === 1 ? 'Seleccione un sector...' : (step === 2 ? 'Seleccione un área de servicios...' : (step === 3 ? 'Seleccione un servicio...' : (step === 4 ? 'Seleccione el problema...' : 'Detalles de la solicitud...')))">
+                                          </h2>
+
+                                          {{-- STEP 1: SECTORS --}}
+                                          <div x-show="step === 1" class="animate-in fade-in duration-300">
+                                              <div x-show="!showProduccionSub" class="grid grid-cols-1 sm:grid-cols-2 gap-8 py-4">
+                                                  <!-- Button 1: Administración -->
+                                                  <button @click="
+                                                      let adminSector = sectors.find(s => s.name === 'Administración');
+                                                      if (adminSector) {
+                                                          selectedSector = adminSector.id;
+                                                          selectedSectorName = adminSector.name;
+                                                          $wire.set('ticketSectorId', adminSector.id);
+                                                          step = 2;
+                                                      }
+                                                  "
+                                                  class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
+                                                      <div class="w-14 h-14 bg-blue-600/10 text-blue-400 group-hover:bg-blue-600 group-hover:text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 shrink-0">
+                                                          💼
+                                                      </div>
+                                                      <div>
+                                                          <span class="font-extrabold text-white text-lg block group-hover:text-blue-400 transition-colors">Administración</span>
+                                                          <span class="text-gray-400 text-xs mt-1 block font-medium">Oficinas y departamentos administrativos</span>
+                                                      </div>
+                                                  </button>
+
+                                                  <!-- Button 2: Producción -->
+                                                  <button @click="showProduccionSub = true"
+                                                  class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
+                                                      <div class="w-14 h-14 bg-purple-600/10 text-purple-400 group-hover:bg-purple-600 group-hover:text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 shrink-0">
+                                                          🏭
+                                                      </div>
+                                                      <div>
+                                                          <span class="font-extrabold text-white text-lg block group-hover:text-purple-400 transition-colors">Producción</span>
+                                                          <span class="text-gray-400 text-xs mt-1 block font-medium">Áreas operativas y maquinaria industrial</span>
+                                                      </div>
+                                                  </button>
+                                              </div>
+
+                                              <!-- Sub-menu for Producción -->
+                                              <div x-show="showProduccionSub" class="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-6">
+                                                  <button @click="showProduccionSub = false" class="flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors mb-4 focus:outline-none">
+                                                      <i class="fa-solid fa-chevron-left mr-2 text-sm"></i> Volver a sectores
+                                                  </button>
+                                                  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                                      <template x-for="prodSecName in ['Compresión', 'Tensión', 'Torsión', 'Plat', 'Wire Standing', 'Wipers', 'Mecatrónicos', 'Welding', 'Bending']">
+                                                          <button @click="
+                                                              let fullName = 'Producción - ' + prodSecName;
+                                                              let dbSec = sectors.find(s => s.name === fullName);
+                                                              if (dbSec) {
+                                                                  selectedSector = dbSec.id;
+                                                                  selectedSectorName = dbSec.name;
+                                                                  $wire.set('ticketSectorId', dbSec.id);
+                                                                  step = 2;
+                                                              }
+                                                          "
+                                                          class="group p-5 rounded-2xl bg-[#14142b]/40 border border-white/5 hover:border-purple-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between outline-none">
+                                                              <span class="font-bold text-white text-sm group-hover:text-purple-400 transition-colors" x-text="prodSecName"></span>
+                                                              <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-purple-400 transition-colors text-sm"></i>
+                                                          </button>
+                                                      </template>
+                                                  </div>
+                                              </div>
+                                          </div>
+
+                                          {{-- STEP 2: AREAS --}}
+                                          <div x-show="step === 2" class="animate-in fade-in duration-300">
+                                              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                                                  <template x-for="area in areas" :key="area.id">
+                                                      <button @click="selectedArea = area.id; selectedAreaName = area.name; step = 3;"
+                                                              class="group p-8 rounded-2xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/30 hover:bg-[#1a1a36]/50 transition-all duration-300 hover:scale-[1.02] flex flex-col items-center text-center justify-center min-h-[190px] outline-none">
+                                                          <div class="w-14 h-14 rounded-2xl bg-blue-600/10 text-blue-500 group-hover:text-blue-400 flex items-center justify-center text-3xl mb-5 transition-all duration-300 border border-blue-500/10">
+                                                              <i :class="getIconClass(area.icon)"></i>
+                                                          </div>
+                                                          <span class="font-bold text-white text-sm block tracking-wide group-hover:text-blue-400 transition-colors" x-text="area.name"></span>
+                                                          <span class="text-gray-500 text-[10px] mt-2 block font-normal" x-text="area.services + ' Servicios'"></span>
+                                                      </button>
+                                                  </template>
+                                              </div>
+                                          </div>
+
+                                          {{-- STEP 3: SERVICES --}}
+                                          <div x-show="step === 3" class="animate-in fade-in duration-300">
+                                              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                                  <template x-for="serv in (servicesByArea[selectedArea] || [])" :key="serv.id">
+                                                      <button @click="selectedService = serv.id; selectedServiceName = serv.name; step = 4;"
+                                                              class="group p-6 rounded-2xl bg-[#14142b]/40 border-2 border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex items-start space-x-4 outline-none">
+                                                          <div class="w-12 h-12 bg-blue-600/10 text-blue-400 group-hover:bg-blue-600 group-hover:text-white rounded-xl flex items-center justify-center text-2xl transition-all duration-300 shrink-0">
+                                                              <i :class="getIconClass(serv.icon)"></i>
+                                                          </div>
+                                                          <div>
+                                                              <span class="font-extrabold text-white text-base block group-hover:text-blue-400 transition-colors" x-text="serv.name"></span>
+                                                              <span class="text-gray-400 text-xs mt-1.5 block leading-normal" x-text="serv.description"></span>
+                                                          </div>
+                                                      </button>
+                                                  </template>
+                                              </div>
+                                          </div>
+
+                                          {{-- STEP 4: PROBLEMS --}}
+                                          <div x-show="step === 4" class="animate-in fade-in duration-300">
+                                              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                  <template x-for="prob in (categoriesByService[selectedService] || [])" :key="prob.id">
+                                                      <button @click="selectedProblem = prob.id; selectedProblemText = prob.name; step = 5;"
+                                                              class="group p-5 rounded-xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between outline-none">
+                                                          <span class="font-bold text-white text-sm group-hover:text-blue-400 transition-colors" x-text="prob.name"></span>
+                                                          <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-blue-400 transition-colors text-sm"></i>
+                                                      </button>
+                                                  </template>
+                                              </div>
+                                          </div>
+
+                                          {{-- STEP 5: FINAL FORM (SOLICITUD) --}}
+                                          <div x-show="step === 5" class="animate-in fade-in duration-300">
+                                              <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start w-full">
+                                                  {{-- Receipt Summary --}}
+                                                  <div class="col-span-1 md:col-span-5 bg-gradient-to-br from-[#0a0b16] to-[#12132a] border border-blue-500/15 text-white rounded-[2rem] p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                                                      <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-blue-500/5 rounded-full blur-[60px] pointer-events-none"></div>
+                                                      
+                                                      <div class="relative z-10">
+                                                          <div class="flex items-center space-x-2.5 mb-5">
+                                                              <i class="fa-solid fa-receipt text-blue-400 text-lg"></i>
+                                                              <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Resumen del Ticket Rápido</span>
+                                                          </div>
+                                                          
+                                                          <div class="space-y-4">
+                                                              <div>
+                                                                  <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Sector seleccionado</span>
+                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedSectorName || '—'"></span>
+                                                              </div>
+                                                              <div class="border-t border-dashed border-white/10 my-3"></div>
+                                                              <div>
+                                                                  <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Área de servicio</span>
+                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedAreaName || '—'"></span>
+                                                              </div>
+                                                              <div class="border-t border-dashed border-white/10 my-3"></div>
+                                                              <div>
+                                                                  <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Servicio</span>
+                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedServiceName || '—'"></span>
+                                                              </div>
+                                                              <div class="border-t border-dashed border-white/10 my-3"></div>
+                                                              <div>
+                                                                  <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Incidencia / Sub-problema</span>
+                                                                  <span class="font-black text-xs uppercase text-blue-400 tracking-tight leading-relaxed block" x-text="selectedProblemText || '—'"></span>
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+
+                                                  {{-- Inputs --}}
+                                                  <div class="col-span-1 md:col-span-7 space-y-5">
+                                                      <div>
+                                                          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-map-pin text-rose-500 mr-1"></i> Área / Estación *</label>
+                                                          <input type="text" x-model="intStation" required placeholder="Piso / Cubículo o Nombre del área" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 text-sm outline-none transition-all font-medium">
+                                                      </div>
+                                                      <div>
+                                                          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-comment-dots text-gray-500 mr-1"></i> Detalles Extra (Opcional)</label>
+                                                          <textarea x-model="intComment" rows="2" placeholder="Agrega cualquier dato adicional..." class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 text-sm outline-none transition-all resize-none font-medium leading-relaxed"></textarea>
+                                                      </div>
+                                                      <div class="pt-1">
+                                                          <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Adjuntar Evidencia (Opcional)</label>
+                                                          <div class="relative w-full h-14 border border-dashed border-white/10 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                                                              <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                                              <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
+                                                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" />
+                                                                  </svg>
+                                                                  <span>Adjuntar archivos...</span>
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                      <div class="pt-2">
+                                                          <button @click="submitIntuitiveTicket" :disabled="!isIntuitiveReady"
+                                                                  :class="isIntuitiveReady ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500 text-white shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] hover:scale-[1.01] active:scale-[0.99] border-blue-400/20' : 'bg-white/5 text-gray-600 cursor-not-allowed border-white/10'"
+                                                                  class="w-full font-bold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm uppercase tracking-wider border outline-none">
+                                                              <i class="fa-solid fa-circle-check"></i>
+                                                              <span>ENVIAR TICKET RÁPIDO</span>
+                                                          </button>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+
+                                      {{-- Step Footer Navigation --}}
+                                      <div class="w-full border-t border-white/5 pt-6 mt-8 flex items-center justify-between">
+                                          <button x-show="step > 1" @click="step--; clearStepsFrom(step);"
+                                                  class="flex items-center text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition-colors outline-none">
+                                              <i class="fa-solid fa-chevron-left mr-2 text-sm"></i> Paso Anterior
+                                          </button>
+                                          <span x-show="step <= 1"></span> {{-- Placeholder for alignment --}}
+                                          
+                                          <button @click="mode = 'selection'; step = 1; clearStepsFrom(1);"
+                                                  class="text-xs font-black uppercase tracking-wider text-gray-500 hover:text-red-400 transition-colors outline-none">
+                                              Cancelar
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
                      </div>
                      <style>
                          @keyframes scale-in { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -806,9 +1053,9 @@
                                                         </div>
                                                     </div>
                                                     <div class="flex gap-2 shrink-0">
-                                                        <a href="{{ asset('storage/' . $adjunto->ruta_archivo) }}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white rounded-xl border border-blue-500/20 transition-all font-bold text-[9px] uppercase tracking-wider">
+                                                        <button type="button" wire:click="viewAttachment({{ $adjunto->id }})" class="px-3 py-1.5 bg-teal-600/20 hover:bg-teal-600 text-teal-400 hover:text-white rounded-xl border border-teal-500/20 transition-all font-bold text-[9px] uppercase tracking-wider">
                                                             Ver
-                                                        </a>
+                                                        </button>
                                                         <button type="button" wire:click="downloadAttachment({{ $adjunto->id }})" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl border border-white/5 transition-all font-bold text-[9px] uppercase tracking-wider">
                                                             Bajar
                                                         </button>
@@ -1277,6 +1524,9 @@
                     <div class="relative">
                         <select wire:model="equipmentPhysLocation" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-all">
                             <option value="-- Bodega --">-- Bodega --</option>
+                            @foreach($maquinas as $m)
+                                <option value="{{ $m->id }}">{{ $m->nombre }}</option>
+                            @endforeach
                         </select>
                         <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
@@ -1479,6 +1729,23 @@
             <div class="overflow-y-auto custom-scrollbar flex-1">
                 <form wire:submit.prevent="updateAdminTicket" class="p-8 space-y-6">
                     
+                    @if($adminTicketModel)
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400 font-bold uppercase tracking-wider">Quién lo hizo:</span>
+                            <span class="text-white font-black uppercase tracking-tight">{{ $adminTicketModel->creador?->nombre_completo ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400 font-bold uppercase tracking-wider">Sector:</span>
+                            <span class="text-blue-400 font-black uppercase tracking-tight">{{ $adminTicketModel->sector?->nombre ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400 font-bold uppercase tracking-wider">Fecha y Hora:</span>
+                            <span class="text-gray-200 font-bold tracking-tight">{{ $adminTicketModel->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</span>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="space-y-3">
                             <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Estado</label>

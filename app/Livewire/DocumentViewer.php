@@ -15,6 +15,10 @@ class DocumentViewer extends Component
 {
     use WithFileUploads;
 
+    protected $listeners = [
+        'select-document' => 'selectDocument',
+    ];
+
     // Search and filters
     public $search = '';
     public $filterSource = 'all'; // all, tickets, inventory, general
@@ -64,7 +68,7 @@ class DocumentViewer extends Component
 
         // Set default filter source for normal user
         if (auth()->user()->role === 'user') {
-            $this->filterSource = 'general';
+            $this->filterSource = 'all';
         }
 
         // Prefill author name
@@ -182,7 +186,7 @@ class DocumentViewer extends Component
 
         $path = $this->generalFile->store('general_documents', 'public');
 
-        Documento::create([
+        $doc = Documento::create([
             'nombre' => $this->generalFileName,
             'nombre_archivo' => $this->generalFile->getClientOriginalName(),
             'ruta_archivo' => $path,
@@ -200,20 +204,23 @@ class DocumentViewer extends Component
         $this->showingUploadModal = false;
         $this->reset(['generalFile', 'generalFileName', 'generalCategory', 'generalEquipmentId', 'generalArea', 'generalDescription', 'generalLicense']);
         $this->generalAuthor = auth()->user()->name;
+        
+        $this->selectDocument('gen_' . $doc->id);
+        
         $this->dispatch('notify', 'Documento general guardado exitosamente');
     }
 
     public function getDocuments()
     {
-        if (auth()->user()->role === 'user') {
-            $this->filterSource = 'general';
-        }
-
         $allDocs = [];
 
         // 1. Load Equipment PDFs (Responsivas)
         if ($this->filterSource === 'all' || $this->filterSource === 'inventory') {
-            $equipments = Equipment::whereNotNull('pdf_path')->get();
+            $equipmentsQuery = Equipment::whereNotNull('pdf_path');
+            if (auth()->user()->role === 'user') {
+                $equipmentsQuery->whereNotNull('maquina_id');
+            }
+            $equipments = $equipmentsQuery->get();
             foreach ($equipments as $item) {
                 $ext = 'pdf';
                 $allDocs[] = [
@@ -234,7 +241,13 @@ class DocumentViewer extends Component
 
         // 2. Load Ticket Attachments
         if ($this->filterSource === 'all' || $this->filterSource === 'tickets') {
-            $attachments = ArchivoAdjunto::with('ticket')->get();
+            $attachmentsQuery = ArchivoAdjunto::with('ticket');
+            if (auth()->user()->role === 'user') {
+                $attachmentsQuery->whereHas('ticket', function ($q) {
+                    $q->where('usuario_creador_id', auth()->id());
+                });
+            }
+            $attachments = $attachmentsQuery->get();
             foreach ($attachments as $item) {
                 $ext = strtolower(pathinfo($item->nombre_archivo, PATHINFO_EXTENSION));
                 $allDocs[] = [

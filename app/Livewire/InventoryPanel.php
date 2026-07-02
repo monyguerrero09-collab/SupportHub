@@ -14,7 +14,38 @@ class InventoryPanel extends Component
 
     public $pdfFiles = [];
 
-    // Edit properties
+    // Navigation sub-tab
+    public $subTab = 'bodega'; // 'bodega', 'equipos', 'assignments', 'logs'
+    public $searchTerm = '';
+
+    // React style stock filters
+    public $selectedCategory = 'Todas';
+    public $selectedStatus = 'Todos';
+    public $categories = ['Equipos', 'Accesorios', 'Componentes', 'Redes y Cables', 'Licencias/Software'];
+
+    // Modals
+    public $showAddMaterialModal = false;
+    public $showAssignItemModal = false;
+
+    // Add Material form
+    public $newMaterialCategory = 'Equipos';
+    public $newMaterialCustomCategory = '';
+    public $newMaterialModel = '';
+    public $newMaterialQuantity = 10;
+    public $newMaterialNotes = '';
+    public $newMaterialAcquisitionDate;
+    public $newMaterialMin = 5;
+    public $newMaterialMax = 25;
+
+    // Assign Item form
+    public $newAssignmentStockKey = '';
+    public $newAssignmentTargetType = 'Estación';
+    public $newAssignmentTargetId = '';
+    public $newAssignmentQuantity = 1;
+    public $newAssignmentNotes = '';
+    public $newAssignmentDate;
+
+    // Edit properties (original modal)
     public $showingEditModal = false;
     public $editEquipmentId = null;
     public $editName;
@@ -22,6 +53,376 @@ class InventoryPanel extends Component
     public $editModel;
     public $editBarcode;
     public $editStatus;
+    public $editMaquinaId = null;
+
+    // Edit properties (React style Group Edit)
+    public $showEditMaterialModal = false;
+    public $editOldType = '';
+    public $editOldModel = '';
+    public $editNewType = '';
+    public $editNewModel = '';
+    public $editNewQuantity = 0;
+    public $editNewMin = 5;
+    public $editNewMax = 25;
+
+    protected $listeners = [
+        'refresh-inventory' => '$refresh',
+    ];
+
+    public function mount()
+    {
+        $this->newMaterialCategory = 'Equipos';
+        $this->newMaterialAcquisitionDate = now()->format('Y-m-d');
+        $this->newAssignmentDate = now()->format('Y-m-d');
+    }
+
+    public function getStockStatus($quantity, $min, $max)
+    {
+        $q = (int)$quantity;
+        $mn = (int)$min;
+        $mx = (int)$max;
+
+        if ($q <= $mn) {
+            return [
+                'code' => 'red',
+                'label' => 'Muy Poco - ¡Hay que pedir!',
+                'bgClass' => 'bg-rose-500',
+                'textClass' => 'text-rose-400',
+                'badgeBg' => 'bg-rose-950/50 text-rose-300 border-rose-500/20',
+                'borderClass' => 'border-rose-900/50'
+            ];
+        }
+
+        $yellowRangeLimit = $mn + (($mx - $mn) * 0.35);
+        if ($q <= $yellowRangeLimit) {
+            return [
+                'code' => 'yellow',
+                'label' => 'Bajo - No requiere pedir aún',
+                'bgClass' => 'bg-amber-500',
+                'textClass' => 'text-amber-400',
+                'badgeBg' => 'bg-amber-950/50 text-amber-300 border-amber-500/20',
+                'borderClass' => 'border-amber-900/50'
+            ];
+        }
+
+        return [
+            'code' => 'green',
+            'label' => 'Abastecido',
+            'bgClass' => 'bg-emerald-500',
+            'textClass' => 'text-emerald-400',
+            'badgeBg' => 'bg-emerald-950/50 text-emerald-300 border-emerald-500/20',
+            'borderClass' => 'border-emerald-900/50'
+        ];
+    }
+
+    public function addMaterial()
+    {
+        $category = $this->newMaterialCategory === 'Otro' ? $this->newMaterialCustomCategory : $this->newMaterialCategory;
+        
+        $this->validate([
+            'newMaterialModel' => 'required|string|max:255',
+            'newMaterialQuantity' => 'required|integer|min:0',
+            'newMaterialMin' => 'required|integer|min:0',
+            'newMaterialMax' => 'required|integer|min:1|gt:newMaterialMin',
+        ]);
+
+        if (!$category) {
+            $this->addError('newMaterialCustomCategory', 'La categoría es requerida.');
+            return;
+        }
+
+        for ($i = 0; $i < $this->newMaterialQuantity; $i++) {
+            $barcode = strtoupper(substr($category, 0, 3)) . '-' . strtoupper(substr($this->newMaterialModel, 0, 3)) . '-' . rand(1000, 9999);
+            
+            Equipment::create([
+                'name' => $this->newMaterialModel,
+                'type' => $category,
+                'model' => $this->newMaterialModel,
+                'barcode' => $barcode,
+                'status' => 'in-stock',
+                'description' => $this->newMaterialNotes ?: 'Ingreso manual',
+                'min_stock' => $this->newMaterialMin,
+                'max_stock' => $this->newMaterialMax,
+                'created_at' => $this->newMaterialAcquisitionDate ?: now(),
+            ]);
+        }
+
+        // Log movement
+        \App\Models\InventoryMovement::create([
+            'action' => 'Ingreso',
+            'details' => "Se registró manualmente el equipo \"{$this->newMaterialModel}\" con {$this->newMaterialQuantity} unidades.",
+        ]);
+
+        $this->showAddMaterialModal = false;
+        $this->reset(['newMaterialModel', 'newMaterialQuantity', 'newMaterialMin', 'newMaterialMax', 'newMaterialNotes']);
+        $this->newMaterialCategory = 'Equipos';
+        $this->newMaterialAcquisitionDate = now()->format('Y-m-d');
+        $this->dispatch('notify', 'Nuevo equipo registrado en el stock.');
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function openEditMaterial($type, $model)
+    {
+        $this->editOldType = $type;
+        $this->editOldModel = $model;
+        
+        $items = Equipment::where('type', $type)
+            ->where('model', $model)
+            ->where('status', 'in-stock')
+            ->get();
+            
+        $first = $items->first();
+        
+        $this->editNewType = $type;
+        $this->editNewModel = $model;
+        $this->editNewQuantity = $items->count();
+        $this->editNewMin = $first ? $first->min_stock : 5;
+        $this->editNewMax = $first ? $first->max_stock : 25;
+        
+        $this->showEditMaterialModal = true;
+    }
+
+    public function saveEditMaterial()
+    {
+        $this->validate([
+            'editNewModel' => 'required|string|max:255',
+            'editNewType' => 'required|string',
+            'editNewQuantity' => 'required|integer|min:0',
+            'editNewMin' => 'required|integer|min:0',
+            'editNewMax' => 'required|integer|min:1|gt:editNewMin',
+        ]);
+
+        $itemsQuery = Equipment::where('type', $this->editOldType)
+            ->where('model', $this->editOldModel);
+            
+        $allGroupItems = $itemsQuery->get();
+        $inStockItems = $allGroupItems->where('status', 'in-stock');
+
+        // Update basic fields for ALL items in that group
+        foreach ($allGroupItems as $item) {
+            $item->update([
+                'name' => $this->editNewModel,
+                'type' => $this->editNewType,
+                'model' => $this->editNewModel,
+                'min_stock' => $this->editNewMin,
+                'max_stock' => $this->editNewMax,
+            ]);
+        }
+
+        // Adjust quantity of in-stock items
+        $currentInStockCount = $inStockItems->count();
+        $diff = $this->editNewQuantity - $currentInStockCount;
+
+        if ($diff > 0) {
+            for ($i = 0; $i < $diff; $i++) {
+                $barcode = strtoupper(substr($this->editNewType, 0, 3)) . '-' . strtoupper(substr($this->editNewModel, 0, 3)) . '-' . rand(1000, 9999);
+                Equipment::create([
+                    'name' => $this->editNewModel,
+                    'type' => $this->editNewType,
+                    'model' => $this->editNewModel,
+                    'barcode' => $barcode,
+                    'status' => 'in-stock',
+                    'description' => 'Ajuste de stock manual',
+                    'min_stock' => $this->editNewMin,
+                    'max_stock' => $this->editNewMax,
+                ]);
+            }
+            \App\Models\InventoryMovement::create([
+                'action' => 'Ajuste',
+                'details' => "Se actualizó el stock de \"{$this->editNewModel}\" a {$this->editNewQuantity} unidades (antes: {$currentInStockCount}).",
+            ]);
+        } elseif ($diff < 0) {
+            $toRemove = abs($diff);
+            $itemsToRemove = $inStockItems->take($toRemove);
+            foreach ($itemsToRemove as $item) {
+                $item->delete();
+            }
+            \App\Models\InventoryMovement::create([
+                'action' => 'Ajuste',
+                'details' => "Se actualizó el stock de \"{$this->editNewModel}\" a {$this->editNewQuantity} unidades (antes: {$currentInStockCount}).",
+            ]);
+        } else {
+            \App\Models\InventoryMovement::create([
+                'action' => 'Ajuste',
+                'details' => "Se modificaron los parámetros de \"{$this->editNewModel}\" (Mín: {$this->editNewMin}, Máx: {$this->editNewMax}).",
+            ]);
+        }
+
+        $this->showEditMaterialModal = false;
+        $this->dispatch('notify', 'Equipo actualizado correctamente.');
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function incrementStock($type, $model)
+    {
+        $barcode = strtoupper(substr($type, 0, 3)) . '-' . strtoupper(substr($model, 0, 3)) . '-' . rand(1000, 9999);
+        
+        $first = Equipment::where('type', $type)->where('model', $model)->first();
+        $min = $first ? $first->min_stock : 5;
+        $max = $first ? $first->max_stock : 25;
+
+        Equipment::create([
+            'name' => $model,
+            'type' => $type,
+            'model' => $model,
+            'barcode' => $barcode,
+            'status' => 'in-stock',
+            'description' => 'Ajuste rápido (+1)',
+            'min_stock' => $min,
+            'max_stock' => $max,
+        ]);
+
+        $newQty = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock')->count();
+        \App\Models\InventoryMovement::create([
+            'action' => 'Ajuste',
+            'details' => "Se incrementó el stock de \"{$model}\" en 1 unidad. Stock actual: {$newQty}.",
+        ]);
+
+        $this->dispatch('notify', 'Stock incrementado.');
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function decrementStock($type, $model)
+    {
+        $item = Equipment::where('type', $type)
+            ->where('model', $model)
+            ->where('status', 'in-stock')
+            ->first();
+
+        if ($item) {
+            $item->delete();
+            $newQty = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock')->count();
+            \App\Models\InventoryMovement::create([
+                'action' => 'Ajuste',
+                'details' => "Se redujo el stock de \"{$model}\" en 1 unidad. Stock actual: {$newQty}.",
+            ]);
+            $this->dispatch('notify', 'Stock reducido.');
+        } else {
+            $this->dispatch('notify', 'No hay unidades disponibles en bodega.');
+        }
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function deleteStockGroup($type, $model)
+    {
+        $items = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock')->get();
+        foreach ($items as $item) {
+            $item->delete();
+        }
+        
+        \App\Models\InventoryMovement::create([
+            'action' => 'Eliminación',
+            'details' => "Se eliminó el equipo \"{$model}\" del stock de bodega.",
+        ]);
+
+        $this->dispatch('notify', "Se ha eliminado \"{$model}\".");
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function assignItem()
+    {
+        $this->validate([
+            'newAssignmentStockKey' => 'required',
+            'newAssignmentTargetId' => 'required',
+            'newAssignmentQuantity' => 'required|integer|min:1',
+        ]);
+
+        $parts = explode('|', $this->newAssignmentStockKey);
+        if (count($parts) !== 2) {
+            return;
+        }
+        $type = $parts[0];
+        $model = $parts[1];
+
+        // Find available items
+        $availableItems = Equipment::where('type', $type)
+            ->where('model', $model)
+            ->where('status', 'in-stock')
+            ->get();
+
+        if ($availableItems->count() < $this->newAssignmentQuantity) {
+            $this->addError('newAssignmentQuantity', "No hay suficiente stock. Disponibles: " . $availableItems->count());
+            return;
+        }
+
+        $assignedItems = $availableItems->take($this->newAssignmentQuantity);
+        
+        $targetName = '';
+        if ($this->newAssignmentTargetType === 'Estación') {
+            $maquina = \App\Models\Maquina::find($this->newAssignmentTargetId);
+            $targetName = $maquina ? $maquina->nombre : 'Estación';
+            
+            foreach ($assignedItems as $item) {
+                $item->update([
+                    'status' => 'deployed',
+                    'maquina_id' => $this->newAssignmentTargetId,
+                    'installed_at' => $this->newAssignmentDate ?: now(),
+                    'description' => $this->newAssignmentNotes ?: 'Asignación a estación'
+                ]);
+            }
+        } else {
+            $user = \App\Models\User::find($this->newAssignmentTargetId);
+            $targetName = $user ? $user->name : 'Usuario';
+            
+            foreach ($assignedItems as $item) {
+                $item->update([
+                    'status' => 'deployed',
+                    'user_id' => $this->newAssignmentTargetId,
+                    'installed_at' => $this->newAssignmentDate ?: now(),
+                    'description' => $this->newAssignmentNotes ?: 'Asignación a usuario'
+                ]);
+            }
+        }
+
+        // Log movement
+        \App\Models\InventoryMovement::create([
+            'action' => 'Asignación',
+            'details' => "Se asignó {$this->newAssignmentQuantity}x {$type} ({$model}) a {$this->newAssignmentTargetType}: \"{$targetName}\".",
+        ]);
+
+        $this->showAssignItemModal = false;
+        $this->reset(['newAssignmentStockKey', 'newAssignmentTargetId', 'newAssignmentQuantity', 'newAssignmentNotes']);
+        $this->newAssignmentDate = now()->format('Y-m-d');
+        $this->dispatch('notify', "Asignación exitosa para {$targetName}.");
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function returnItem($id)
+    {
+        $equipment = Equipment::find($id);
+        if ($equipment && $equipment->status === 'deployed') {
+            $targetType = $equipment->maquina_id ? 'Estación' : 'Usuario';
+            $targetName = '';
+            if ($equipment->maquina_id) {
+                $targetName = $equipment->maquina ? $equipment->maquina->nombre : 'Estación';
+            } else if ($equipment->user_id) {
+                $targetName = $equipment->usuario ? $equipment->usuario->name : 'Usuario';
+            }
+
+            $equipment->update([
+                'status' => 'in-stock',
+                'maquina_id' => null,
+                'user_id' => null,
+                'installed_at' => null,
+                'description' => 'Retornado de asignación'
+            ]);
+
+            // Log movement
+            \App\Models\InventoryMovement::create([
+                'action' => 'Retorno',
+                'details' => "Retornado 1x {$equipment->type} ({$equipment->model}) desde {$targetType}: \"{$targetName}\" a la Bodega.",
+            ]);
+
+            $this->dispatch('notify', 'Artículo retornado a bodega con éxito.');
+            $this->dispatch('refresh-inventory');
+        }
+    }
+
+    public function openAssignFor($type, $model)
+    {
+        $this->newAssignmentStockKey = $type . '|' . $model;
+        $this->showAssignItemModal = true;
+    }
 
     public function editEquipment($id)
     {
@@ -33,6 +434,7 @@ class InventoryPanel extends Component
             $this->editModel = $equipment->model;
             $this->editBarcode = $equipment->barcode;
             $this->editStatus = $equipment->status;
+            $this->editMaquinaId = $equipment->maquina_id;
             $this->showingEditModal = true;
         }
     }
@@ -45,19 +447,38 @@ class InventoryPanel extends Component
             'editModel' => 'required|string|max:255',
             'editBarcode' => 'required|string|max:255',
             'editStatus' => 'required|string',
+            'editMaquinaId' => 'nullable',
         ]);
 
         $equipment = Equipment::find($this->editEquipmentId);
         if ($equipment) {
+            $maquinaId = $this->editMaquinaId ?: null;
+            $newStatus = $this->editStatus;
+            $installedAt = $equipment->installed_at;
+
+            if ($maquinaId) {
+                $newStatus = 'deployed';
+                $installedAt = $installedAt ?: now();
+            } else {
+                if ($newStatus === 'deployed') {
+                    $newStatus = 'in-stock';
+                }
+                $installedAt = null;
+            }
+
             $equipment->update([
                 'name' => $this->editName,
                 'type' => $this->editType,
                 'model' => $this->editModel,
                 'barcode' => $this->editBarcode,
-                'status' => $this->editStatus,
+                'status' => $newStatus,
+                'maquina_id' => $maquinaId,
+                'installed_at' => $installedAt,
             ]);
+            
             $this->showingEditModal = false;
             $this->dispatch('notify', 'Equipo actualizado con éxito');
+            $this->dispatch('refresh-inventory');
         }
     }
 
@@ -67,6 +488,7 @@ class InventoryPanel extends Component
         if ($equipment) {
             $equipment->delete();
             $this->dispatch('notify', 'Equipo eliminado del inventario');
+            $this->dispatch('refresh-inventory');
         }
     }
 
@@ -92,6 +514,7 @@ class InventoryPanel extends Component
         $this->reset('pdfFiles');
         
         $this->dispatch('notify', 'Documento guardado correctamente');
+        $this->dispatch('refresh-inventory');
     }
 
     public function downloadPdf($equipmentId)
@@ -104,17 +527,118 @@ class InventoryPanel extends Component
 
     public function render()
     {
-        $inventory = Equipment::with('maquina')->latest()->get();
+        // 1. Grouped Stock Query
+        $stockQuery = Equipment::where('status', 'in-stock');
         
-        $pantallaCount = Equipment::where('type', 'Pantalla')->count();
-        $cpuCount = Equipment::where('type', 'CPU')->count();
-        $impresoraCount = Equipment::where('type', 'Impresora')->count();
+        // Search Term Filter
+        if ($this->searchTerm) {
+            $stockQuery->where(function ($q) {
+                $q->where('type', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhere('model', 'like', '%' . $this->searchTerm . '%');
+            });
+        }
+
+        // Category Filter
+        if ($this->selectedCategory !== 'Todas') {
+            $stockQuery->where('type', $this->selectedCategory);
+        }
+
+        $stockGroupedRaw = $stockQuery
+            ->selectRaw('type, model, count(*) as quantity, MIN(created_at) as date_added, MIN(description) as notes, MAX(min_stock) as min_stock, MAX(max_stock) as max_stock')
+            ->groupBy('type', 'model')
+            ->get();
+
+        // Map status info
+        $stockGrouped = $stockGroupedRaw->map(function ($item) {
+            $item->status_info = $this->getStockStatus($item->quantity, $item->min_stock, $item->max_stock);
+            return $item;
+        });
+
+        // Semáforo Status Filter
+        if ($this->selectedStatus !== 'Todos') {
+            $stockGrouped = $stockGrouped->filter(function ($item) {
+                return $item->status_info['code'] === $this->selectedStatus;
+            });
+        }
+
+        // 2. Active Assignments Query
+        $assignmentsQuery = Equipment::with(['maquina', 'usuario'])->where('status', 'deployed');
+        if ($this->searchTerm) {
+            $assignmentsQuery->where(function ($q) {
+                $q->where('type', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhere('model', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhereHas('maquina', function ($mq) {
+                      $mq->where('nombre', 'like', '%' . $this->searchTerm . '%');
+                  })
+                  ->orWhereHas('usuario', function ($u) {
+                      $u->where('name', 'like', '%' . $this->searchTerm . '%');
+                  });
+            });
+        }
+        $assignments = $assignmentsQuery->latest('installed_at')->get();
+
+        // 3. Movements History
+        $movements = \App\Models\InventoryMovement::latest()->take(10)->get();
+
+        // 4. Original List (Equipos Serializados)
+        $inventoryQuery = Equipment::with('maquina');
+        if ($this->searchTerm) {
+            $inventoryQuery->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhere('type', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhere('model', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhere('barcode', 'like', '%' . $this->searchTerm . '%');
+            });
+        }
+        $inventory = $inventoryQuery->latest()->get();
+
+        // Compute summary metrics for all items in stock
+        $allGrouped = Equipment::where('status', 'in-stock')
+            ->selectRaw('type, model, count(*) as quantity, MAX(min_stock) as min_stock, MAX(max_stock) as max_stock')
+            ->groupBy('type', 'model')
+            ->get();
+
+        $summary = [
+            'total' => $allGrouped->count(),
+            'green' => 0,
+            'yellow' => 0,
+            'red' => 0,
+        ];
+
+        foreach ($allGrouped as $item) {
+            $status = $this->getStockStatus($item->quantity, $item->min_stock, $item->max_stock);
+            if ($status['code'] === 'green') $summary['green']++;
+            elseif ($status['code'] === 'yellow') $summary['yellow']++;
+            elseif ($status['code'] === 'red') $summary['red']++;
+        }
+
+        $pantallaCount = Equipment::where('type', 'Pantalla')->where('status', 'in-stock')->count();
+        $cpuCount = Equipment::where('type', 'CPU')->where('status', 'in-stock')->count();
+        $impresoraCount = Equipment::where('type', 'Impresora')->where('status', 'in-stock')->count();
+        $totalInStock = Equipment::where('status', 'in-stock')->count();
+
+        // Low stock count (Rojo state)
+        $lowStockAlerts = $summary['red'];
+
+        $maquinas = \App\Models\Maquina::orderBy('nombre')->get();
+        $usuarios = \App\Models\User::orderBy('name')->get();
 
         return view('livewire.inventory-panel', [
             'inventory' => $inventory,
+            'stockGrouped' => $stockGrouped,
+            'assignments' => $assignments,
+            'movements' => $movements,
+            'summary' => $summary,
             'pantallaCount' => $pantallaCount,
             'cpuCount' => $cpuCount,
             'impresoraCount' => $impresoraCount,
+            'totalInStock' => $totalInStock,
+            'totalInWarehouse' => $totalInStock,
+            'totalAssignedActive' => Equipment::where('status', 'deployed')->count(),
+            'totalAssignedReturned' => \App\Models\InventoryMovement::where('action', 'Retorno')->count(),
+            'lowStockAlerts' => $lowStockAlerts,
+            'maquinas' => $maquinas,
+            'usuarios' => $usuarios,
         ]);
     }
 }

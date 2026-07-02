@@ -12,7 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
-            $table->text('comentario');
+            $table->text('mensaje');
+            $table->boolean('es_cliente')->default(true);
             $table->timestamps(); // includes Fecha
         });
     }
