@@ -196,5 +196,126 @@ class DatabaseSeeder extends Seeder
                 'equipment_id' => $firstEquipment->id,
             ]);
         }
+
+        // 6. Create directories for uploads
+        $generalDocsDir = storage_path('app/public/general_documents');
+        $ticketAttachDir = storage_path('app/public/ticket_attachments');
+        if (!file_exists($generalDocsDir)) {
+            mkdir($generalDocsDir, 0755, true);
+        }
+        if (!file_exists($ticketAttachDir)) {
+            mkdir($ticketAttachDir, 0755, true);
+        }
+
+        // Copy / Create file examples
+        $adminUser = \App\Models\User::where('email', 'admin@admin.com')->first() ?? \App\Models\User::first();
+        $adminId = $adminUser ? $adminUser->id : 1;
+
+        // PDF Example
+        $srcPdf = public_path('img/LAYOUT CGR DE MEXICO QRO PLANTA 1-Model 3 (1).pdf');
+        $destPdf = 'general_documents/Manual_Usuario_Planta1.pdf';
+        if (file_exists($srcPdf)) {
+            copy($srcPdf, storage_path('app/public/' . $destPdf));
+        } else {
+            file_put_contents(storage_path('app/public/' . $destPdf), "%PDF-1.4 ... Dummy PDF Content ...");
+        }
+
+        \App\Models\Documento::create([
+            'nombre' => 'Manual de Operación de la Planta 1',
+            'nombre_archivo' => 'Manual_Usuario_Planta1.pdf',
+            'ruta_archivo' => $destPdf,
+            'tipo_archivo' => 'application/pdf',
+            'tamaño' => file_exists(storage_path('app/public/' . $destPdf)) ? filesize(storage_path('app/public/' . $destPdf)) : 1024,
+            'categoria' => 'Manual',
+            'usuario_id' => $adminId,
+            'descripcion' => 'Manual detallado para el uso de equipos y la operación segura en la Planta 1.',
+            'autor' => $adminUser ? $adminUser->nombre_completo : 'Admin',
+            'licencia' => 'todos-derechos-reservados',
+            'visible_operadores' => true,
+        ]);
+
+        // Image Example
+        $srcImg = public_path('img/layout_cgr.png');
+        $destImg = 'general_documents/Plano_Planta1.png';
+        if (file_exists($srcImg)) {
+            copy($srcImg, storage_path('app/public/' . $destImg));
+        } else {
+            file_put_contents(storage_path('app/public/' . $destImg), "");
+        }
+
+        \App\Models\Documento::create([
+            'nombre' => 'Plano de Distribución de Planta 1',
+            'nombre_archivo' => 'Plano_Planta1.png',
+            'ruta_archivo' => $destImg,
+            'tipo_archivo' => 'image/png',
+            'tamaño' => file_exists(storage_path('app/public/' . $destImg)) ? filesize(storage_path('app/public/' . $destImg)) : 2048,
+            'categoria' => 'General',
+            'usuario_id' => $adminId,
+            'descripcion' => 'Plano arquitectónico de la ubicación física de las máquinas y estaciones en Planta 1.',
+            'autor' => $adminUser ? $adminUser->nombre_completo : 'Admin',
+            'licencia' => 'no-especificada',
+            'visible_operadores' => true,
+        ]);
+
+        // Text Example
+        $destText = 'general_documents/Terminal_Log.txt';
+        $logContent = "[2026-07-03 08:12:45] SYSTEM.INFO: Starting database migration checks...\n" .
+                      "[2026-07-03 08:12:46] SYSTEM.SUCCESS: Database is up to date.\n" .
+                      "[2026-07-03 08:14:02] WEBSERVER.REQUEST: GET /api/v1/tickets/status - 200 OK - 42ms\n" .
+                      "[2026-07-03 08:15:10] WEBSERVER.REQUEST: POST /api/v1/tickets/create - 201 Created - 110ms\n" .
+                      "[2026-07-03 08:20:00] CRON.INFO: Running background ticket notifications...\n" .
+                      "[2026-07-03 08:20:05] CRON.SUCCESS: Sent 3 pending notifications.\n";
+        file_put_contents(storage_path('app/public/' . $destText), $logContent);
+
+        \App\Models\Documento::create([
+            'nombre' => 'Registro de Consola de Servidor',
+            'nombre_archivo' => 'Terminal_Log.txt',
+            'ruta_archivo' => $destText,
+            'tipo_archivo' => 'text/plain',
+            'tamaño' => strlen($logContent),
+            'categoria' => 'Guía',
+            'usuario_id' => $adminId,
+            'descripcion' => 'Logs del servidor principal que muestran las conexiones de la API de tickets.',
+            'autor' => 'Sistema Automático',
+            'licencia' => 'dominio-publico',
+            'visible_operadores' => true,
+        ]);
+
+        // DOCX Example (Not supported preview)
+        $destDocx = 'general_documents/Politicas_Seguridad.docx';
+        file_put_contents(storage_path('app/public/' . $destDocx), "Word Document Mock Contents");
+
+        \App\Models\Documento::create([
+            'nombre' => 'Políticas de Seguridad de la Información',
+            'nombre_archivo' => 'Politicas_Seguridad.docx',
+            'ruta_archivo' => $destDocx,
+            'tipo_archivo' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'tamaño' => 25,
+            'categoria' => 'Política',
+            'usuario_id' => $adminId,
+            'descripcion' => 'Directrices oficiales sobre el uso correcto de contraseñas y accesos de TI.',
+            'autor' => 'Oficial de Seguridad',
+            'licencia' => 'todos-derechos-reservados',
+            'visible_operadores' => false,
+        ]);
+
+        // Ticket Attachment Example
+        $sampleTicket = \App\Models\Ticket::first();
+        if ($sampleTicket) {
+            $srcAttach = public_path('img/conexion_error.jpg');
+            $destAttach = 'ticket_attachments/conexion_error.jpg';
+            if (file_exists($srcAttach)) {
+                copy($srcAttach, storage_path('app/public/' . $destAttach));
+            } else {
+                file_put_contents(storage_path('app/public/' . $destAttach), "");
+            }
+
+            \App\Models\ArchivoAdjunto::create([
+                'ticket_id' => $sampleTicket->id,
+                'nombre_archivo' => 'conexion_error.jpg',
+                'ruta_archivo' => $destAttach,
+                'visible_operadores' => true,
+            ]);
+        }
     }
 }

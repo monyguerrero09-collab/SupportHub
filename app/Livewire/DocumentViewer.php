@@ -85,16 +85,27 @@ class DocumentViewer extends Component
         $docs = $this->getDocuments();
         $this->selectedDoc = collect($docs)->firstWhere('id', $uniqueId);
 
-        if ($this->selectedDoc && $this->selectedDoc['tipo'] === 'text') {
-            try {
-                $path = $this->selectedDoc['ruta_real'];
-                if (Storage::disk('public')->exists($path)) {
-                    $this->textContent = Storage::disk('public')->get($path);
-                } else {
-                    $this->textContent = "El archivo no se encuentra físicamente en el servidor.";
+        if ($this->selectedDoc) {
+            $path = $this->selectedDoc['ruta_real'];
+            $exists = Storage::disk('public')->exists($path);
+            $this->selectedDoc['existe_fisicamente'] = $exists;
+
+            if ($exists && $this->selectedDoc['tipo'] === 'text') {
+                try {
+                    $fileSize = Storage::disk('public')->size($path);
+                    $maxSize = 250 * 1024; // 250 KB limit for preview
+                    if ($fileSize > $maxSize) {
+                        $stream = Storage::disk('public')->readStream($path);
+                        $this->textContent = stream_get_contents($stream, $maxSize) . "\n\n... [CONTENIDO TRUNCADO. El archivo es demasiado grande (aprox. " . round($fileSize / 1024, 1) . " KB) para mostrarse completo. Por favor descárgalo para verlo completo.] ...";
+                        if (is_resource($stream)) {
+                            fclose($stream);
+                        }
+                    } else {
+                        $this->textContent = Storage::disk('public')->get($path);
+                    }
+                } catch (\Exception $e) {
+                    $this->textContent = "Error al intentar leer el archivo de texto: " . $e->getMessage();
                 }
-            } catch (\Exception $e) {
-                $this->textContent = "Error al intentar leer el archivo de texto: " . $e->getMessage();
             }
         }
     }
@@ -360,7 +371,7 @@ class DocumentViewer extends Component
         if (in_array($ext, ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt'])) {
             return 'word';
         }
-        if (in_array($ext, ['txt', 'log', 'csv', 'ini', 'json', 'xml'])) {
+        if (in_array($ext, ['txt', 'log', 'csv', 'ini', 'json', 'xml', 'md', 'sql', 'html', 'css', 'js', 'php', 'py', 'sh', 'bat', 'yml', 'yaml', 'env'])) {
             return 'text';
         }
         return 'other';

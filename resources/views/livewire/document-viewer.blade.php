@@ -199,7 +199,20 @@
                     {{-- Contenido del Visor --}}
                     <div class="flex-1 overflow-y-auto p-6 flex flex-col justify-center min-h-0">
                         
-                        @if($selectedDoc['tipo'] === 'pdf')
+                        @if(isset($selectedDoc['existe_fisicamente']) && !$selectedDoc['existe_fisicamente'])
+                            {{-- Visualización de Archivo No Encontrado --}}
+                            <div class="p-8 text-center flex flex-col items-center justify-center bg-black/10 border border-white/5 rounded-2xl flex-1">
+                                <div class="w-20 h-20 rounded-3xl bg-red-600/10 border border-red-500/20 text-red-400 flex items-center justify-center text-4xl mb-6 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                                    ⚠️
+                                </div>
+                                <h4 class="font-black text-white text-base uppercase tracking-tighter mb-2">{{ $selectedDoc['nombre'] }}</h4>
+                                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-6">Archivo No Encontrado</p>
+                                
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wider max-w-[280px] mx-auto leading-relaxed">
+                                    El archivo no existe físicamente en el servidor. Puede que haya sido eliminado manualmente o no se haya guardado de forma correcta.
+                                </p>
+                            </div>
+                        @elseif($selectedDoc['tipo'] === 'pdf')
                             {{-- Visualizador de PDF --}}
                             <div class="w-full h-full flex flex-col flex-1 rounded-2xl overflow-hidden border border-white/10 bg-black/40">
                                 <iframe 
@@ -211,7 +224,7 @@
                             
                         @elseif($selectedDoc['tipo'] === 'image')
                             {{-- Visualizador de Imagen con Controles Alpine --}}
-                            <div x-data="{ zoom: 1, rotate: 0 }" class="relative flex-1 flex flex-col items-center justify-center bg-black/30 rounded-2xl border border-white/5 overflow-hidden min-h-[380px]">
+                            <div wire:key="image-viewer-{{ $selectedDoc['id'] }}" x-data="{ zoom: 1, rotate: 0 }" class="relative flex-1 flex flex-col items-center justify-center bg-black/30 rounded-2xl border border-white/5 overflow-hidden min-h-[380px]">
                                 {{-- Controles de Imagen --}}
                                 <div class="absolute top-4 right-4 flex gap-1.5 z-20">
                                     <button @click="zoom = Math.min(zoom + 0.25, 4)" class="w-8 h-8 bg-black/60 hover:bg-blue-600 border border-white/10 hover:border-blue-500 rounded-lg flex items-center justify-center text-white font-black transition-all" title="Acercar">+</button>

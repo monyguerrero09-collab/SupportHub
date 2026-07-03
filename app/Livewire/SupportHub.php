@@ -551,6 +551,7 @@ class SupportHub extends Component
                     'ticket_id' => $ticket->id,
                     'nombre_archivo' => $file->getClientOriginalName(),
                     'ruta_archivo' => $path,
+                    'visible_operadores' => true,
                 ]);
             }
         }
