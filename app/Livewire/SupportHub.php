@@ -67,6 +67,7 @@ class SupportHub extends Component
     ];
 
     public $AREAS = [
+        ['id' => 'abas', 'name' => 'ABAS', 'services' => 1, 'icon' => 'FileText'],
         ['id' => 'sec', 'name' => 'Seguridad TI', 'services' => 5, 'icon' => 'ShieldCheck'],
         ['id' => 'red', 'name' => 'Redes/WiFi', 'services' => 3, 'icon' => 'Globe'],
         ['id' => 'serv', 'name' => 'Archivos', 'services' => 1, 'icon' => 'HardDrive'],
@@ -76,6 +77,9 @@ class SupportHub extends Component
     ];
 
     public $SERVICES_BY_AREA = [
+        'abas' => [
+            ['id' => 'abas_serv', 'name' => 'Plataforma ABAS', 'description' => 'Gestión de accesos, impresión y otras incidencias de ABAS.', 'icon' => 'FileText'],
+        ],
         'sec' => [
             ['id' => 'acc', 'name' => 'Accesos y contraseñas', 'description' => 'Gestión de credenciales y bloqueos.', 'icon' => 'Key'],
             ['id' => 'av', 'name' => 'Antivirus y amenazas', 'description' => 'Reporte de virus detectados.', 'icon' => 'ShieldAlert'],
@@ -117,6 +121,7 @@ class SupportHub extends Component
     ];
 
     public $CATEGORIES_BY_SERVICE = [
+        'abas_serv' => [['id' => 'abas1', 'name' => 'No me deja entrar'], ['id' => 'abas2', 'name' => 'No deja imprimir'], ['id' => 'abas3', 'name' => 'Otro']],
         'acc' => [['id' => 'a1', 'name' => 'No puedo iniciar sesión'], ['id' => 'a2', 'name' => 'Usuario bloqueado'], ['id' => 'a3', 'name' => 'Olvidé mi contraseña']],
         'av' => [['id' => 'av1', 'name' => 'El antivirus detectó un virus']],
         'phish' => [['id' => 'p1', 'name' => 'Recibí un correo sospechoso']],

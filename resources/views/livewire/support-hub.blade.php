@@ -841,7 +841,19 @@
                                           <div x-show="step === 2" class="animate-in fade-in duration-300">
                                               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                                                   <template x-for="area in areas" :key="area.id">
-                                                      <button @click="selectedArea = area.id; selectedAreaName = area.name; step = 3;"
+                                                      <button @click="
+                                                           selectedArea = area.id;
+                                                           selectedAreaName = area.name;
+                                                           category = area.name;
+                                                           let services = servicesByArea[area.id] || [];
+                                                           if (services.length === 1) {
+                                                               selectedService = services[0].id;
+                                                               selectedServiceName = services[0].name;
+                                                               step = 4;
+                                                           } else {
+                                                               step = 3;
+                                                           }
+                                                       "
                                                               class="group p-8 rounded-2xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/30 hover:bg-[#1a1a36]/50 transition-all duration-300 hover:scale-[1.02] flex flex-col items-center text-center justify-center min-h-[190px] outline-none">
                                                           <div class="w-14 h-14 rounded-2xl bg-blue-600/10 text-blue-500 group-hover:text-blue-400 flex items-center justify-center text-3xl mb-5 transition-all duration-300 border border-blue-500/10">
                                                               <i :class="getIconClass(area.icon)"></i>
@@ -875,7 +887,12 @@
                                           <div x-show="step === 4" class="animate-in fade-in duration-300">
                                               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                   <template x-for="prob in (categoriesByService[selectedService] || [])" :key="prob.id">
-                                                      <button @click="selectedProblem = prob.id; selectedProblemText = prob.name; step = 5;"
+                                                      <button @click="
+                                                           selectedProblem = prob.id;
+                                                           selectedProblemText = prob.name;
+                                                           subcategory = prob.name;
+                                                           step = 5;
+                                                       "
                                                               class="group p-5 rounded-xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between outline-none">
                                                           <span class="font-bold text-white text-sm group-hover:text-blue-400 transition-colors" x-text="prob.name"></span>
                                                           <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-blue-400 transition-colors text-sm"></i>
@@ -958,7 +975,19 @@
 
                                       {{-- Step Footer Navigation --}}
                                       <div class="w-full border-t border-white/5 pt-6 mt-8 flex items-center justify-between">
-                                          <button x-show="step > 1" @click="step--; clearStepsFrom(step);"
+                                          <button x-show="step > 1" @click="
+                                               if (step === 4) {
+                                                   let services = servicesByArea[selectedArea] || [];
+                                                   if (services.length === 1) {
+                                                       step = 2;
+                                                   } else {
+                                                       step--;
+                                                   }
+                                               } else {
+                                                   step--;
+                                               }
+                                               clearStepsFrom(step);
+                                           "
                                                   class="flex items-center text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition-colors outline-none">
                                               <i class="fa-solid fa-chevron-left mr-2 text-sm"></i> Paso Anterior
                                           </button>
