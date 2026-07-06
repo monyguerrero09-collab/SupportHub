@@ -30,6 +30,8 @@ class SupportHub extends Component
     // Filters for Metrics
     public $dateFilter = '';
     public $userFilter = '';
+    public $searchUser = '';
+    public $aTicketHoraVisita = '';
 
     // Modal states
     public $showingAddEquipment = false;
@@ -240,6 +242,7 @@ class SupportHub extends Component
             $this->aTicketPriority = $ticket->prioridad_id;
             $this->aTicketStatus = $ticket->estado_id;
             $this->aTicketAgent = $ticket->agente_asignado_id;
+            $this->aTicketHoraVisita = $ticket->hora_visita;
             $this->aTicketKoment = '';
             $this->showingAdminTicket = true;
         }
@@ -280,12 +283,16 @@ class SupportHub extends Component
         $ticket = Ticket::find($this->aTicketId);
         if ($ticket) {
             $oldStatusId = $ticket->estado_id;
+            $oldHoraVisita = $ticket->hora_visita;
 
             $ticket->update([
                 'prioridad_id' => $this->aTicketPriority,
                 'estado_id' => $this->aTicketStatus,
                 'agente_asignado_id' => $this->aTicketAgent ?: null,
+                'hora_visita' => $this->aTicketHoraVisita ?: null,
             ]);
+
+            $visitaText = $this->aTicketHoraVisita ? "\n\nHora de visita programada: " . $this->aTicketHoraVisita : "";
 
             // Add note/comment if written
             if (!empty($this->aTicketKoment)) {
@@ -300,7 +307,7 @@ class SupportHub extends Component
                     try {
                         \Illuminate\Support\Facades\Mail::raw(
                             "Estimado usuario, su ticket #{$ticket->id} ha recibido una actualización:\n\n" .
-                            $this->aTicketKoment . "\n\n" .
+                            $this->aTicketKoment . $visitaText . "\n\n" .
                             "Estado actual: " . (\App\Models\EstadoTicket::find($this->aTicketStatus)->nombre ?? 'Desconocido'),
                             function ($mail) use ($ticket) {
                                 $mail->to($ticket->creador->email)
@@ -315,10 +322,23 @@ class SupportHub extends Component
                     try {
                         $estadoNombre = \App\Models\EstadoTicket::find($this->aTicketStatus)->nombre ?? 'Desconocido';
                         \Illuminate\Support\Facades\Mail::raw(
-                            "Estimado usuario, el estado de su ticket #{$ticket->id} ha cambiado a: {$estadoNombre}.\n\n",
+                            "Estimado usuario, el estado de su ticket #{$ticket->id} ha cambiado a: {$estadoNombre}.{$visitaText}\n\n",
                             function ($mail) use ($ticket, $estadoNombre) {
                                 $mail->to($ticket->creador->email)
                                      ->subject("Su Ticket #{$ticket->id} se encuentra en: {$estadoNombre}");
+                            }
+                        );
+                    } catch (\Exception $e) {}
+                }
+            } elseif ($oldHoraVisita != $this->aTicketHoraVisita) {
+                // Notificación de cambio de hora de visita únicamente
+                if ($ticket->creador) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::raw(
+                            "Estimado usuario, se ha programado/actualizado la hora de visita para su ticket #{$ticket->id} a: {$this->aTicketHoraVisita}.\n\n",
+                            function ($mail) use ($ticket) {
+                                $mail->to($ticket->creador->email)
+                                     ->subject("Hora de visita actualizada - Ticket #{$ticket->id}");
                             }
                         );
                     } catch (\Exception $e) {}
@@ -419,6 +439,10 @@ class SupportHub extends Component
 
     public function openUserModal($id = null)
     {
+        if ($id && Auth::user()->role !== 'admin') {
+            $this->dispatch('notify', 'No tienes permisos para editar usuarios');
+            return;
+        }
         $this->reset(['userName', 'userEmail', 'userPassword', 'userRole', 'userCodigoAcceso', 'selectedUserId']);
         if ($id) {
             $user = User::find($id);
@@ -433,6 +457,11 @@ class SupportHub extends Component
 
     public function saveUser()
     {
+        if ($this->selectedUserId && Auth::user()->role !== 'admin') {
+            $this->dispatch('notify', 'No tienes permisos para editar usuarios');
+            return;
+        }
+
         // Validation rules: codigo_acceso must be unique (except for the user being updated)
         $rules = [
             'userName' => 'required|string|max:255',
@@ -484,6 +513,10 @@ class SupportHub extends Component
 
     public function deleteUser($id)
     {
+        if (Auth::user()->role !== 'admin') {
+            $this->dispatch('notify', 'No tienes permisos para eliminar usuarios');
+            return;
+        }
         User::find($id)->delete();
     }
 
@@ -651,7 +684,16 @@ class SupportHub extends Component
         }
 
         $tickets = Ticket::with(['estado', 'prioridad', 'creador'])->latest()->get();
-        $users = User::all();
+        
+        $usersQuery = User::orderBy('nombre_completo', 'asc');
+        if (!empty($this->searchUser)) {
+            $usersQuery->where(function($q) {
+                $q->where('nombre_completo', 'like', '%' . $this->searchUser . '%')
+                  ->orWhere('email', 'like', '%' . $this->searchUser . '%')
+                  ->orWhere('codigo_acceso', 'like', '%' . $this->searchUser . '%');
+            });
+        }
+        $users = $usersQuery->get();
         
         $stockCount = Equipment::where('status', 'in-stock')->count();
         $deployedCount = Equipment::where('status', 'deployed')->count();

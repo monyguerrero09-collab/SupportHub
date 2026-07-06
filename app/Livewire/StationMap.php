@@ -14,12 +14,50 @@ class StationMap extends Component
     public $selectedStationId = null;
     public $activePlant = 1;
     public $scale = 1;
+    public $showingAssignModal = false;
+    public $searchEquipment = '';
 
     protected $listeners = ['setSelectedStation' => 'setSelectedStation'];
 
     public function setSelectedStation($id)
     {
         $this->selectedStationId = $id;
+    }
+
+    public function openAssignModal()
+    {
+        $this->searchEquipment = '';
+        $this->showingAssignModal = true;
+    }
+
+    public function assignEquipment($id)
+    {
+        if (in_array(auth()->user()->role ?? '', ['admin', 'agente'])) {
+            $equipment = Equipment::find($id);
+            if ($equipment && $this->selectedStationId) {
+                $equipment->update([
+                    'maquina_id' => $this->selectedStationId,
+                    'status' => 'deployed',
+                    'installed_at' => now(),
+                ]);
+                $this->dispatch('notify', 'Equipo vinculado exitosamente');
+            }
+        }
+    }
+
+    public function unlinkEquipment($id)
+    {
+        if (in_array(auth()->user()->role ?? '', ['admin', 'agente'])) {
+            $equipment = Equipment::find($id);
+            if ($equipment) {
+                $equipment->update([
+                    'maquina_id' => null,
+                    'status' => 'in-stock',
+                    'installed_at' => null,
+                ]);
+                $this->dispatch('notify', 'Equipo desvinculado exitosamente');
+            }
+        }
     }
 
     public function switchPlant($plantId)
@@ -104,11 +142,27 @@ class StationMap extends Component
             ? $processedStations->firstWhere('db_id', $this->selectedStationId) 
             : null;
 
+        $availableEquipment = collect();
+        if ($this->showingAssignModal) {
+            $availableQuery = Equipment::where(function($q) {
+                $q->where('status', 'in-stock')->orWhereNull('maquina_id');
+            });
+            if (!empty($this->searchEquipment)) {
+                $availableQuery->where(function($q) {
+                    $q->where('name', 'like', '%' . $this->searchEquipment . '%')
+                      ->orWhere('model', 'like', '%' . $this->searchEquipment . '%')
+                      ->orWhere('barcode', 'like', '%' . $this->searchEquipment . '%');
+                });
+            }
+            $availableEquipment = $availableQuery->get();
+        }
+
         return view('livewire.station-map', [
             'stations' => $processedStations,
             'selectedStation' => $selectedStation,
             'stockCount' => $stockCount,
-            'deployedCount' => $deployedCount
+            'deployedCount' => $deployedCount,
+            'availableEquipment' => $availableEquipment,
         ]);
     }
 }

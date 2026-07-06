@@ -240,11 +240,28 @@
 
                     {{-- Scroll Area para Inventario --}}
                     <div class="p-8 flex-1 overflow-y-auto space-y-4">
-                        <h4 class="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Activos Vinculados</h4>
+                        <div class="flex items-center justify-between mb-6 border-b border-white/5 pb-2">
+                            <h4 class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Activos Vinculados</h4>
+                            @if(in_array(auth()->user()->role ?? '', ['admin', 'agente']))
+                            <button wire:click="openAssignModal" class="px-3.5 py-1.5 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white rounded-xl border border-blue-500/20 transition-all font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 shadow-lg">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                Vincular
+                            </button>
+                            @endif
+                        </div>
                         @forelse($selectedStation['equipment'] as $item)
-                        <div class="p-5 bg-white/[0.03] border border-white/5 rounded-2xl group hover:bg-white/10 transition-all">
-                            <p class="font-black text-white text-sm uppercase tracking-tight">{{ $item->name ?? 'Equipo #'.$item->id }}</p>
-                            <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">{{ $item->model ?? 'N/A' }} | S/N: {{ $item->serial_number ?? 'N/A' }}</p>
+                        <div class="p-5 bg-white/[0.03] border border-white/5 rounded-2xl group hover:bg-white/10 transition-all flex items-center justify-between gap-4">
+                            <div class="min-w-0 flex-1">
+                                <p class="font-black text-white text-sm uppercase tracking-tight truncate">{{ $item->name ?? 'Equipo #'.$item->id }}</p>
+                                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1 truncate">
+                                    {{ $item->model ?? 'N/A' }} | S/N: {{ $item->barcode ?? $item->serial_number ?? 'N/A' }}
+                                </p>
+                            </div>
+                            @if(in_array(auth()->user()->role ?? '', ['admin', 'agente']))
+                            <button wire:click="unlinkEquipment({{ $item->id }})" wire:confirm="¿Desvincular este equipo de la estación?" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl border border-red-500/20 hover:border-red-500 transition-all shrink-0" title="Desvincular equipo">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                            @endif
                         </div>
                         @empty
                         <div class="p-8 text-center bg-white/5 border border-white/5 rounded-2xl">
@@ -275,6 +292,61 @@
                 @endif
             </div>
 
+    {{-- MODAL: VINCULAR EQUIPOS A LA ESTACIÓN --}}
+    @if($showingAssignModal && $selectedStation)
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
+        <div class="w-full max-w-md bg-[#0a0a1a] rounded-[2rem] border border-blue-500/20 shadow-4xl overflow-hidden max-h-[85vh] flex flex-col">
+            
+            {{-- Header --}}
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0a1a] z-10 shrink-0">
+                <div>
+                    <h3 class="text-lg font-black text-white uppercase tracking-tighter">Vincular Equipos</h3>
+                    <p class="text-[9px] text-blue-500 uppercase font-bold tracking-widest mt-0.5">{{ $selectedStation['name'] }}</p>
+                </div>
+                <button wire:click="$set('showingAssignModal', false)" class="text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            {{-- Buscador --}}
+            <div class="p-5 border-b border-white/5 shrink-0">
+                <div class="relative w-full">
+                    <input type="text" wire:model.live="searchEquipment" placeholder="Buscar equipo por nombre o modelo..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pl-11 text-xs text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600 uppercase tracking-wider font-bold">
+                    <svg class="w-5 h-5 text-gray-600 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+            </div>
+
+            {{-- Lista de Equipos disponibles en Bodega --}}
+            <div class="p-5 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
+                <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Equipos en Bodega</h4>
+                @forelse($availableEquipment as $item)
+                <div class="p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.05] transition-all flex items-center justify-between gap-4">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-black text-white text-xs uppercase tracking-tight truncate">{{ $item->name }}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-0.5 truncate">
+                            {{ $item->model ?? 'N/A' }} | S/N: {{ $item->barcode ?? $item->serial_number ?? 'N/A' }}
+                        </p>
+                    </div>
+                    <button wire:click="assignEquipment({{ $item->id }})" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[9px] font-black uppercase tracking-wider transition-all shrink-0">
+                        Vincular
+                    </button>
+                </div>
+                @empty
+                <div class="text-center py-10 bg-white/[0.01] border border-white/5 border-dashed rounded-2xl">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">No hay equipos disponibles</p>
+                    <p class="text-[9px] text-gray-600 uppercase font-black tracking-widest mt-2">Registra nuevos activos en Inventario</p>
+                </div>
+                @endforelse
+            </div>
+
+            {{-- Footer --}}
+            <div class="p-5 border-t border-white/5 bg-[#050510]/50 shrink-0">
+                <button wire:click="$set('showingAssignModal', false)" class="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                    Cerrar
+                </button>
+            </div>
+
         </div>
     </div>
+    @endif
 </div>

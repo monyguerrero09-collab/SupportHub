@@ -325,6 +325,13 @@
                                         @if($ticket->creador)
                                             <p class="text-[10px] font-bold text-gray-600 mt-1 uppercase">{{ $ticket->creador->name }}</p>
                                         @endif
+                                        @if($ticket->hora_visita)
+                                            <p class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
+                                                    🕒 Visita: {{ $ticket->hora_visita }}
+                                                </span>
+                                            </p>
+                                        @endif
                                     </td>
                                     <td class="px-10 py-8">
                                         <span class="text-[10px] font-black uppercase text-gray-400">{{ $ticket->prioridad->nombre }}</span>
@@ -1012,7 +1019,14 @@
                                     </span>
                                 </div>
                                 <h4 class="font-black text-white text-sm uppercase tracking-tight truncate">{{ $ticket->titulo }}</h4>
-                                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest truncate mt-1">PRIORIDAD: {{ $ticket->prioridad->nombre }}</p>
+                                <div class="flex items-center gap-3 mt-1.5">
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest truncate">PRIORIDAD: {{ $ticket->prioridad->nombre }}</p>
+                                    @if($ticket->hora_visita)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
+                                            🕒 Visita: {{ $ticket->hora_visita }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <div class="relative z-10 text-right hidden sm:block w-32 shrink-0">
                                 <p class="text-[9px] font-black tracking-[0.2em] text-gray-500 uppercase">Apertura</p>
@@ -1073,6 +1087,12 @@
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Motivo Reportado</h5>
                                             <p class="text-xs font-bold text-gray-300 uppercase tracking-tight">{{ $detTicket->titulo }}</p>
                                         </div>
+                                        @if($detTicket->hora_visita)
+                                        <div>
+                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Hora de Visita Agente TI</h5>
+                                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">🕒 {{ $detTicket->hora_visita }}</span>
+                                        </div>
+                                        @endif
                                         <div class="col-span-1 md:col-span-2 border-t border-white/10 pt-6 mt-2">
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Declaración Inicial</h5>
                                             <div class="bg-black/40 p-6 rounded-2xl text-xs font-medium text-gray-400 border border-white/5 shadow-inner leading-relax italic mb-6">
@@ -1607,11 +1627,17 @@
             {{-- Users Tab --}}
             <template x-if="activeTab === 'users'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-12">
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                          <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Gestión de Usuarios</h3>
-                         <button wire:click="openUserModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[.25em] shadow-2xl transition-all">
-                             + Registrar Usuario
-                         </button>
+                         <div class="flex items-center gap-4 w-full md:w-auto">
+                             <div class="relative w-full md:w-80">
+                                 <input type="text" wire:model.live="searchUser" placeholder="Buscar usuario..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 pl-11 text-xs text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600 uppercase tracking-wider font-bold">
+                                 <svg class="w-5 h-5 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                             </div>
+                             <button wire:click="openUserModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[.25em] shadow-2xl transition-all shrink-0">
+                                 + Registrar Usuario
+                             </button>
+                         </div>
                     </div>
                     <div class="bg-[#1a1a2e]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] overflow-hidden shadow-3xl">
                          <table class="w-full text-left border-collapse">
@@ -1619,7 +1645,9 @@
                                  <tr class="bg-white/5 border-b border-white/5">
                                      <th class="px-10 py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Nombre</th>
                                      <th class="px-10 py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Email</th>
+                                     @if(auth()->user()->role === 'admin')
                                      <th class="px-10 py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
+                                     @endif
                                  </tr>
                              </thead>
                              <tbody class="divide-y divide-white/[0.03]">
@@ -1627,6 +1655,7 @@
                                  <tr class="group hover:bg-white/[0.03] transition-all">
                                      <td class="px-10 py-7 text-sm font-black text-white uppercase tracking-tight">{{ $user->name }}</td>
                                      <td class="px-10 py-7 text-xs font-bold text-gray-500">{{ $user->email }}</td>
+                                     @if(auth()->user()->role === 'admin')
                                      <td class="px-10 py-7 text-right">
                                          <div class="flex items-center justify-end gap-6">
                                              <button wire:click="openUserModal({{ $user->id }})" class="text-blue-500 hover:text-white transition-colors bg-blue-500/10 p-2 rounded-xl">
@@ -1637,6 +1666,7 @@
                                              </button>
                                          </div>
                                      </td>
+                                     @endif
                                  </tr>
                                  @endforeach
                              </tbody>
@@ -2016,6 +2046,11 @@
                             </select>
                             <svg class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Hora de Visita Agente TI</label>
+                        <input type="text" wire:model="aTicketHoraVisita" placeholder="Ej. 10:00 am o 2:00 pm" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
                     </div>
 
                     <div class="space-y-3">
