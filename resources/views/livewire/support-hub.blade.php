@@ -304,6 +304,44 @@
                             + Generar Ticket
                         </button>
                     </div>
+
+                    {{-- Filters control bar --}}
+                    <div class="flex flex-col xl:flex-row gap-5 items-stretch xl:items-center justify-between bg-[#101026]/60 backdrop-blur-2xl rounded-2xl p-5 border border-white/5">
+                        {{-- Status buttons --}}
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button wire:click="$set('statusFilter', 'Todos')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border {{ $statusFilter === 'Todos' ? 'bg-blue-600 border-blue-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
+                                Todos
+                            </button>
+                            <button wire:click="$set('statusFilter', 'Abierto')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'Abierto' ? 'bg-blue-600 border-blue-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Abiertos
+                            </button>
+                            <button wire:click="$set('statusFilter', 'En Proceso')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'En Proceso' ? 'bg-yellow-600 border-yellow-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
+                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> En Proceso
+                            </button>
+                            <button wire:click="$set('statusFilter', 'Resuelto')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'Resuelto' ? 'bg-emerald-600 border-emerald-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Resueltos
+                            </button>
+                            <button wire:click="$set('statusFilter', 'Cerrado')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'Cerrado' ? 'bg-purple-600 border-purple-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span> Cerrados
+                            </button>
+                        </div>
+
+                        {{-- Calendar Picker filter --}}
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Filtrar por Día:</label>
+                                <div class="relative">
+                                    <input type="date" wire:model.live="dateFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none" />
+                                </div>
+                            </div>
+                            @if($statusFilter !== 'Todos' || $dateFilter)
+                                <button wire:click="$set('statusFilter', 'Todos'); $set('dateFilter', '');" class="text-[9px] font-black text-rose-400 hover:text-rose-300 uppercase tracking-widest transition-colors focus:outline-none">
+                                    Limpiar Filtros
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+
                     {{-- Tickets Table... --}}
                     <div class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
                         <table class="w-full text-left border-collapse min-w-[700px]">
@@ -312,6 +350,7 @@
                                     <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">ID</th>
                                     <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Incidencia</th>
                                     <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Prioridad</th>
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asignado A</th>
                                     <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
                                     <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
                                 </tr>
@@ -335,6 +374,18 @@
                                     </td>
                                     <td class="px-10 py-8">
                                         <span class="text-[10px] font-black uppercase text-gray-400">{{ $ticket->prioridad->nombre }}</span>
+                                    </td>
+                                    <td class="px-10 py-8">
+                                        @if($ticket->agente)
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-[9px] font-black uppercase border border-blue-500/20">
+                                                    {{ substr($ticket->agente->nombre_completo, 0, 2) }}
+                                                </div>
+                                                <span class="text-xs font-bold text-gray-300 uppercase tracking-tight">{{ $ticket->agente->nombre_completo }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 bg-white/5 px-2.5 py-1 rounded-lg">Sin Asignar</span>
+                                        @endif
                                     </td>
                                     <td class="px-10 py-8">
                                         @php
@@ -406,6 +457,11 @@
                         selectedProblemText: '',
                         sectors: {{ json_encode($SECTORS) }},
                         areas: {{ json_encode($AREAS) }},
+                        vigilanciaAreas: [
+                            { id: 'vig_camara', name: 'Cámara', services: 1, icon: 'Video' },
+                            { id: 'vig_equipo', name: 'Equipo', services: 1, icon: 'Monitor' },
+                            { id: 'vig_wifi', name: 'Red de WiFi', services: 1, icon: 'Globe' }
+                        ],
                         servicesByArea: {{ json_encode($SERVICES_BY_AREA) }},
                         categoriesByService: {{ json_encode($CATEGORIES_BY_SERVICE) }},
                         manualProblem: '',
@@ -418,6 +474,8 @@
                         subcategory: null,
                         intStation: '',
                         intComment: '',
+                        sendingTicket: false,
+                        showSuccessScreen: false,
                         maquinas: {{ json_encode($maquinas ?? []) }},
                         findMachineId(name) {
                             if (!name) return null;
@@ -512,8 +570,9 @@
                                 }
                             });
                         },
-                        submitManualTicket() {
+                        async submitManualTicket() {
                             if (!this.isManualReady) return;
+                            this.sendingTicket = true;
                             $wire.set('ticketSectorId', this.manualSector);
                             $wire.set('ticketCategory', 'MANUAL');
                             $wire.set('ticketSubcategory', this.manualProblem);
@@ -521,10 +580,22 @@
                             $wire.set('ticketPriority', 2);
                             let mId = this.findMachineId(this.manualStation);
                             $wire.set('ticketLocation', mId);
-                            $wire.createTicket();
+                            
+                            let startTime = Date.now();
+                            try {
+                                await $wire.createTicket();
+                                let elapsed = Date.now() - startTime;
+                                if (elapsed < 2000) {
+                                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+                                }
+                            } catch (e) {
+                                console.error(e);
+                            }
+                            this.sendingTicket = false;
                         },
-                        submitIntuitiveTicket() {
+                        async submitIntuitiveTicket() {
                             if (!this.isIntuitiveReady) return;
+                            this.sendingTicket = true;
                             $wire.set('ticketSectorId', this.selectedSector);
                             $wire.set('ticketCategory', this.category);
                             $wire.set('ticketSubcategory', this.subcategory);
@@ -538,10 +609,21 @@
                             $wire.set('ticketPriority', pri);
                             let mId = this.findMachineId(this.intStation);
                             $wire.set('ticketLocation', mId);
-                            $wire.createTicket();
+                            
+                            let startTime = Date.now();
+                            try {
+                                await $wire.createTicket();
+                                let elapsed = Date.now() - startTime;
+                                if (elapsed < 2000) {
+                                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+                                }
+                            } catch (e) {
+                                console.error(e);
+                            }
+                            this.sendingTicket = false;
                         }
                      }"
-                     @ticket-created.window="clearAll(); mode = 'selection'; step = 1; clearStepsFrom(1);">
+                     @ticket-created.window="showSuccessScreen = true;">
                      <div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
                          <div style="position:absolute;width:60vw;height:60vh;top:-10vh;right:-10vw;border-radius:50%;filter:blur(90px);background:radial-gradient(circle, rgba(45,27,150,0.25) 0%, rgba(30,15,100,0.1) 40%, transparent 70%);animation:nebulaDrift 28s ease-in-out infinite alternate;"></div>
                          <div style="position:absolute;width:50vw;height:50vh;bottom:-10vh;left:-5vw;border-radius:50%;filter:blur(80px);background:radial-gradient(circle, rgba(10,50,150,0.2) 0%, transparent 70%);animation:nebulaDrift 22s ease-in-out infinite alternate;animation-delay:-10s;"></div>
@@ -777,7 +859,7 @@
 
                                           {{-- STEP 1: SECTORS --}}
                                           <div x-show="step === 1" class="animate-in fade-in duration-300">
-                                              <div x-show="!showProduccionSub" class="grid grid-cols-1 sm:grid-cols-2 gap-8 py-4">
+                                              <div x-show="!showProduccionSub" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 py-4">
                                                   <!-- Button 1: Administración -->
                                                   <button @click="
                                                       let adminSector = sectors.find(s => s.name === 'Administración');
@@ -807,6 +889,26 @@
                                                       <div>
                                                           <span class="font-extrabold text-white text-lg block group-hover:text-purple-400 transition-colors">Producción</span>
                                                           <span class="text-gray-400 text-xs mt-1 block font-medium">Áreas operativas y maquinaria industrial</span>
+                                                      </div>
+                                                  </button>
+
+                                                  <!-- Button 3: Vigilancia -->
+                                                  <button @click="
+                                                      let vigSector = sectors.find(s => s.name === 'Vigilancia');
+                                                      if (vigSector) {
+                                                          selectedSector = vigSector.id;
+                                                          selectedSectorName = vigSector.name;
+                                                          $wire.set('ticketSectorId', vigSector.id);
+                                                          step = 2;
+                                                      }
+                                                  "
+                                                  class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-amber-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
+                                                      <div class="w-14 h-14 bg-amber-600/10 text-amber-400 group-hover:bg-amber-600 group-hover:text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 shrink-0">
+                                                          📹
+                                                      </div>
+                                                      <div>
+                                                          <span class="font-extrabold text-white text-lg block group-hover:text-amber-400 transition-colors">Vigilancia</span>
+                                                          <span class="text-gray-400 text-xs mt-1 block font-medium">Cámaras, red de video y equipos de seguridad</span>
                                                       </div>
                                                   </button>
                                               </div>
@@ -840,11 +942,11 @@
                                           {{-- STEP 2: AREAS --}}
                                           <div x-show="step === 2" class="animate-in fade-in duration-300">
                                               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                                                  <template x-for="area in areas" :key="area.id">
+                                                  <template x-for="area in (selectedSectorName === 'Vigilancia' ? vigilanciaAreas : areas)" :key="area.id">
                                                       <button @click="
                                                            selectedArea = area.id;
                                                            selectedAreaName = area.name;
-                                                           category = area.name;
+                                                           this.category = area.name;
                                                            let services = servicesByArea[area.id] || [];
                                                            if (services.length === 1) {
                                                                selectedService = services[0].id;
@@ -890,7 +992,7 @@
                                                       <button @click="
                                                            selectedProblem = prob.id;
                                                            selectedProblemText = prob.name;
-                                                           subcategory = prob.name;
+                                                           this.subcategory = prob.name;
                                                            step = 5;
                                                        "
                                                               class="group p-5 rounded-xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between outline-none">
@@ -999,12 +1101,72 @@
                                           </button>
                                       </div>
                                   </div>
+                                                    <style>
+                          @keyframes scale-in { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+                          @keyframes flyAwayAnimation {
+                              0% {
+                                  transform: translate(-100px, 100px) rotate(45deg) scale(0.6);
+                                  opacity: 0;
+                              }
+                              15% {
+                                  opacity: 1;
+                              }
+                              50% {
+                                  transform: translate(0px, 0px) rotate(45deg) scale(1);
+                              }
+                              85% {
+                                  opacity: 1;
+                              }
+                              100% {
+                                  transform: translate(150px, -150px) rotate(45deg) scale(0.4);
+                                  opacity: 0;
+                              }
+                          }
+                          .animate-fly-away {
+                              animation: flyAwayAnimation 2.2s ease-in-out infinite;
+                          }
+                      </style>
+
+                      {{-- SENDING SCREEN OVERLAY --}}
+                      <div x-show="sendingTicket" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md" x-transition.opacity style="display: none;">
+                          <div class="text-center space-y-8">
+                              <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
+                                  {{-- Paper plane icon flying --}}
+                                  <div class="animate-fly-away absolute">
+                                      <svg class="w-20 h-20 text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.6)]" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                      </svg>
+                                  </div>
+                                  {{-- Decorative circles / radar lines --}}
+                                  <div class="absolute inset-0 rounded-full border border-white/5 animate-ping"></div>
+                                  <div class="absolute inset-4 rounded-full border border-white/10"></div>
+                              </div>
+                              <div class="space-y-2 animate-pulse">
+                                  <h4 class="text-lg font-black text-white uppercase tracking-widest">Enviando Incidencia</h4>
+                                  <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Despegando hacia el Service Desk...</p>
                               </div>
                           </div>
-                     </div>
-                     <style>
-                         @keyframes scale-in { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-                     </style>
+                      </div>
+
+                      {{-- SUCCESS SCREEN OVERLAY --}}
+                      <div x-show="showSuccessScreen" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md p-6" x-transition.opacity style="display: none;">
+                          <div class="bg-[#0b0b1e]/95 border border-white/10 rounded-[2.5rem] p-8 max-w-md w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
+                              <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 blur-[50px] rounded-full"></div>
+                              
+                              <div class="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-4xl mx-auto border border-emerald-500/20" style="animation: scale-in 0.5s ease-out;">
+                                  <i class="fa-solid fa-circle-check"></i>
+                              </div>
+                              
+                              <div class="space-y-2">
+                                  <h3 class="text-2xl font-black text-white uppercase tracking-tight">¡Ticket Generado!</h3>
+                                  <p class="text-xs text-gray-400 font-bold uppercase tracking-wider leading-relaxed">Tu solicitud ha sido registrada exitosamente en la plataforma de soporte técnico.</p>
+                              </div>
+                              
+                              <button @click="showSuccessScreen = false; clearAll(); mode = 'selection';" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all focus:outline-none">
+                                  Entendido
+                              </button>
+                          </div>
+                      </div>
                 </div>
             </template>
 
@@ -1049,7 +1211,14 @@
                                 </div>
                                 <h4 class="font-black text-white text-sm uppercase tracking-tight truncate">{{ $ticket->titulo }}</h4>
                                 <div class="flex items-center gap-3 mt-1.5">
-                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest truncate">PRIORIDAD: {{ $ticket->prioridad->nombre }}</p>
+                                     @if(auth()->user()->role === 'user')
+                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
+                                             @if($ticket->agente) bg-blue-500/10 text-blue-400 border border-blue-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                             👤 Soporte: {{ $ticket->agente ? $ticket->agente->nombre_completo : 'Por asignar' }}
+                                         </span>
+                                     @else
+                                         <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest truncate">PRIORIDAD: {{ $ticket->prioridad->nombre }}</p>
+                                     @endif
                                     @if($ticket->hora_visita)
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
                                             🕒 Visita: {{ $ticket->hora_visita }}
@@ -1109,8 +1278,15 @@
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white/5 p-8 rounded-[2rem] border border-white/5">
                                         <div>
-                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Importancia</h5>
-                                            <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-purple-600/20 text-purple-400 border border-purple-500/30">{{ $detTicket->prioridad->nombre ?? 'N/A' }}</span>
+                                            @if(auth()->user()->role === 'user')
+                                                <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Encargado de Soporte</h5>
+                                                <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest @if($detTicket->agente) bg-blue-600/20 text-blue-400 border border-blue-500/30 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                                    👤 {{ $detTicket->agente ? $detTicket->agente->nombre_completo : 'Sin Asignar' }}
+                                                </span>
+                                            @else
+                                                <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Importancia</h5>
+                                                <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-purple-600/20 text-purple-400 border border-purple-500/30">{{ $detTicket->prioridad->nombre ?? 'N/A' }}</span>
+                                            @endif
                                         </div>
                                         <div>
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Motivo Reportado</h5>

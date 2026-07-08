@@ -410,6 +410,10 @@
                                             </button>
                                             <input type="file" id="pdf-upload-assign-{{ $as->id }}" class="hidden" wire:model="pdfFiles.{{ $as->id }}" accept=".pdf">
 
+                                            <button wire:click="openEditAssignment({{ $as->id }})" title="Editar Asignación" class="w-8 h-8 rounded-xl bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center border border-white/10 focus:outline-none">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            </button>
+
                                             <button wire:click="returnItem({{ $as->id }})" class="bg-amber-600/10 hover:bg-amber-600 text-amber-400 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-amber-500/20 transition-all flex items-center gap-1.5">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                                                 <span>Retornar</span>
@@ -776,10 +780,10 @@
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Destinatario</label>
                         <div class="flex bg-white/[0.04] p-1.5 border border-white/10 rounded-xl gap-1">
-                            <button type="button" wire:click="$set('newAssignmentTargetType', 'Estación')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all {{ $newAssignmentTargetType === 'Estación' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white' }}">
+                            <button type="button" wire:click="changeNewAssignmentTargetType('Estación')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all {{ $newAssignmentTargetType === 'Estación' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white' }}">
                                 Estación
                             </button>
-                            <button type="button" wire:click="$set('newAssignmentTargetType', 'Usuario')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all {{ $newAssignmentTargetType === 'Usuario' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white' }}">
+                            <button type="button" wire:click="changeNewAssignmentTargetType('Usuario')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all {{ $newAssignmentTargetType === 'Usuario' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white' }}">
                                 Usuario
                             </button>
                         </div>
@@ -827,6 +831,70 @@
                     </button>
                     <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-blue-600/30 transition-all">
                         Asignar y Entregar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    {{-- MODAL 2.5: EDITAR ASIGNACION --}}
+    @if($showEditAssignmentModal)
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+        <div class="bg-[#0b0b1e]/95 border border-white/10 rounded-[2rem] w-full max-w-lg p-8 shadow-2xl relative overflow-hidden backdrop-blur-3xl animate-in zoom-in-95 duration-200">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-600/20 blur-[50px] rounded-full"></div>
+            
+            <h4 class="text-xl font-black text-white uppercase tracking-wider mb-6 border-l-4 border-blue-600 pl-3">Editar Asignación</h4>
+
+            <form wire:submit.prevent="saveEditAssignment" class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Destinatario</label>
+                    <div class="flex bg-white/[0.04] p-1.5 border border-white/10 rounded-xl gap-1">
+                        <button type="button" wire:click="changeEditAssignmentTargetType('Estación')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all {{ $editAssignmentTargetType === 'Estación' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white' }}">
+                            Estación
+                        </button>
+                        <button type="button" wire:click="changeEditAssignmentTargetType('Usuario')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all {{ $editAssignmentTargetType === 'Usuario' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white' }}">
+                            Usuario
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Ubicación / Asignado a</label>
+                    <div class="relative">
+                        <select wire:model="editAssignmentTargetId" class="w-full bg-[#0b0b1e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all appearance-none">
+                            <option value="">-- Seleccionar Destinatario --</option>
+                            @if($editAssignmentTargetType === 'Estación')
+                                @foreach($maquinas as $m)
+                                    <option value="{{ $m->id }}">{{ $m->nombre }}</option>
+                                @endforeach
+                            @else
+                                @foreach($usuarios as $u)
+                                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->role }})</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </div>
+                    @error('editAssignmentTargetId') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Fecha de Asignación / Entrega</label>
+                    <input type="date" wire:model="editAssignmentDate" class="w-full bg-[#0b0b1e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all" required>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Notas de Asignación</label>
+                    <textarea wire:model="editAssignmentNotes" rows="3" class="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-gray-600" placeholder="Observaciones o notas de la entrega..."></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 mt-8">
+                    <button type="button" wire:click="$set('showEditAssignmentModal', false)" class="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-wider text-gray-300 hover:bg-white/10 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-blue-600/30 transition-all">
+                        Guardar Cambios
                     </button>
                 </div>
             </form>

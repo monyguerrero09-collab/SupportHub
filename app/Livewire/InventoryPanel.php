@@ -55,6 +55,14 @@ class InventoryPanel extends Component
     public $editStatus;
     public $editMaquinaId = null;
 
+    // Edit Assignment properties
+    public $showEditAssignmentModal = false;
+    public $editAssignmentId = null;
+    public $editAssignmentTargetType = 'Estación';
+    public $editAssignmentTargetId = '';
+    public $editAssignmentDate;
+    public $editAssignmentNotes = '';
+
     // Edit properties (React style Group Edit)
     public $showEditMaterialModal = false;
     public $editOldType = '';
@@ -422,6 +430,78 @@ class InventoryPanel extends Component
     {
         $this->newAssignmentStockKey = $type . '|' . $model;
         $this->showAssignItemModal = true;
+    }
+
+    public function changeEditAssignmentTargetType($type)
+    {
+        $this->editAssignmentTargetType = $type;
+        $this->editAssignmentTargetId = '';
+    }
+
+    public function changeNewAssignmentTargetType($type)
+    {
+        $this->newAssignmentTargetType = $type;
+        $this->newAssignmentTargetId = '';
+    }
+
+    public function openEditAssignment($id)
+    {
+        $equipment = Equipment::find($id);
+        if ($equipment && $equipment->status === 'deployed') {
+            $this->editAssignmentId = $id;
+            $this->editAssignmentTargetType = $equipment->maquina_id ? 'Estación' : 'Usuario';
+            $this->editAssignmentTargetId = $equipment->maquina_id ?: $equipment->user_id;
+            $this->editAssignmentDate = $equipment->installed_at ? \Carbon\Carbon::parse($equipment->installed_at)->format('Y-m-d') : now()->format('Y-m-d');
+            $this->editAssignmentNotes = $equipment->description;
+            $this->showEditAssignmentModal = true;
+        }
+    }
+
+    public function saveEditAssignment()
+    {
+        $this->validate([
+            'editAssignmentTargetId' => 'required',
+            'editAssignmentDate' => 'required|date',
+        ]);
+
+        $equipment = Equipment::find($this->editAssignmentId);
+        if ($equipment && $equipment->status === 'deployed') {
+            $oldTarget = $equipment->maquina_id ? "Estación: " . ($equipment->maquina ? $equipment->maquina->nombre : '') : "Usuario: " . ($equipment->usuario ? $equipment->usuario->name : '');
+            
+            if ($this->editAssignmentTargetType === 'Estación') {
+                $maquina = \App\Models\Maquina::find($this->editAssignmentTargetId);
+                $newTargetName = $maquina ? $maquina->nombre : 'Estación';
+                
+                $equipment->update([
+                    'maquina_id' => $this->editAssignmentTargetId,
+                    'user_id' => null,
+                    'installed_at' => $this->editAssignmentDate,
+                    'description' => $this->editAssignmentNotes
+                ]);
+            } else {
+                $user = \App\Models\User::find($this->editAssignmentTargetId);
+                $newTargetName = $user ? $user->name : 'Usuario';
+                
+                $equipment->update([
+                    'maquina_id' => null,
+                    'user_id' => $this->editAssignmentTargetId,
+                    'installed_at' => $this->editAssignmentDate,
+                    'description' => $this->editAssignmentNotes
+                ]);
+            }
+
+            $newTarget = $this->editAssignmentTargetType . ": " . $newTargetName;
+
+            // Log movement
+            \App\Models\InventoryMovement::create([
+                'action' => 'Ajuste',
+                'details' => "Se editó la asignación de 1x {$equipment->type} ({$equipment->model}). De [{$oldTarget}] a [{$newTarget}].",
+            ]);
+
+            $this->showEditAssignmentModal = false;
+            $this->dispatch('notify', 'Asignación actualizada con éxito.');
+            $this->dispatch('refresh-inventory');
+        }
     }
 
     public function editEquipment($id)

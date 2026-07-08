@@ -29,6 +29,7 @@ class SupportHub extends Component
     
     // Filters for Metrics
     public $dateFilter = '';
+    public $statusFilter = 'Todos';
     public $userFilter = '';
     public $searchUser = '';
     public $aTicketHoraVisita = '';
@@ -109,6 +110,15 @@ class SupportHub extends Component
         'equipos' => [
             ['id' => 'ntb', 'name' => 'Notebook', 'description' => 'Laptops y periféricos.', 'icon' => 'Monitor'],
             ['id' => 'wks', 'name' => 'WorkStation', 'description' => 'Estaciones de alto rendimiento.', 'icon' => 'Monitor'],
+        ],
+        'vig_camara' => [
+            ['id' => 'vig_camara_serv', 'name' => 'Cámara de Seguridad', 'description' => 'Incidencias con cámaras y monitoreo.', 'icon' => 'Video'],
+        ],
+        'vig_equipo' => [
+            ['id' => 'vig_equipo_serv', 'name' => 'Equipo de Grabación / NVR', 'description' => 'Servidores de video y grabadoras.', 'icon' => 'Monitor'],
+        ],
+        'vig_wifi' => [
+            ['id' => 'vig_wifi_serv', 'name' => 'Conexión de Vigilancia', 'description' => 'Enlace inalámbrico o cableado de seguridad.', 'icon' => 'Globe'],
         ]
     ];
 
@@ -138,6 +148,26 @@ class SupportHub extends Component
         'net_print' => [['id' => 'np1', 'name' => 'No imprime'], ['id' => 'np2', 'name' => 'Papel atascado'], ['id' => 'np3', 'name' => 'No aparece la impresora'], ['id' => 'np4', 'name' => 'Sin tinta o tóner']],
         'pers_print' => [['id' => 'pp1', 'name' => 'No imprime'], ['id' => 'pp2', 'name' => 'Impresión borrosa']],
         'scan' => [['id' => 'sc1', 'name' => 'No escanea'], ['id' => 'sc2', 'name' => 'no se visualiza el escáner']],
+        'vig_camara_serv' => [
+            ['id' => 'vc1', 'name' => 'La cámara no funciona'],
+            ['id' => 'vc2', 'name' => 'Se trabó'],
+            ['id' => 'vc3', 'name' => 'No graba'],
+            ['id' => 'vc4', 'name' => 'Pantalla negra'],
+            ['id' => 'vc5', 'name' => 'Otro']
+        ],
+        'vig_equipo_serv' => [
+            ['id' => 've1', 'name' => 'No enciende'],
+            ['id' => 've2', 'name' => 'Está lento'],
+            ['id' => 've3', 'name' => 'Problemas con la pantalla'],
+            ['id' => 've4', 'name' => 'No funciona'],
+            ['id' => 've5', 'name' => 'Otro']
+        ],
+        'vig_wifi_serv' => [
+            ['id' => 'vw1', 'name' => 'No hay internet'],
+            ['id' => 'vw2', 'name' => 'Internet lento'],
+            ['id' => 'vw3', 'name' => 'Se cae la conexión'],
+            ['id' => 'vw4', 'name' => 'Otro']
+        ]
     ];
 
     public function mount() {
@@ -146,12 +176,13 @@ class SupportHub extends Component
 
         // Load database sectors if they exist, otherwise fallback to static
         if (\Schema::hasTable('sectors')) {
+            \App\Models\Sector::firstOrCreate(['nombre' => 'Vigilancia']);
             $dbSectors = \App\Models\Sector::all();
             if ($dbSectors->isNotEmpty()) {
                 $this->SECTORS = $dbSectors->map(fn($s) => [
                     'id' => $s->id,
                     'name' => $s->nombre,
-                    'icon' => '🏢'
+                    'icon' => $s->nombre === 'Vigilancia' ? '📹' : '🏢'
                 ])->toArray();
             }
         }
@@ -168,7 +199,7 @@ class SupportHub extends Component
             $this->userProfileEmail = Auth::user()->email;
             
             $userRole = Auth::user()->role;
-            $dismissedIds = session()->get('dismissed_notification_ids', []);
+            $dismissedIds = \Illuminate\Support\Facades\Cache::get('dismissed_notifications_' . Auth::id(), []);
             if ($userRole === 'user') {
                 $this->notifCount = Ticket::where('usuario_creador_id', Auth::id())
                     ->whereNotIn('id', $dismissedIds)
@@ -266,19 +297,19 @@ class SupportHub extends Component
 
     public function dismissNotification($id)
     {
-        $dismissed = session()->get('dismissed_notification_ids', []);
+        $dismissed = \Illuminate\Support\Facades\Cache::get('dismissed_notifications_' . Auth::id(), []);
         $dismissed[] = (int)$id;
-        session()->put('dismissed_notification_ids', array_unique($dismissed));
+        \Illuminate\Support\Facades\Cache::forever('dismissed_notifications_' . Auth::id(), array_unique($dismissed));
         $this->notifCount = max(0, $this->notifCount - 1);
     }
 
     public function clearAllNotifications()
     {
-        $dismissed = session()->get('dismissed_notification_ids', []);
+        $dismissed = \Illuminate\Support\Facades\Cache::get('dismissed_notifications_' . Auth::id(), []);
         foreach ($this->notificationsList as $notif) {
             $dismissed[] = (int)$notif['id'];
         }
-        session()->put('dismissed_notification_ids', array_unique($dismissed));
+        \Illuminate\Support\Facades\Cache::forever('dismissed_notifications_' . Auth::id(), array_unique($dismissed));
         $this->notificationsList = [];
         $this->notifCount = 0;
     }
@@ -647,7 +678,7 @@ class SupportHub extends Component
         // Dynamic Notification List Query
         if (Auth::check()) {
             $userRole = Auth::user()->role;
-            $dismissedIds = session()->get('dismissed_notification_ids', []);
+            $dismissedIds = \Illuminate\Support\Facades\Cache::get('dismissed_notifications_' . Auth::id(), []);
             if ($userRole === 'user') {
                 $notifTickets = Ticket::where('usuario_creador_id', Auth::id())
                     ->whereNotIn('id', $dismissedIds)
@@ -688,7 +719,24 @@ class SupportHub extends Component
             $this->notifCount = 0;
         }
 
-        $tickets = Ticket::with(['estado', 'prioridad', 'creador'])->latest()->get();
+        $ticketsQuery = Ticket::with(['estado', 'prioridad', 'creador', 'agente'])->latest();
+        if ($this->statusFilter !== 'Todos') {
+            $ticketsQuery->whereHas('estado', function($q) {
+                if ($this->statusFilter === 'Abierto') {
+                    $q->where('nombre', 'Abierto');
+                } elseif ($this->statusFilter === 'En Proceso') {
+                    $q->where('nombre', 'En Progreso');
+                } elseif ($this->statusFilter === 'Resuelto') {
+                    $q->where('nombre', 'Resuelto');
+                } elseif ($this->statusFilter === 'Cerrado') {
+                    $q->where('nombre', 'Cerrado');
+                }
+            });
+        }
+        if ($this->dateFilter) {
+            $ticketsQuery->whereDate('created_at', $this->dateFilter);
+        }
+        $tickets = $ticketsQuery->get();
         
         $usersQuery = User::orderBy('nombre_completo', 'asc');
         if (!empty($this->searchUser)) {
