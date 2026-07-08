@@ -30,6 +30,7 @@ class SupportHub extends Component
     // Filters for Metrics
     public $dateFilter = '';
     public $statusFilter = 'Todos';
+    public $plantaFilter = '';
     public $userFilter = '';
     public $searchUser = '';
     public $aTicketHoraVisita = '';
@@ -47,6 +48,7 @@ class SupportHub extends Component
     public $ticketLocation;
     public $ticketAvailableTime;
     public $ticketSectorId = null;
+    public $ticketPlanta = null;
     
     // User Modal interaction
     public $userComment = '';
@@ -569,15 +571,30 @@ class SupportHub extends Component
         session()->flash('profile_success', '¡Correo electrónico actualizado correctamente!');
     }
 
+    public function createIntuitiveTicket($data)
+    {
+        $this->ticketSectorId = $data['sectorId'] ?? null;
+        $this->ticketCategory = $data['category'] ?? null;
+        $this->ticketSubcategory = $data['subcategory'] ?? null;
+        $this->ticketDescription = $data['description'] ?? null;
+        $this->ticketPlanta = $data['planta'] ?? null;
+        $this->ticketPriority = $data['priority'] ?? 2;
+        $this->ticketLocation = $data['location'] ?? null;
+
+        $this->createTicket();
+    }
+
     public function createTicket()
     {
         $this->validate([
             'ticketCategory' => 'required',
             'ticketSubcategory' => 'required',
             'ticketDescription' => 'required',
+            'ticketPlanta' => 'required',
         ], [
             'ticketCategory.required' => 'Por favor selecciona un área',
-            'ticketSubcategory.required' => 'Por favor selecciona la incidencia'
+            'ticketSubcategory.required' => 'Por favor selecciona la incidencia',
+            'ticketPlanta.required' => 'Por favor selecciona una planta'
         ]);
 
         if (!empty($this->ticketFiles)) {
@@ -610,6 +627,7 @@ class SupportHub extends Component
             'estado_id' => 1,
             'usuario_creador_id' => Auth::id(),
             'tipo_ticket_id' => 1,
+            'planta' => $this->ticketPlanta,
         ]);
 
         // Guardar archivos adjuntos
@@ -626,20 +644,24 @@ class SupportHub extends Component
         }
 
         // Send Email to Agent and Admin
-        $adminsAndAgents = User::whereHas('rol', function ($q) {
-            $q->whereIn('nombre', ['Admin', 'Agente TI']);
-        })->get();
-        foreach ($adminsAndAgents as $notifyUser) {
-            \Illuminate\Support\Facades\Mail::raw(
-                "Un nuevo caso de resolucion de " . strtoupper($this->ticketCategory) . " ha sido generado.\n\n" .
-                "Título: " . $fullTitle . "\n" .
-                "Usuario: " . Auth::user()->name . "\n\n" .
-                "Descripción:\n" . $finalDescription,
-                function ($mail) use ($notifyUser) {
-                    $mail->to($notifyUser->email)
-                         ->subject('NUEVO TICKET REGISTRADO: ' . strtoupper($this->ticketCategory));
-                }
-            );
+        try {
+            $adminsAndAgents = User::whereHas('rol', function ($q) {
+                $q->whereIn('nombre', ['Admin', 'Agente TI']);
+            })->get();
+            foreach ($adminsAndAgents as $notifyUser) {
+                \Illuminate\Support\Facades\Mail::raw(
+                    "Un nuevo caso de resolucion de " . strtoupper($this->ticketCategory) . " ha sido generado.\n\n" .
+                    "Título: " . $fullTitle . "\n" .
+                    "Usuario: " . Auth::user()->name . "\n\n" .
+                    "Descripción:\n" . $finalDescription,
+                    function ($mail) use ($notifyUser) {
+                        $mail->to($notifyUser->email)
+                             ->subject('NUEVO TICKET REGISTRADO: ' . strtoupper($this->ticketCategory));
+                    }
+                );
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error sending ticket creation email: ' . $e->getMessage());
         }
 
         $this->showingNewTicket = false;
@@ -735,6 +757,9 @@ class SupportHub extends Component
         }
         if ($this->dateFilter) {
             $ticketsQuery->whereDate('created_at', $this->dateFilter);
+        }
+        if ($this->plantaFilter) {
+            $ticketsQuery->where('planta', $this->plantaFilter);
         }
         $tickets = $ticketsQuery->get();
         

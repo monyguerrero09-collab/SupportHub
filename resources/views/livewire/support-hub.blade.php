@@ -334,8 +334,16 @@
                                     <input type="date" wire:model.live="dateFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none" />
                                 </div>
                             </div>
-                            @if($statusFilter !== 'Todos' || $dateFilter)
-                                <button wire:click="$set('statusFilter', 'Todos'); $set('dateFilter', '');" class="text-[9px] font-black text-rose-400 hover:text-rose-300 uppercase tracking-widest transition-colors focus:outline-none">
+                            <div class="flex items-center gap-2 ml-2">
+                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Planta:</label>
+                                <select wire:model.live="plantaFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none appearance-none">
+                                    <option value="">Todas</option>
+                                    <option value="1">Planta 1</option>
+                                    <option value="2">Planta 2</option>
+                                </select>
+                            </div>
+                            @if($statusFilter !== 'Todos' || $dateFilter || $plantaFilter)
+                                <button wire:click="$set('statusFilter', 'Todos'); $set('dateFilter', ''); $set('plantaFilter', '');" class="text-[9px] font-black text-rose-400 hover:text-rose-300 uppercase tracking-widest transition-colors focus:outline-none">
                                     Limpiar Filtros
                                 </button>
                             @endif
@@ -368,6 +376,13 @@
                                             <p class="mt-1.5">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
                                                     🕒 Visita: {{ $ticket->hora_visita }}
+                                                </span>
+                                            </p>
+                                        @endif
+                                        @if($ticket->planta)
+                                            <p class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">
+                                                    <i class="fa-solid fa-building"></i> Planta {{ $ticket->planta }}
                                                 </span>
                                             </p>
                                         @endif
@@ -472,6 +487,7 @@
                         showProduccionSub: false,
                         category: null,
                         subcategory: null,
+                        ticketPlanta: '',
                         intStation: '',
                         intComment: '',
                         sendingTicket: false,
@@ -480,15 +496,15 @@
                         findMachineId(name) {
                             if (!name) return null;
                             let lower = name.toLowerCase().trim();
-                            let match = this.maquinas.find(m => m.nombre.toLowerCase().includes(lower) || m.external_id.toLowerCase() === lower);
+                            let match = this.maquinas.find(m => (m.nombre || '').toLowerCase().includes(lower) || (m.external_id || '').toLowerCase() === lower);
                             return match ? match.id : null;
                         },
                         get isManualReady() { return Boolean(this.manualProblem.trim() && this.manualDescription.trim() && this.manualStation.trim() && this.manualSector); },
-                        get isIntuitiveReady() { return Boolean(this.category && this.subcategory && this.intStation.trim()); },
+                        get isIntuitiveReady() { return Boolean(this.category && this.subcategory && this.intStation.trim() && this.ticketPlanta); },
                         clearAll() {
                             this.manualProblem = ''; this.manualDescription = ''; this.manualStation = ''; this.manualPriority = '2'; this.manualSector = '';
                             this.showProduccionSub = false;
-                            this.category = null; this.subcategory = null; this.intStation = ''; this.intComment = '';
+                            this.category = null; this.subcategory = null; this.ticketPlanta = ''; this.intStation = ''; this.intComment = '';
                             this.step = 1;
                             this.clearStepsFrom(1);
                         },
@@ -602,23 +618,23 @@
                             let desc = 'Generado automáticamente por Botón rápido de TI.';
                             if (this.intComment.trim()) desc += '\n\nComentario extra: ' + this.intComment;
                             desc += '\n\n[Estación/Área Ingresada]: ' + this.intStation;
-                            $wire.set('ticketDescription', desc);
                             let pri = 2;
                             if (this.category === 'Seguridad TI' || this.category === 'Redes/Wifi') pri = 3;
                             else if (this.category === 'Impresión') pri = 1;
-                            $wire.set('ticketPriority', pri);
                             let mId = this.findMachineId(this.intStation);
-                            $wire.set('ticketLocation', mId);
                             
-                            let startTime = Date.now();
                             try {
-                                await $wire.createTicket();
-                                let elapsed = Date.now() - startTime;
-                                if (elapsed < 2000) {
-                                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
-                                }
+                                await $wire.createIntuitiveTicket({
+                                    sectorId: this.selectedSector,
+                                    category: this.category,
+                                    subcategory: this.subcategory,
+                                    description: desc,
+                                    planta: this.ticketPlanta,
+                                    priority: pri,
+                                    location: mId
+                                });
                             } catch (e) {
-                                console.error(e);
+                                console.error('Error al generar ticket rápido:', e);
                             }
                             this.sendingTicket = false;
                         }
@@ -946,7 +962,7 @@
                                                       <button @click="
                                                            selectedArea = area.id;
                                                            selectedAreaName = area.name;
-                                                           this.category = area.name;
+                                                           category = area.name;
                                                            let services = servicesByArea[area.id] || [];
                                                            if (services.length === 1) {
                                                                selectedService = services[0].id;
@@ -992,7 +1008,7 @@
                                                       <button @click="
                                                            selectedProblem = prob.id;
                                                            selectedProblemText = prob.name;
-                                                           this.subcategory = prob.name;
+                                                           subcategory = prob.name;
                                                            step = 5;
                                                        "
                                                               class="group p-5 rounded-xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between outline-none">
@@ -1042,6 +1058,21 @@
 
                                                   {{-- Inputs --}}
                                                   <div class="col-span-1 md:col-span-7 space-y-5">
+                                                      <div>
+                                                          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-industry text-indigo-500 mr-1"></i> Planta *</label>
+                                                          <div class="grid grid-cols-2 gap-3">
+                                                              <button @click="ticketPlanta = 1" type="button"
+                                                                      :class="ticketPlanta === 1 ? 'bg-indigo-600 border-indigo-400 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)]' : 'bg-[#131b2f] border-white/10 text-gray-400 hover:border-indigo-500/50 hover:text-white'"
+                                                                      class="py-3 px-4 rounded-xl border transition-all font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 outline-none">
+                                                                  <i class="fa-solid fa-building"></i> Planta 1
+                                                              </button>
+                                                              <button @click="ticketPlanta = 2" type="button"
+                                                                      :class="ticketPlanta === 2 ? 'bg-indigo-600 border-indigo-400 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)]' : 'bg-[#131b2f] border-white/10 text-gray-400 hover:border-indigo-500/50 hover:text-white'"
+                                                                      class="py-3 px-4 rounded-xl border transition-all font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 outline-none">
+                                                                  <i class="fa-solid fa-building"></i> Planta 2
+                                                              </button>
+                                                          </div>
+                                                      </div>
                                                       <div>
                                                           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-map-pin text-rose-500 mr-1"></i> Área / Estación *</label>
                                                           <input type="text" x-model="intStation" required placeholder="Piso / Cubículo o Nombre del área" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 text-sm outline-none transition-all font-medium">
@@ -1751,7 +1782,10 @@
             @endphp
             <script>
                 window.initStatsCharts = function () {
-                    if (!window.ApexCharts) return;
+                    if (!window.ApexCharts || !document.querySelector('#priorityDonutNexus')) {
+                        setTimeout(window.initStatsCharts, 300);
+                        return;
+                    }
 
                     // Destroy previous instances if any
                     ['#priorityDonutNexus','#statusBarsNexus','#categoryBarsNexus','#incidentTrendNexus','#slaGaugeNexus'].forEach(id => {
@@ -2140,6 +2174,17 @@
                                 @endforeach
                             </div>
                         @endif
+                    </div>
+
+                    {{-- Planta --}}
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Planta</label>
+                        <select wire:model="ticketPlanta" required class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none focus:border-teal-500/60 transition-all">
+                            <option value="">Selecciona Planta</option>
+                            <option value="1">Planta 1</option>
+                            <option value="2">Planta 2</option>
+                        </select>
+                        @error('ticketPlanta') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Ubicación / Máquina --}}
