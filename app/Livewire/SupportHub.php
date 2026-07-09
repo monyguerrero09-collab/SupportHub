@@ -656,25 +656,27 @@ class SupportHub extends Component
             }
         }
 
-        // Send Email to Agent and Admin
+        // Send Email to Agent, Admin, and Creator using NotificacionTicket Mailable
         try {
+            // 1. Notify Admins and Agents
             $adminsAndAgents = User::whereHas('rol', function ($q) {
                 $q->whereIn('nombre', ['Admin', 'Agente TI']);
             })->get();
+            $msgForStaff = "Se ha registrado una nueva solicitud de soporte técnico en la plataforma. A continuación los detalles.";
             foreach ($adminsAndAgents as $notifyUser) {
-                \Illuminate\Support\Facades\Mail::raw(
-                    "Un nuevo caso de resolucion de " . strtoupper($this->ticketCategory) . " ha sido generado.\n\n" .
-                    "Título: " . $fullTitle . "\n" .
-                    "Usuario: " . Auth::user()->name . "\n\n" .
-                    "Descripción:\n" . $finalDescription,
-                    function ($mail) use ($notifyUser) {
-                        $mail->to($notifyUser->email)
-                             ->subject('NUEVO TICKET REGISTRADO: ' . strtoupper($this->ticketCategory));
-                    }
-                );
+                if (!empty($notifyUser->email)) {
+                    \Illuminate\Support\Facades\Mail::to($notifyUser->email)->send(new \App\Mail\NotificacionTicket($ticket, $msgForStaff));
+                }
+            }
+
+            // 2. Notify Creator (User)
+            $creator = Auth::user();
+            if ($creator && !empty($creator->email)) {
+                $msgForCreator = "Hemos recibido tu solicitud de soporte técnico correctamente. Nuestro equipo de TI la revisará a la brevedad.";
+                \Illuminate\Support\Facades\Mail::to($creator->email)->send(new \App\Mail\NotificacionTicket($ticket, $msgForCreator));
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error sending ticket creation email: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error sending ticket creation emails: ' . $e->getMessage());
         }
 
         $this->showingNewTicket = false;
