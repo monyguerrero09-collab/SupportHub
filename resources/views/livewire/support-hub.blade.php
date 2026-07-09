@@ -484,6 +484,7 @@
                         manualStation: '',
                         manualPriority: '2',
                         manualSector: '',
+                        manualPlanta: '',
                         showProduccionSub: false,
                         category: null,
                         subcategory: null,
@@ -499,10 +500,10 @@
                             let match = this.maquinas.find(m => (m.nombre || '').toLowerCase().includes(lower) || (m.external_id || '').toLowerCase() === lower);
                             return match ? match.id : null;
                         },
-                        get isManualReady() { return Boolean(this.manualProblem.trim() && this.manualDescription.trim() && this.manualStation.trim() && this.manualSector); },
+                        get isManualReady() { return Boolean(this.manualProblem.trim() && this.manualDescription.trim() && this.manualStation.trim() && this.manualSector && this.manualPlanta); },
                         get isIntuitiveReady() { return Boolean(this.category && this.subcategory && this.intStation.trim() && this.ticketPlanta); },
                         clearAll() {
-                            this.manualProblem = ''; this.manualDescription = ''; this.manualStation = ''; this.manualPriority = '2'; this.manualSector = '';
+                            this.manualProblem = ''; this.manualDescription = ''; this.manualStation = ''; this.manualPriority = '2'; this.manualSector = ''; this.manualPlanta = '';
                             this.showProduccionSub = false;
                             this.category = null; this.subcategory = null; this.ticketPlanta = ''; this.intStation = ''; this.intComment = '';
                             this.step = 1;
@@ -589,21 +590,16 @@
                         async submitManualTicket() {
                             if (!this.isManualReady) return;
                             this.sendingTicket = true;
-                            $wire.set('ticketSectorId', this.manualSector);
-                            $wire.set('ticketCategory', 'MANUAL');
-                            $wire.set('ticketSubcategory', this.manualProblem);
-                            $wire.set('ticketDescription', this.manualDescription + '\n\n[Estación/Área Ingresada]: ' + this.manualStation);
-                            $wire.set('ticketPriority', 2);
                             let mId = this.findMachineId(this.manualStation);
-                            $wire.set('ticketLocation', mId);
                             
-                            let startTime = Date.now();
                             try {
-                                await $wire.createTicket();
-                                let elapsed = Date.now() - startTime;
-                                if (elapsed < 2000) {
-                                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
-                                }
+                                await $wire.createManualTicket({
+                                    sectorId: this.manualSector,
+                                    subcategory: this.manualProblem,
+                                    description: this.manualDescription + '\n\n[Estación/Área Ingresada]: ' + this.manualStation,
+                                    planta: this.manualPlanta,
+                                    location: mId
+                                });
                             } catch (e) {
                                 console.error(e);
                             }
@@ -708,8 +704,19 @@
                                           <textarea x-model="manualDescription" required rows="3" placeholder="Describe a detalle lo ocurrido..."
                                               class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none resize-none font-medium leading-relaxed"></textarea>
                                       </div>
-                                      {{-- Sector + Estación en grid --}}
-                                      <div class="grid grid-cols-2 gap-3">
+                                      {{-- Planta + Sector + Estación en grid --}}
+                                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                          <div class="space-y-1">
+                                              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
+                                                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-building text-indigo-400"></i> Planta *</span>
+                                              </label>
+                                              <select x-model="manualPlanta" required
+                                                  class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white transition-all text-xs outline-none font-bold">
+                                                  <option class="bg-[#0f172a]" value="">(Seleccionar)</option>
+                                                  <option class="bg-[#0f172a]" value="1">Planta 1</option>
+                                                  <option class="bg-[#0f172a]" value="2">Planta 2</option>
+                                              </select>
+                                          </div>
                                           <div class="space-y-1">
                                               <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
                                                   <span class="flex items-center gap-1.5"><i class="fa-solid fa-industry text-purple-400"></i> Sector *</span>
@@ -1741,8 +1748,8 @@
                     {{-- Charts Row 1 --}}
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-blue-600 pl-3">Tickets por Prioridad</h4>
-                            <div id="priorityDonutNexus"></div>
+                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-indigo-500 pl-3">Tickets por Planta</h4>
+                            <div id="plantaDonutNexus"></div>
                         </div>
                         <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
                             <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-teal-500 pl-3">Tickets por Estado</h4>
@@ -1767,6 +1774,18 @@
                         </div>
                     </div>
 
+                    {{-- Charts Row 3 --}}
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="col-span-1 lg:col-span-2 bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
+                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-amber-500 pl-3">Incidencias Más Frecuentes</h4>
+                            <div id="frequentIncidentsBarsNexus"></div>
+                        </div>
+                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
+                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-blue-600 pl-3">Tickets por Prioridad</h4>
+                            <div id="priorityDonutNexus"></div>
+                        </div>
+                    </div>
+
                 </div>
             </template>
 
@@ -1779,39 +1798,58 @@
                 $catData      = $categoryData->values()->toJson();
                 $months       = $trendMonths->toJson();
                 $trend        = json_encode($trendData);
+                
+                // New charts data
+                $plantaLabels = json_encode(['Planta 1', 'Planta 2']);
+                $plantaData   = json_encode([(int)($plantaCounts['Planta 1'] ?? 0), (int)($plantaCounts['Planta 2'] ?? 0)]);
+                $freqLabels   = $frequentIncidents->keys()->map(fn($k) => Str::limit($k, 25))->values()->toJson();
+                $freqData     = $frequentIncidents->values()->toJson();
             @endphp
             <script>
-                window.initStatsCharts = function () {
-                    if (!window.ApexCharts || !document.querySelector('#priorityDonutNexus')) {
-                        setTimeout(window.initStatsCharts, 300);
+                window.initStatsCharts = function (retries = 0) {
+                    if (!window.ApexCharts || !document.querySelector('#plantaDonutNexus')) {
+                        if (retries < 15) {
+                            setTimeout(() => window.initStatsCharts(retries + 1), 200);
+                        }
                         return;
                     }
 
                     // Destroy previous instances if any
-                    ['#priorityDonutNexus','#statusBarsNexus','#categoryBarsNexus','#incidentTrendNexus','#slaGaugeNexus'].forEach(id => {
+                    ['#plantaDonutNexus','#statusBarsNexus','#categoryBarsNexus','#incidentTrendNexus','#slaGaugeNexus','#frequentIncidentsBarsNexus','#priorityDonutNexus'].forEach(id => {
                         var el = document.querySelector(id);
-                        if (el && el.__apexCharts) { el.__apexCharts.destroy(); }
+                        if (el && el.__apexCharts) {
+                            try { el.__apexCharts.destroy(); } catch(e) {}
+                        }
                         if (el) el.innerHTML = '';
                     });
 
                     var dark = { mode: 'dark' };
                     var gridOpts = { borderColor: 'rgba(255,255,255,0.05)' };
 
-                    // 1. Priority Donut
-                    new ApexCharts(document.querySelector('#priorityDonutNexus'), {
+                    // Helper to render and store instance
+                    function renderChart(selector, options) {
+                        var el = document.querySelector(selector);
+                        if (!el) return;
+                        var chart = new ApexCharts(el, options);
+                        chart.render();
+                        el.__apexCharts = chart;
+                    }
+
+                    // 1. Planta Donut
+                    renderChart('#plantaDonutNexus', {
                         chart: { type: 'donut', height: 260, background: 'transparent' },
-                        series: [{{ (int)($priorityCounts[3] ?? 0) }}, {{ (int)($priorityCounts[2] ?? 0) }}, {{ (int)($priorityCounts[1] ?? 0) }}],
-                        labels: ['Alta', 'Media', 'Baja'],
-                        colors: ['#ef4444', '#f59e0b', '#3b82f6'],
+                        series: {!! $plantaData !!},
+                        labels: {!! $plantaLabels !!},
+                        colors: ['#6366f1', '#a855f7'], // Indigo for Planta 1, Purple for Planta 2
                         theme: dark,
                         plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'TOTAL', color: '#9ca3af', fontSize: '11px', fontWeight: 900, formatter: function() { return {{ (int)$stats['total'] }}; } } } } } },
                         legend: { position: 'bottom', labels: { colors: '#9ca3af' } },
                         dataLabels: { enabled: false },
                         stroke: { width: 0 }
-                    }).render();
+                    });
 
                     // 2. Status Bars
-                    new ApexCharts(document.querySelector('#statusBarsNexus'), {
+                    renderChart('#statusBarsNexus', {
                         chart: { type: 'bar', height: 250, background: 'transparent', toolbar: { show: false } },
                         series: [{ name: 'Tickets', data: {!! $statusData !!} }],
                         colors: ['#3b82f6'],
@@ -1821,10 +1859,10 @@
                         yaxis: { labels: { style: { colors: '#6b7280' } } },
                         grid: gridOpts,
                         dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 700 } }
-                    }).render();
+                    });
 
                     // 3. Category Bars
-                    new ApexCharts(document.querySelector('#categoryBarsNexus'), {
+                    renderChart('#categoryBarsNexus', {
                         chart: { type: 'bar', height: 250, background: 'transparent', toolbar: { show: false } },
                         series: [{ name: 'Tickets', data: {!! $catData !!} }],
                         colors: ['#8b5cf6'],
@@ -1834,10 +1872,10 @@
                         yaxis: { labels: { style: { colors: '#6b7280' } } },
                         grid: gridOpts,
                         dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 700 } }
-                    }).render();
+                    });
 
                     // 4. Monthly Trend
-                    new ApexCharts(document.querySelector('#incidentTrendNexus'), {
+                    renderChart('#incidentTrendNexus', {
                         chart: { type: 'area', height: 280, background: 'transparent', toolbar: { show: false }, zoom: { enabled: false } },
                         series: [{ name: 'Tickets', data: {!! $trend !!} }],
                         colors: ['#3b82f6'],
@@ -1849,17 +1887,43 @@
                         grid: gridOpts,
                         dataLabels: { enabled: false },
                         markers: { size: 5, colors: ['#3b82f6'], strokeColors: '#1e3a8a', strokeWidth: 2 }
-                    }).render();
+                    });
 
                     // 5. SLA Gauge
-                    new ApexCharts(document.querySelector('#slaGaugeNexus'), {
+                    renderChart('#slaGaugeNexus', {
                         chart: { type: 'radialBar', height: 260, background: 'transparent' },
                         series: [{{ (int)$slaPercent }}],
                         colors: ['{{ $slaColor }}'],
                         theme: dark,
                         plotOptions: { radialBar: { hollow: { size: '60%' }, dataLabels: { name: { color: '#6b7280', fontSize: '11px', fontWeight: 700, offsetY: 20 }, value: { fontSize: '34px', fontWeight: 900, color: '#fff', offsetY: -10, formatter: function(val) { return val + '%'; } } } } },
                         labels: ['Cumplimiento']
-                    }).render();
+                    });
+
+                    // 6. Incidencias Más Frecuentes
+                    renderChart('#frequentIncidentsBarsNexus', {
+                        chart: { type: 'bar', height: 250, background: 'transparent', toolbar: { show: false } },
+                        series: [{ name: 'Incidentes', data: {!! $freqData !!} }],
+                        colors: ['#f59e0b'],
+                        theme: dark,
+                        plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '55%' } },
+                        xaxis: { categories: {!! $freqLabels !!}, labels: { style: { colors: '#6b7280' } } },
+                        yaxis: { labels: { style: { colors: '#6b7280' } } },
+                        grid: gridOpts,
+                        dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 700 } }
+                    });
+
+                    // 7. Priority Donut
+                    renderChart('#priorityDonutNexus', {
+                        chart: { type: 'donut', height: 260, background: 'transparent' },
+                        series: [{{ (int)($priorityCounts[3] ?? 0) }}, {{ (int)($priorityCounts[2] ?? 0) }}, {{ (int)($priorityCounts[1] ?? 0) }}],
+                        labels: ['Alta', 'Media', 'Baja'],
+                        colors: ['#ef4444', '#f59e0b', '#3b82f6'],
+                        theme: dark,
+                        plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'TOTAL', color: '#9ca3af', fontSize: '11px', fontWeight: 900, formatter: function() { return {{ (int)$stats['total'] }}; } } } } } },
+                        legend: { position: 'bottom', labels: { colors: '#9ca3af' } },
+                        dataLabels: { enabled: false },
+                        stroke: { width: 0 }
+                    });
                 };
             </script>
 
