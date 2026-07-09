@@ -584,6 +584,19 @@ class SupportHub extends Component
         $this->createTicket();
     }
 
+    public function createManualTicket($data)
+    {
+        $this->ticketSectorId = $data['sectorId'] ?? null;
+        $this->ticketCategory = 'MANUAL';
+        $this->ticketSubcategory = $data['subcategory'] ?? null;
+        $this->ticketDescription = $data['description'] ?? null;
+        $this->ticketPlanta = $data['planta'] ?? null;
+        $this->ticketPriority = 2;
+        $this->ticketLocation = $data['location'] ?? null;
+
+        $this->createTicket();
+    }
+
     public function createTicket()
     {
         $this->validate([
@@ -819,6 +832,18 @@ class SupportHub extends Component
             return $m[1] ?? 'Otro';
         })->countBy()->sortDesc()->take(6);
 
+        // Planta counts (1 vs 2)
+        $plantaCounts = [
+            'Planta 1' => $filteredTickets->where('planta', 1)->count(),
+            'Planta 2' => $filteredTickets->where('planta', 2)->count(),
+        ];
+
+        // Incidencias más frecuentes (subcategory)
+        $frequentIncidents = $filteredTickets->map(function($t) {
+            preg_match('/\]\s*(.+)$/i', $t->titulo, $m);
+            return isset($m[1]) ? trim($m[1]) : $t->titulo;
+        })->countBy()->sortDesc()->take(6);
+
         // SLA compliance: tickets resolved within 2 days
         $resolvedTickets = $filteredTickets->whereIn('estado_id', [3, 4]);
         $slaOk = $resolvedTickets->filter(function($t) {
@@ -844,6 +869,8 @@ class SupportHub extends Component
             'trendMonths'      => $months,
             'trendData'        => $trendData,
             'categoryData'     => $categoryData,
+            'plantaCounts'     => $plantaCounts,
+            'frequentIncidents'=> $frequentIncidents,
             'slaPercent'       => $slaPercent,
             'maquinas'         => Maquina::all(),
             'prioridades'      => Prioridad::all(),
