@@ -9,7 +9,6 @@
      @play-notification-sound.window="playChime()">
     
     {{-- Scripts for Charts --}}
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     {{-- Estilos Globales para Partículas --}}
     <style>
@@ -376,6 +375,13 @@
                                             <p class="mt-1.5">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
                                                     🕒 Visita: {{ $ticket->hora_visita }}
+                                                </span>
+                                            </p>
+                                        @endif
+                                        @if($ticket->tiempo_resolucion)
+                                            <p class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-teal-500/10 text-teal-400 border border-teal-500/20 uppercase tracking-wider">
+                                                    ⏱️ Resol: {{ $ticket->tiempo_resolucion }} min
                                                 </span>
                                             </p>
                                         @endif
@@ -1336,6 +1342,12 @@
                                             <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">🕒 {{ $detTicket->hora_visita }}</span>
                                         </div>
                                         @endif
+                                        @if($detTicket->tiempo_resolucion)
+                                        <div>
+                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Tiempo Estimado de Resolución</h5>
+                                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-teal-500/20 text-teal-400 border border-teal-500/30">⏱️ {{ $detTicket->tiempo_resolucion }} minutos</span>
+                                        </div>
+                                        @endif
                                         <div class="col-span-1 md:col-span-2 border-t border-white/10 pt-6 mt-2">
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Declaración Inicial</h5>
                                             <div class="bg-black/40 p-6 rounded-2xl text-xs font-medium text-gray-400 border border-white/5 shadow-inner leading-relax italic mb-6">
@@ -1722,100 +1734,262 @@
             </div>
 
             <template x-if="activeTab === 'statistics'">
+                @php
+                    $slaColor = $slaPercent >= 90 ? '#10b981' : ($slaPercent >= 70 ? '#f59e0b' : '#ef4444');
+                    
+                    $statusLabelsArr = $estadoNames->values()->toArray();
+                    $statusDataArr   = $estadoNames->keys()->map(fn($id) => $statusCounts[$id] ?? 0)->values()->toArray();
+                    $catLabelsArr    = $categoryData->keys()->map(fn($k) => Str::limit($k, 18))->values()->toArray();
+                    $catDataArr      = $categoryData->values()->toArray();
+                    $monthsArr       = $trendMonths->toArray();
+                    
+                    $plantaLabelsArr = ['Planta 1', 'Planta 2'];
+                    $plantaDataArr   = [(int)($plantaCounts['Planta 1'] ?? 0), (int)($plantaCounts['Planta 2'] ?? 0)];
+                    $freqLabelsArr   = $frequentIncidents->keys()->map(fn($k) => Str::limit($k, 25))->values()->toArray();
+                    $freqDataArr     = $frequentIncidents->values()->toArray();
+                @endphp
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8"
-                     x-init="$nextTick(() => window.initStatsCharts())">
+                     x-data="{
+                         plantaData: {{ Js::from($plantaDataArr) }},
+                         plantaLabels: {{ Js::from($plantaLabelsArr) }},
+                         statusData: {{ Js::from($statusDataArr) }},
+                         statusLabels: {{ Js::from($statusLabelsArr) }},
+                         catData: {{ Js::from($catDataArr) }},
+                         catLabels: {{ Js::from($catLabelsArr) }},
+                         trend: {{ Js::from($trendData) }},
+                         trendClosed: {{ Js::from($trendClosedData) }},
+                         months: {{ Js::from($monthsArr) }},
+                         slaPercent: {{ (int)$slaPercent }},
+                         slaColor: '{{ $slaColor }}',
+                         freqData: {{ Js::from($freqDataArr) }},
+                         freqLabels: {{ Js::from($freqLabelsArr) }},
+                         priorityData: [{{ (int)($priorityCounts[3] ?? 0) }}, {{ (int)($priorityCounts[2] ?? 0) }}, {{ (int)($priorityCounts[1] ?? 0) }}],
+                         priorityLabels: ['Alta', 'Media', 'Baja'],
+                         total: {{ (int)$stats['total'] }}
+                     }"
+                     x-init="$nextTick(() => {
+                         window.drawStatsCharts({
+                             plantaData, plantaLabels, statusData, statusLabels, catData, catLabels,
+                             trend, trendClosed, months, slaPercent, slaColor, freqData, freqLabels,
+                             priorityData, priorityLabels, total
+                         });
+                     })"
+                     x-effect="
+                         if (activeTab === 'statistics') {
+                             $nextTick(() => {
+                                 window.drawStatsCharts({
+                                     plantaData, plantaLabels, statusData, statusLabels, catData, catLabels,
+                                     trend, trendClosed, months, slaPercent, slaColor, freqData, freqLabels,
+                                     priorityData, priorityLabels, total
+                                 });
+                             });
+                         }
+                     }">
+                    <!-- Layout Grid: 12-cols -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                        <!-- Left side: 3 big vertical cards (col-span-3) -->
+                        <div class="lg:col-span-3 flex flex-col gap-6">
+                            <!-- Card 1: Tickets Past Due -->
+                            <div class="relative overflow-hidden bg-gradient-to-br from-red-950/20 via-slate-900/60 to-slate-900/40 border border-red-500/20 rounded-[2rem] p-8 flex flex-col items-center justify-between text-center min-h-[180px] group transition-all duration-300 hover:border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.05)]">
+                                <div class="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full filter blur-xl transition-all group-hover:bg-red-500/10"></div>
+                                <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 group-hover:scale-115 transition-transform shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                                    <svg class="w-6 h-6 text-red-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-red-400/80 transition-colors">Tickets Atrasados</p>
+                                    <p class="text-6xl font-black text-red-400 tracking-tighter leading-none">{{ str_pad($stats['overdue'], 2, '0', STR_PAD_LEFT) }}</p>
+                                </div>
+                            </div>
 
-                    {{-- KPI Cards --}}
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                        @php
-                            $kpis = [
-                                ['label' => 'Atrasados',   'value' => $stats['overdue'],    'color' => 'text-red-400'],
-                                ['label' => 'Hoy',         'value' => $stats['dueToday'],   'color' => 'text-amber-400'],
-                                ['label' => 'Abiertos',    'value' => $stats['open'],       'color' => 'text-blue-400'],
-                                ['label' => 'En Espera',   'value' => $stats['hold'],       'color' => 'text-yellow-400'],
-                                ['label' => 'Sin Asignar', 'value' => $stats['unassigned'], 'color' => 'text-purple-400'],
-                                ['label' => 'Total',       'value' => $stats['total'],      'color' => 'text-white'],
-                            ];
-                        @endphp
-                        @foreach($kpis as $kpi)
-                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-5 text-center flex flex-col items-center justify-center group hover:bg-blue-600/10 hover:border-blue-500/20 transition-all">
-                            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3 group-hover:text-blue-400">{{ $kpi['label'] }}</p>
-                            <p class="text-4xl font-black {{ $kpi['color'] }} leading-none">{{ str_pad($kpi['value'], 2, '0', STR_PAD_LEFT) }}</p>
+                            <!-- Card 2: New Tickets Today -->
+                            <div class="relative overflow-hidden bg-gradient-to-br from-blue-950/20 via-slate-900/60 to-slate-900/40 border border-blue-500/20 rounded-[2rem] p-8 flex flex-col items-center justify-between text-center min-h-[180px] group transition-all duration-300 hover:border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.05)]">
+                                <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full filter blur-xl transition-all group-hover:bg-blue-500/10"></div>
+                                <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-115 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-blue-400/80 transition-colors">Nuevos Tickets Hoy</p>
+                                    <p class="text-6xl font-black text-blue-400 tracking-tighter leading-none">{{ str_pad($stats['dueToday'], 2, '0', STR_PAD_LEFT) }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Tickets Closed Today -->
+                            <div class="relative overflow-hidden bg-gradient-to-br from-green-950/20 via-slate-900/60 to-slate-900/40 border border-green-500/20 rounded-[2rem] p-8 flex flex-col items-center justify-between text-center min-h-[180px] group transition-all duration-300 hover:border-green-500/30 shadow-[0_0_20px_rgba(16,185,129,0.05)]">
+                                <div class="absolute top-0 right-0 w-24 h-24 bg-green-500/5 rounded-full filter blur-xl transition-all group-hover:bg-green-500/10"></div>
+                                <div class="w-12 h-12 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4 group-hover:scale-115 transition-transform shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-green-400/80 transition-colors">Tickets Resueltos Hoy</p>
+                                    <p class="text-6xl font-black text-green-400 tracking-tighter leading-none">{{ str_pad($stats['closedToday'], 2, '0', STR_PAD_LEFT) }}</p>
+                                </div>
+                            </div>
                         </div>
-                        @endforeach
+
+                        <!-- Right side: 9 columns (col-span-9) -->
+                        <div class="lg:col-span-9 flex flex-col gap-6">
+                            
+                            <!-- Row 1: Combined Chart & Last 30 Days (grid 3 cols) -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                
+                                <!-- Combined Chart (col-span-2) -->
+                                <div class="lg:col-span-2 bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between overflow-hidden shadow-2xl">
+                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-indigo-500 pl-3">Total Tickets v/s Cerrados</h4>
+                                    <div id="trendCombinedNexus" wire:ignore class="w-full"></div>
+                                </div>
+
+                                <!-- Last 30 Days Panel (col-span-1) -->
+                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
+                                    <div>
+                                        <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-6 border-l-4 border-emerald-500 pl-3">Últimos 30 Días</h4>
+                                        
+                                        <!-- Metric 1: Total Tickets -->
+                                        <div class="mb-6">
+                                            <div class="flex items-baseline justify-between mb-2">
+                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Creados</p>
+                                                <p class="text-2xl font-black text-white tracking-tight">{{ $last30DaysTotal }}</p>
+                                            </div>
+                                            <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
+                                                <div class="bg-indigo-500 h-full rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" style="width: 100%"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Metric 2: Resolution rate -->
+                                        <div>
+                                            <div class="flex items-baseline justify-between mb-2">
+                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Porcentaje Resolución</p>
+                                                <p class="text-2xl font-black text-emerald-400 tracking-tight">{{ $last30DaysRate }}%</p>
+                                            </div>
+                                            <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
+                                                <div class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: {{ $last30DaysRate }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-4 border-t border-white/5 text-[9px] font-black text-gray-500 uppercase tracking-widest text-center">
+                                        Rendimiento mensual
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Due Times, Sourcewise, and Priority Open (grid 3 cols) -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                
+                                <!-- Ticket Due Times (Tiempos de Vencimiento) -->
+                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
+                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-amber-500 pl-3">Estados y Tiempos</h4>
+                                    
+                                    <div class="flex flex-col gap-4 my-2">
+                                        @php
+                                            $dueTimes = [
+                                                ['label' => 'Atrasados', 'val' => $stats['overdue'], 'color' => 'bg-red-500/10 text-red-400 border-red-500/20'],
+                                                ['label' => 'Creados Hoy', 'val' => $stats['dueToday'], 'color' => 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
+                                                ['label' => 'Sin Asignar', 'val' => $stats['unassigned'], 'color' => 'bg-purple-500/10 text-purple-400 border-purple-500/20'],
+                                                ['label' => 'Abiertos', 'val' => $stats['open'], 'color' => 'bg-blue-500/10 text-blue-400 border-blue-500/20'],
+                                                ['label' => 'En Espera', 'val' => $stats['hold'], 'color' => 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'],
+                                                ['label' => 'Total Histórico', 'val' => $stats['total'], 'color' => 'bg-white/10 text-white border-white/20'],
+                                            ];
+                                        @endphp
+                                        @foreach($dueTimes as $dt)
+                                        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+                                            <span class="text-gray-400">{{ $dt['label'] }}</span>
+                                            <span class="flex-grow mx-4 border-b border-dashed border-white/5"></span>
+                                            <span class="px-3 py-1 text-[11px] font-black rounded-full border {{ $dt['color'] }} shadow-lg">{{ str_pad($dt['val'], 2, '0', STR_PAD_LEFT) }}</span>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Sourcewise Tickets (Tickets por Planta) -->
+                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
+                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-2 border-l-4 border-blue-500 pl-3">Distribución por Planta (Pastel)</h4>
+                                    <div id="plantaDonutNexus" wire:ignore class="my-auto animate-in fade-in duration-500"></div>
+                                </div>
+
+                                <!-- Open Tickets by Priority -->
+                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
+                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-rose-500 pl-3">Tickets Abiertos por Prioridad</h4>
+                                    
+                                    <div class="flex flex-col gap-6 my-auto">
+                                        <!-- Alta -->
+                                        <div>
+                                            <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2">
+                                                <span class="text-red-400 flex items-center gap-2">
+                                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
+                                                    Alta / Urgente
+                                                </span>
+                                                <span class="text-white">{{ (int)($priorityCounts[3] ?? 0) + (int)($priorityCounts[4] ?? 0) }}</span>
+                                            </div>
+                                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-red-500 h-full rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]" style="width: {{ $stats['total'] > 0 ? (((int)($priorityCounts[3] ?? 0) + (int)($priorityCounts[4] ?? 0)) / $stats['total']) * 100 : 0 }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Media -->
+                                        <div>
+                                            <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2">
+                                                <span class="text-amber-400 flex items-center gap-2">
+                                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+                                                    Media
+                                                </span>
+                                                <span class="text-white">{{ (int)($priorityCounts[2] ?? 0) }}</span>
+                                            </div>
+                                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-amber-500 h-full rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" style="width: {{ $stats['total'] > 0 ? ((int)($priorityCounts[2] ?? 0) / $stats['total']) * 100 : 0 }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Baja -->
+                                        <div>
+                                            <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2">
+                                                <span class="text-blue-400 flex items-center gap-2">
+                                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
+                                                    Baja
+                                                </span>
+                                                <span class="text-white">{{ (int)($priorityCounts[1] ?? 0) }}</span>
+                                            </div>
+                                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-blue-500 h-full rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" style="width: {{ $stats['total'] > 0 ? ((int)($priorityCounts[1] ?? 0) / $stats['total']) * 100 : 0 }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    {{-- Charts Row 1 --}}
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-indigo-500 pl-3">Tickets por Planta</h4>
-                            <div id="plantaDonutNexus"></div>
-                        </div>
-                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-teal-500 pl-3">Tickets por Estado</h4>
-                            <div id="statusBarsNexus"></div>
-                        </div>
-                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-purple-500 pl-3">Tickets por Área</h4>
-                            <div id="categoryBarsNexus"></div>
-                        </div>
-                    </div>
-
-                    {{-- Charts Row 2 --}}
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="col-span-1 lg:col-span-2 bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-blue-400 pl-3">Tendencia Mensual (Últimos 7 meses)</h4>
-                            <div id="incidentTrendNexus"></div>
-                        </div>
-                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-2">Cumplimiento SLA</h4>
-                            <p class="text-[9px] text-gray-600 uppercase tracking-widest mb-4">Resueltos en ≤ 2 días</p>
-                            <div id="slaGaugeNexus" class="w-full"></div>
-                        </div>
-                    </div>
-
-                    {{-- Charts Row 3 --}}
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="col-span-1 lg:col-span-2 bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-amber-500 pl-3">Incidencias Más Frecuentes</h4>
-                            <div id="frequentIncidentsBarsNexus"></div>
-                        </div>
-                        <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-2xl p-6 overflow-hidden">
-                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-blue-600 pl-3">Tickets por Prioridad</h4>
-                            <div id="priorityDonutNexus"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </template>
+                </template>
 
             {{-- Chart init data (always rendered so PHP vars are available) --}}
-            @php
-                $slaColor = $slaPercent >= 90 ? '#10b981' : ($slaPercent >= 70 ? '#f59e0b' : '#ef4444');
-                $statusLabels = $estadoNames->values()->toJson();
-                $statusData   = $estadoNames->keys()->map(fn($id) => $statusCounts[$id] ?? 0)->values()->toJson();
-                $catLabels    = $categoryData->keys()->map(fn($k) => Str::limit($k, 18))->values()->toJson();
-                $catData      = $categoryData->values()->toJson();
-                $months       = $trendMonths->toJson();
-                $trend        = json_encode($trendData);
-                
-                // New charts data
-                $plantaLabels = json_encode(['Planta 1', 'Planta 2']);
-                $plantaData   = json_encode([(int)($plantaCounts['Planta 1'] ?? 0), (int)($plantaCounts['Planta 2'] ?? 0)]);
-                $freqLabels   = $frequentIncidents->keys()->map(fn($k) => Str::limit($k, 25))->values()->toJson();
-                $freqData     = $frequentIncidents->values()->toJson();
-            @endphp
             <script>
-                window.initStatsCharts = function (retries = 0) {
-                    if (!window.ApexCharts || !document.querySelector('#plantaDonutNexus')) {
-                        if (retries < 15) {
-                            setTimeout(() => window.initStatsCharts(retries + 1), 200);
+                window.drawStatsCharts = function (data, retries = 0) {
+                    if (!document.querySelector('#plantaDonutNexus')) {
+                        if (retries < 25) {
+                            setTimeout(() => window.drawStatsCharts(data, retries + 1), 100);
+                        }
+                        return; // Element not present
+                    }
+
+                    if (!window.ApexCharts) {
+                        if (!window.__loadingApexCharts) {
+                            window.__loadingApexCharts = true;
+                            const script = document.createElement('script');
+                            script.src = "/apexcharts.js";
+                            script.onload = () => {
+                                window.__loadingApexCharts = false;
+                                window.drawStatsCharts(data, retries);
+                            };
+                            script.onerror = () => {
+                                window.__loadingApexCharts = false;
+                                console.error("Failed to load ApexCharts dynamically.");
+                            };
+                            document.head.appendChild(script);
                         }
                         return;
                     }
 
-                    // Destroy previous instances if any
-                    ['#plantaDonutNexus','#statusBarsNexus','#categoryBarsNexus','#incidentTrendNexus','#slaGaugeNexus','#frequentIncidentsBarsNexus','#priorityDonutNexus'].forEach(id => {
+                    // Destroy previous instances if any to avoid duplicates
+                    ['#trendCombinedNexus','#plantaDonutNexus'].forEach(id => {
                         var el = document.querySelector(id);
                         if (el && el.__apexCharts) {
                             try { el.__apexCharts.destroy(); } catch(e) {}
@@ -1828,98 +2002,108 @@
 
                     // Helper to render and store instance
                     function renderChart(selector, options) {
-                        var el = document.querySelector(selector);
-                        if (!el) return;
-                        var chart = new ApexCharts(el, options);
-                        chart.render();
-                        el.__apexCharts = chart;
+                        try {
+                            var el = document.querySelector(selector);
+                            if (!el) return;
+                            var chart = new ApexCharts(el, options);
+                            chart.render();
+                            el.__apexCharts = chart;
+                        } catch (err) {
+                            console.error("Error rendering chart " + selector + ":", err);
+                        }
                     }
 
-                    // 1. Planta Donut
+                    // 1. Total Tickets vs Closed Tickets (Combined Column & Line)
+                    renderChart('#trendCombinedNexus', {
+                        chart: {
+                            height: 280,
+                            type: 'line',
+                            background: 'transparent',
+                            toolbar: { show: false }
+                        },
+                        stroke: {
+                            width: [0, 4],
+                            curve: 'smooth'
+                        },
+                        plotOptions: {
+                            bar: {
+                                columnWidth: '50%',
+                                borderRadius: 5
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'Total Tickets',
+                                type: 'column',
+                                data: data.trend
+                            },
+                            {
+                                name: 'Tickets Cerrados',
+                                type: 'line',
+                                data: data.trendClosed
+                            }
+                        ],
+                        colors: ['#6366f1', '#10b981'], // Indigo for Total, Emerald/Green for Closed
+                        theme: dark,
+                        fill: {
+                            opacity: [0.85, 1],
+                            gradient: {
+                                inverseColors: false,
+                                shade: 'light',
+                                type: "vertical",
+                                opacityFrom: 0.85,
+                                opacityTo: 0.55
+                            }
+                        },
+                        labels: data.months,
+                        markers: {
+                            size: 5,
+                            colors: ['#10b981'],
+                            strokeColors: '#050510',
+                            strokeWidth: 2
+                        },
+                        xaxis: {
+                            type: 'category',
+                            labels: { style: { colors: '#6b7280' } }
+                        },
+                        yaxis: {
+                            min: 0,
+                            labels: { style: { colors: '#6b7280' } }
+                        },
+                        grid: gridOpts,
+                        legend: {
+                            position: 'top',
+                            labels: { colors: '#9ca3af' }
+                        }
+                    });
+
+                    // 2. Planta Donut (Pastel)
                     renderChart('#plantaDonutNexus', {
                         chart: { type: 'donut', height: 260, background: 'transparent' },
-                        series: {!! $plantaData !!},
-                        labels: {!! $plantaLabels !!},
-                        colors: ['#6366f1', '#a855f7'], // Indigo for Planta 1, Purple for Planta 2
+                        series: data.plantaData,
+                        labels: data.plantaLabels,
+                        colors: ['#3b82f6', '#a855f7'], // Cyan for Planta 1, Violet/Purple for Planta 2
                         theme: dark,
-                        plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'TOTAL', color: '#9ca3af', fontSize: '11px', fontWeight: 900, formatter: function() { return {{ (int)$stats['total'] }}; } } } } } },
-                        legend: { position: 'bottom', labels: { colors: '#9ca3af' } },
-                        dataLabels: { enabled: false },
-                        stroke: { width: 0 }
-                    });
-
-                    // 2. Status Bars
-                    renderChart('#statusBarsNexus', {
-                        chart: { type: 'bar', height: 250, background: 'transparent', toolbar: { show: false } },
-                        series: [{ name: 'Tickets', data: {!! $statusData !!} }],
-                        colors: ['#3b82f6'],
-                        theme: dark,
-                        plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '55%' } },
-                        xaxis: { categories: {!! $statusLabels !!}, labels: { style: { colors: '#6b7280' } } },
-                        yaxis: { labels: { style: { colors: '#6b7280' } } },
-                        grid: gridOpts,
-                        dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 700 } }
-                    });
-
-                    // 3. Category Bars
-                    renderChart('#categoryBarsNexus', {
-                        chart: { type: 'bar', height: 250, background: 'transparent', toolbar: { show: false } },
-                        series: [{ name: 'Tickets', data: {!! $catData !!} }],
-                        colors: ['#8b5cf6'],
-                        theme: dark,
-                        plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '55%' } },
-                        xaxis: { categories: {!! $catLabels !!}, labels: { style: { colors: '#6b7280' } } },
-                        yaxis: { labels: { style: { colors: '#6b7280' } } },
-                        grid: gridOpts,
-                        dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 700 } }
-                    });
-
-                    // 4. Monthly Trend
-                    renderChart('#incidentTrendNexus', {
-                        chart: { type: 'area', height: 280, background: 'transparent', toolbar: { show: false }, zoom: { enabled: false } },
-                        series: [{ name: 'Tickets', data: {!! $trend !!} }],
-                        colors: ['#3b82f6'],
-                        stroke: { curve: 'smooth', width: 3 },
-                        theme: dark,
-                        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.02 } },
-                        xaxis: { categories: {!! $months !!}, labels: { style: { colors: '#6b7280' } } },
-                        yaxis: { min: 0, labels: { style: { colors: '#6b7280' } } },
-                        grid: gridOpts,
-                        dataLabels: { enabled: false },
-                        markers: { size: 5, colors: ['#3b82f6'], strokeColors: '#1e3a8a', strokeWidth: 2 }
-                    });
-
-                    // 5. SLA Gauge
-                    renderChart('#slaGaugeNexus', {
-                        chart: { type: 'radialBar', height: 260, background: 'transparent' },
-                        series: [{{ (int)$slaPercent }}],
-                        colors: ['{{ $slaColor }}'],
-                        theme: dark,
-                        plotOptions: { radialBar: { hollow: { size: '60%' }, dataLabels: { name: { color: '#6b7280', fontSize: '11px', fontWeight: 700, offsetY: 20 }, value: { fontSize: '34px', fontWeight: 900, color: '#fff', offsetY: -10, formatter: function(val) { return val + '%'; } } } } },
-                        labels: ['Cumplimiento']
-                    });
-
-                    // 6. Incidencias Más Frecuentes
-                    renderChart('#frequentIncidentsBarsNexus', {
-                        chart: { type: 'bar', height: 250, background: 'transparent', toolbar: { show: false } },
-                        series: [{ name: 'Incidentes', data: {!! $freqData !!} }],
-                        colors: ['#f59e0b'],
-                        theme: dark,
-                        plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '55%' } },
-                        xaxis: { categories: {!! $freqLabels !!}, labels: { style: { colors: '#6b7280' } } },
-                        yaxis: { labels: { style: { colors: '#6b7280' } } },
-                        grid: gridOpts,
-                        dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '11px', fontWeight: 700 } }
-                    });
-
-                    // 7. Priority Donut
-                    renderChart('#priorityDonutNexus', {
-                        chart: { type: 'donut', height: 260, background: 'transparent' },
-                        series: [{{ (int)($priorityCounts[3] ?? 0) }}, {{ (int)($priorityCounts[2] ?? 0) }}, {{ (int)($priorityCounts[1] ?? 0) }}],
-                        labels: ['Alta', 'Media', 'Baja'],
-                        colors: ['#ef4444', '#f59e0b', '#3b82f6'],
-                        theme: dark,
-                        plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'TOTAL', color: '#9ca3af', fontSize: '11px', fontWeight: 900, formatter: function() { return {{ (int)$stats['total'] }}; } } } } } },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    size: '75%',
+                                    labels: {
+                                        show: true,
+                                        total: {
+                                            show: true,
+                                            label: 'PLANTAS',
+                                            color: '#9ca3af',
+                                            fontSize: '11px',
+                                            fontWeight: 900,
+                                            formatter: function() {
+                                                return data.total;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         legend: { position: 'bottom', labels: { colors: '#9ca3af' } },
                         dataLabels: { enabled: false },
                         stroke: { width: 0 }
@@ -2320,6 +2504,27 @@
                             <span class="text-gray-400 font-bold uppercase tracking-wider">Fecha y Hora:</span>
                             <span class="text-gray-200 font-bold tracking-tight">{{ $adminTicketModel->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</span>
                         </div>
+                        <div class="border-t border-white/5 my-2"></div>
+                        <div class="space-y-1.5">
+                            <span class="text-gray-400 font-bold uppercase tracking-wider block">Incidencia:</span>
+                            <p class="text-white font-black uppercase tracking-tight text-xs leading-relaxed">{{ $adminTicketModel->titulo }}</p>
+                        </div>
+                        <div class="space-y-1.5 mt-2">
+                            <span class="text-gray-400 font-bold uppercase tracking-wider block">Descripción del Usuario:</span>
+                            <p class="text-gray-300 font-medium tracking-tight whitespace-pre-wrap leading-relaxed bg-[#0b0b1a] p-3 rounded-xl border border-white/5">{{ $adminTicketModel->descripcion }}</p>
+                        </div>
+                        @if($adminTicketModel->archivosAdjuntos && $adminTicketModel->archivosAdjuntos->count() > 0)
+                        <div class="space-y-1.5 mt-2">
+                            <span class="text-gray-400 font-bold uppercase tracking-wider block">Archivos del Usuario:</span>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($adminTicketModel->archivosAdjuntos as $adj)
+                                    <button type="button" wire:click="downloadAttachment({{ $adj->id }})" class="inline-flex items-center gap-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase transition-all">
+                                        📎 {{ Str::limit($adj->nombre_archivo, 20) }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     @endif
 
@@ -2362,9 +2567,37 @@
                         </div>
                     </div>
 
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Hora de Visita Agente TI</label>
+                            <input type="text" wire:model="aTicketHoraVisita" placeholder="Ej. 10:00 am o 2:00 pm" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Tiempo de Resolución (Minutos)</label>
+                            <input type="number" wire:model="aTicketTiempoResolucion" placeholder="Ej. 15, 30, 60" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
+                        </div>
+                    </div>
+
                     <div class="space-y-3">
-                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Hora de Visita Agente TI</label>
-                        <input type="text" wire:model="aTicketHoraVisita" placeholder="Ej. 10:00 am o 2:00 pm" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
+                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Adjuntar Documentos/Evidencia Resolución</label>
+                        <div class="relative w-full h-14 border border-dashed border-white/10 hover:border-blue-500/50 rounded-xl bg-white/5 flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                            <input type="file" multiple wire:model="aTicketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                            <div class="flex items-center gap-1.5 text-[10px] font-black text-gray-500 group-hover:text-blue-400 transition-colors uppercase tracking-wider">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
+                                <span>Subir Archivos...</span>
+                            </div>
+                        </div>
+                        {{-- List of files selected for upload --}}
+                        @if(!empty($aTicketFiles))
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                @foreach($aTicketFiles as $index => $file)
+                                    <div class="inline-flex items-center gap-1.5 bg-blue-600/10 border border-blue-500/20 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase text-blue-400">
+                                        <span>{{ Str::limit($file->getClientOriginalName(), 15) }}</span>
+                                        <button type="button" wire:click="removeAdminTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 font-bold ml-1 text-[11px] focus:outline-none">✕</button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     <div class="space-y-3">
@@ -2442,6 +2675,19 @@
             for (let i = 0; i < 100; i++) {
                 createParticle();
             }
+        });
+
+        document.addEventListener('livewire:initialized', () => {
+            // Re-run initStatsCharts on every successful Livewire request/render
+            Livewire.hook('request', ({ respond, succeed }) => {
+                succeed(({ snapshot, effect }) => {
+                    setTimeout(() => {
+                        if (typeof window.initStatsCharts === 'function') {
+                            window.initStatsCharts();
+                        }
+                    }, 50);
+                });
+            });
         });
     </script>
 </div>

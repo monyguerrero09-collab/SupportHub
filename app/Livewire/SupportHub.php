@@ -34,6 +34,8 @@ class SupportHub extends Component
     public $userFilter = '';
     public $searchUser = '';
     public $aTicketHoraVisita = '';
+    public $aTicketTiempoResolucion = '';
+    public $aTicketFiles = [];
 
     // Modal states
     public $showingAddEquipment = false;
@@ -273,7 +275,7 @@ class SupportHub extends Component
 
     public function viewAdminTicket($id)
     {
-        $ticket = Ticket::with(['creador', 'sector'])->find($id);
+        $ticket = Ticket::with(['creador', 'sector', 'archivosAdjuntos'])->find($id);
         if ($ticket) {
             $this->adminTicketModel = $ticket;
             $this->aTicketId = $id;
@@ -281,7 +283,9 @@ class SupportHub extends Component
             $this->aTicketStatus = $ticket->estado_id;
             $this->aTicketAgent = $ticket->agente_asignado_id;
             $this->aTicketHoraVisita = $ticket->hora_visita;
+            $this->aTicketTiempoResolucion = $ticket->tiempo_resolucion;
             $this->aTicketKoment = '';
+            $this->aTicketFiles = [];
             $this->showingAdminTicket = true;
         }
     }
@@ -328,9 +332,26 @@ class SupportHub extends Component
                 'estado_id' => $this->aTicketStatus,
                 'agente_asignado_id' => $this->aTicketAgent ?: null,
                 'hora_visita' => $this->aTicketHoraVisita ?: null,
+                'tiempo_resolucion' => $this->aTicketTiempoResolucion ?: null,
             ]);
 
+            // Save files uploaded in the management modal
+            if (!empty($this->aTicketFiles)) {
+                foreach ($this->aTicketFiles as $file) {
+                    $path = $file->store('ticket_attachments', 'public');
+                    ArchivoAdjunto::create([
+                        'ticket_id' => $ticket->id,
+                        'nombre_archivo' => $file->getClientOriginalName(),
+                        'ruta_archivo' => $path,
+                        'visible_operadores' => true,
+                    ]);
+                }
+            }
+            $this->aTicketFiles = [];
+
             $visitaText = $this->aTicketHoraVisita ? "\n\nHora de visita programada: " . $this->aTicketHoraVisita : "";
+            $resolucionText = $this->aTicketTiempoResolucion ? "\n\nTiempo estimado de resolución: " . $this->aTicketTiempoResolucion . " minutos" : "";
+            $extraText = $visitaText . $resolucionText;
 
             // Add note/comment if written
             if (!empty($this->aTicketKoment)) {
@@ -345,7 +366,7 @@ class SupportHub extends Component
                     try {
                         \Illuminate\Support\Facades\Mail::raw(
                             "Estimado usuario, su ticket #{$ticket->id} ha recibido una actualización:\n\n" .
-                            $this->aTicketKoment . $visitaText . "\n\n" .
+                            $this->aTicketKoment . $extraText . "\n\n" .
                             "Estado actual: " . (\App\Models\EstadoTicket::find($this->aTicketStatus)->nombre ?? 'Desconocido'),
                             function ($mail) use ($ticket) {
                                 $mail->to($ticket->creador->email)
@@ -360,7 +381,7 @@ class SupportHub extends Component
                     try {
                         $estadoNombre = \App\Models\EstadoTicket::find($this->aTicketStatus)->nombre ?? 'Desconocido';
                         \Illuminate\Support\Facades\Mail::raw(
-                            "Estimado usuario, el estado de su ticket #{$ticket->id} ha cambiado a: {$estadoNombre}.{$visitaText}\n\n",
+                            "Estimado usuario, el estado de su ticket #{$ticket->id} ha cambiado a: {$estadoNombre}.{$extraText}\n\n",
                             function ($mail) use ($ticket, $estadoNombre) {
                                 $mail->to($ticket->creador->email)
                                      ->subject("Su Ticket #{$ticket->id} se encuentra en: {$estadoNombre}");
@@ -611,9 +632,12 @@ class SupportHub extends Component
         ]);
 
         if (!empty($this->ticketFiles)) {
-            $this->validate([
-                'ticketFiles.*' => 'max:10240', // max 10MB
-            ]);
+            $isAdminOrAgent = Auth::check() && in_array(Auth::user()->role, ['admin', 'agente']);
+            if (!$isAdminOrAgent) {
+                $this->validate([
+                    'ticketFiles.*' => 'max:10240', // max 10MB
+                ]);
+            }
         }
 
         $fullTitle = '[' . mb_strtoupper($this->ticketCategory) . '] ' . mb_strtoupper($this->ticketSubcategory);
@@ -694,6 +718,13 @@ class SupportHub extends Component
     {
         if (isset($this->ticketFiles[$index])) {
             array_splice($this->ticketFiles, $index, 1);
+        }
+    }
+
+    public function removeAdminTicketFile($index)
+    {
+        if (isset($this->aTicketFiles[$index])) {
+            array_splice($this->aTicketFiles, $index, 1);
         }
     }
 
@@ -800,12 +831,13 @@ class SupportHub extends Component
         $total = $filteredTickets->count();
 
         $stats = [
-            'total'      => $total,
-            'overdue'    => $filteredTickets->where('created_at', '<', now()->subDays(2))->count(),
-            'dueToday'   => $filteredTickets->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->count(),
-            'open'       => $filteredTickets->where('estado_id', 1)->count(),
-            'hold'       => $filteredTickets->where('estado_id', 2)->count(),
-            'unassigned' => $filteredTickets->whereNull('agente_asignado_id')->count(),
+            'total'       => $total,
+            'overdue'     => $filteredTickets->where('created_at', '<', now()->subDays(2))->count(),
+            'dueToday'    => $filteredTickets->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->count(),
+            'closedToday' => $filteredTickets->whereIn('estado_id', [3, 4])->whereBetween('updated_at', [now()->startOfDay(), now()->endOfDay()])->count(),
+            'open'        => $filteredTickets->where('estado_id', 1)->count(),
+            'hold'        => $filteredTickets->where('estado_id', 2)->count(),
+            'unassigned'  => $filteredTickets->whereNull('agente_asignado_id')->count(),
         ];
 
         // Priority counts (IDs: 1=Baja, 2=Media, 3=Alta)
@@ -820,12 +852,17 @@ class SupportHub extends Component
         // Monthly trend – last 7 months
         $months = collect();
         $trendData = [];
+        $trendClosedData = [];
         for ($i = 6; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $months->push($month->format('M'));
             $trendData[] = Ticket::whereYear('created_at', $month->year)
                                   ->whereMonth('created_at', $month->month)
                                   ->count();
+            $trendClosedData[] = Ticket::whereYear('updated_at', $month->year)
+                                        ->whereMonth('updated_at', $month->month)
+                                        ->whereIn('estado_id', [3, 4])
+                                        ->count();
         }
 
         // Category breakdown from ticket titles (format: [AREA] ...)
@@ -855,6 +892,11 @@ class SupportHub extends Component
             ? round(($slaOk / $resolvedTickets->count()) * 100)
             : ($total > 0 ? 75 : 94);
 
+        $last30DaysTickets = Ticket::where('created_at', '>=', now()->subDays(30))->get();
+        $last30DaysTotal = $last30DaysTickets->count();
+        $last30DaysClosed = $last30DaysTickets->whereIn('estado_id', [3, 4])->count();
+        $last30DaysRate = $last30DaysTotal > 0 ? round(($last30DaysClosed / $last30DaysTotal) * 100) : 94;
+
         return view('livewire.support-hub', [
             'tickets'          => $tickets,
             'users'            => $users,
@@ -870,6 +912,10 @@ class SupportHub extends Component
             'estadoNames'      => $estadoNames,
             'trendMonths'      => $months,
             'trendData'        => $trendData,
+            'trendClosedData'  => $trendClosedData,
+            'last30DaysTotal'  => $last30DaysTotal,
+            'last30DaysClosed' => $last30DaysClosed,
+            'last30DaysRate'   => $last30DaysRate,
             'categoryData'     => $categoryData,
             'plantaCounts'     => $plantaCounts,
             'frequentIncidents'=> $frequentIncidents,

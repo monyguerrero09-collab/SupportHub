@@ -19,6 +19,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "apexcharts": "^5.16.0",
         "get-pixels": "^3.3.3",
         "jimp": "^1.6.1",
         "ndarray": "^1.0.19"
