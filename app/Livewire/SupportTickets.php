@@ -59,7 +59,9 @@ class SupportTickets extends Component
         if ($user->role === 'admin' || $user->role === 'agente') {
             $tickets = $query->get();
         } else {
-            $tickets = $query->where('usuario_creador_id', $user->id)->get();
+            $tickets = $query->where('usuario_creador_id', $user->id)
+                             ->whereNotIn('estado_id', [3, 4])
+                             ->get();
         }
 
         $tipos = TipoTicket::all();

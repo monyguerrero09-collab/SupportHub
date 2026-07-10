@@ -532,8 +532,8 @@ class SupportHub extends Component
         $rolNombre = match($this->userRole) {
             'admin' => 'Admin',
             'agente' => 'Agente TI',
-            'user' => 'Operador',
-            default => 'Operador',
+            'user' => 'Usuario',
+            default => 'Usuario',
         };
         $rol = \App\Models\Role::where('nombre', $rolNombre)->first();
 
@@ -707,9 +707,7 @@ class SupportHub extends Component
         $this->reset(['ticketCategory', 'ticketSubcategory', 'ticketDescription', 'ticketAvailableTime', 'ticketPriority', 'ticketLocation', 'ticketFiles', 'ticketSectorId']);
         $this->dispatch('ticket-created');
         
-        if (Auth::user()->role === 'user') {
-            $this->activeTab = 'mis_tickets';
-        }
+        
         
         $this->dispatch('notify', 'Ticket generado exitosamente');
     }
@@ -788,6 +786,9 @@ class SupportHub extends Component
         }
 
         $ticketsQuery = Ticket::with(['estado', 'prioridad', 'creador', 'agente'])->latest();
+        if (Auth::check() && Auth::user()->role === 'user') {
+            $ticketsQuery->whereNotIn('estado_id', [3, 4]);
+        }
         if ($this->statusFilter !== 'Todos') {
             $ticketsQuery->whereHas('estado', function($q) {
                 if ($this->statusFilter === 'Abierto') {
@@ -808,6 +809,22 @@ class SupportHub extends Component
             $ticketsQuery->where('planta', $this->plantaFilter);
         }
         $tickets = $ticketsQuery->get();
+
+        // Historial tickets: only resolved (3) and closed (4) tickets for admin/agente
+        $historialTickets = [];
+        if (Auth::check() && in_array(Auth::user()->role, ['admin', 'agente'])) {
+            $historialQuery = Ticket::with(['estado', 'prioridad', 'creador', 'agente'])
+                ->whereIn('estado_id', [3, 4])
+                ->latest();
+            
+            if ($this->dateFilter) {
+                $historialQuery->whereDate('created_at', $this->dateFilter);
+            }
+            if ($this->plantaFilter) {
+                $historialQuery->where('planta', $this->plantaFilter);
+            }
+            $historialTickets = $historialQuery->get();
+        }
         
         $usersQuery = User::orderBy('nombre_completo', 'asc');
         if (!empty($this->searchUser)) {
@@ -899,6 +916,7 @@ class SupportHub extends Component
 
         return view('livewire.support-hub', [
             'tickets'          => $tickets,
+            'historialTickets' => $historialTickets,
             'users'            => $users,
             'agentes'          => User::whereHas('rol', function ($q) {
                                       $q->whereIn('nombre', ['Admin', 'Agente TI']);

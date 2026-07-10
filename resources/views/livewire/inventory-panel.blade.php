@@ -350,7 +350,7 @@
                 {{-- Assignments Table --}}
                 <div class="bg-[#1a1a2e]/60 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse min-w-[1200px]">
                             <thead>
                                 <tr class="bg-white/5 border-b border-white/5">
                                     <th class="px-8 py-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Equipo / Modelo</th>
@@ -501,7 +501,7 @@
                 {{-- Table container --}}
                 <div class="bg-[#1a1a2e]/60 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[900px]">
+                        <table class="w-full text-left border-collapse min-w-[1200px]">
                             <thead>
                                 <tr class="bg-white/5 border-b border-white/5">
                                     <th class="px-8 py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Equipo</th>
@@ -610,7 +610,7 @@
 
                                     {{-- Acciones --}}
                                     <td class="px-8 py-6 text-right">
-                                        <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all">
+                                        <div class="flex items-center justify-end gap-3 transition-all">
                                             {{-- Documento --}}
                                             @if($item->pdf_path)
                                                 <button wire:click="$dispatch('viewDocument', { uniqueId: 'eq_{{ $item->id }}' })" title="Ver Responsiva en Plataforma" class="w-8 h-8 rounded-xl bg-teal-600/10 border border-teal-500/20 text-teal-400 hover:bg-teal-600 hover:text-white transition-all flex items-center justify-center">

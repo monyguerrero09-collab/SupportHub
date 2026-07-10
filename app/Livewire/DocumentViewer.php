@@ -38,7 +38,7 @@ class DocumentViewer extends Component
     public $generalDescription = '';
     public $generalAuthor = '';
     public $generalLicense = 'no-especificada';
-    public $generalVisibleOperadores = false; // Control de visibilidad para operadores
+    public $generalVisibleOperadores = false; // Control de visibilidad para usuarios
     public $showingUploadModal = false;
 
     protected $rules = [
@@ -257,7 +257,7 @@ class DocumentViewer extends Component
         if ($this->filterSource === 'all' || $this->filterSource === 'tickets') {
             $attachmentsQuery = ArchivoAdjunto::with('ticket');
             if (auth()->user()->role === 'user') {
-                // Operators can only see tickets they created AND that are visible_operadores=true
+                // Users can only see tickets they created AND that are visible_operadores=true
                 $attachmentsQuery->whereHas('ticket', function ($q) {
                     $q->where('usuario_creador_id', auth()->id());
                 })->where('visible_operadores', true);
@@ -284,7 +284,7 @@ class DocumentViewer extends Component
         // 3. Load General Documents
         if ($this->filterSource === 'all' || $this->filterSource === 'general') {
             $generalsQuery = Documento::with(['usuario', 'equipment']);
-            // Operators can only see documents explicitly marked visible_operadores=true
+            // Users can only see documents explicitly marked visible_operadores=true
             if (auth()->user()->role === 'user') {
                 $generalsQuery->where('visible_operadores', true);
             }

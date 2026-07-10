@@ -54,7 +54,7 @@ class LoginRequest extends FormRequest
         // Validate role matches selected role
         $roleName = $user->rol->nombre ?? '';
         $expectedRole = match($this->selected_role) {
-            'Operador' => 'Operador',
+            'Usuario' => 'Usuario',
             'Agente TI' => 'Agente TI',
             'Administrador' => 'Admin',
             default => null

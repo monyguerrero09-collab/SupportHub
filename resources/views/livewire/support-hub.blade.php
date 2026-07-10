@@ -2,11 +2,16 @@
      style="font-family: 'Inter', 'Figtree', sans-serif;"
      x-data="{ 
         sidebarOpen: false, 
-        activeTab: @entangle('activeTab')
+        activeTab: @entangle('activeTab'),
+        sendingTicket: false,
+        showSuccessScreen: false
      }"
      @resize.window="if(window.innerWidth < 768) sidebarOpen = false;"
      wire:poll.5s
-     @play-notification-sound.window="playChime()">
+     @play-notification-sound.window="playChime()"
+     @show-sending-overlay.window="sendingTicket = true;"
+     @hide-sending-overlay.window="sendingTicket = false;"
+     @ticket-created.window="showSuccessScreen = true; sendingTicket = false;">
     
     {{-- Scripts for Charts --}}
 
@@ -111,6 +116,15 @@
                         <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Panel Tickets</span>
+                </button>
+                <button @click="activeTab = 'historial'"
+                    :class="activeTab === 'historial' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Historial</span>
                 </button>
                 <button @click="activeTab = 'inventory'"
                     :class="activeTab === 'inventory' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
@@ -351,7 +365,7 @@
 
                     {{-- Tickets Table... --}}
                     <div class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
+                        <table class="w-full text-left border-collapse min-w-[1100px]">
                             <thead>
                                 <tr class="bg-white/5 border-b border-white/5">
                                     <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">ID</th>
@@ -426,17 +440,9 @@
                                         <div class="flex items-center justify-end gap-3">
                                             @if(in_array(auth()->user()->role, ['admin', 'agente']))
                                                 <div class="flex gap-2">
-                                                    <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3 py-2 rounded-xl text-[9px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Editar Prioridad/Estado">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                                        Editar
-                                                    </button>
-                                                    <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3 py-2 rounded-xl text-[9px] font-black uppercase bg-purple-600/20 text-purple-400 border border-purple-500/20 hover:bg-purple-600/40 transition-all flex items-center gap-1.5" title="Asignar Agente">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                                        Asignar
-                                                    </button>
-                                                    <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3 py-2 rounded-xl text-[9px] font-black uppercase bg-teal-600/20 text-teal-400 border border-teal-500/20 hover:bg-teal-600/40 transition-all flex items-center gap-1.5" title="Enviar Notificación">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                                                        Enviar
+                                                    <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3.5 py-2 rounded-xl text-[9px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                        Gestionar
                                                     </button>
                                                 </div>
                                                 {{-- Mostrar Reabrir rápido en tabla si está finalizado --}}
@@ -454,6 +460,137 @@
                                 </tr>
                                 @empty
                                 <tr><td colspan="5" class="p-10 text-center text-gray-500 font-bold uppercase text-[10px] tracking-widest">No hay tickets</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </template>
+
+            {{-- Tab for Ticket History --}}
+            <template x-if="activeTab === 'historial'">
+                <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 max-w-7xl mx-auto space-y-8 w-full">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl md:text-3xl font-black text-white uppercase tracking-tighter">Historial de Incidencias</h3>
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.2em] mt-1">Registro de tickets resueltos y cerrados</p>
+                        </div>
+                    </div>
+
+                    {{-- Filters control bar --}}
+                    <div class="flex flex-col xl:flex-row gap-5 items-stretch xl:items-center justify-between bg-[#101026]/60 backdrop-blur-2xl rounded-2xl p-5 border border-white/5">
+                        {{-- Calendar Picker filter --}}
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Filtrar por Día:</label>
+                                <input type="date" wire:model.live="dateFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none" />
+                            </div>
+                            <div class="flex items-center gap-2 ml-2">
+                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Planta:</label>
+                                <select wire:model.live="plantaFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none appearance-none">
+                                    <option value="">Todas</option>
+                                    <option value="1">Planta 1</option>
+                                    <option value="2">Planta 2</option>
+                                </select>
+                            </div>
+                            @if($dateFilter || $plantaFilter)
+                                <button wire:click="$set('dateFilter', ''); $set('plantaFilter', '');" class="text-[9px] font-black text-rose-400 hover:text-rose-300 uppercase tracking-widest transition-colors focus:outline-none ml-2">
+                                    Limpiar Filtros
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Historial Table --}}
+                    <div class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
+                        <table class="w-full text-left border-collapse min-w-[1100px]">
+                            <thead>
+                                <tr class="bg-white/5 border-b border-white/5">
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">ID</th>
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Incidencia</th>
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Prioridad</th>
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asignado A</th>
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/[0.03]">
+                                @forelse($historialTickets as $ticket)
+                                <tr class="group hover:bg-white/[0.03] transition-all">
+                                    <td class="px-10 py-8 text-blue-500 font-black text-xs">#{{ $ticket->id }}</td>
+                                    <td class="px-10 py-8">
+                                        <p class="text-sm font-black text-white uppercase tracking-tight">{{ $ticket->titulo }}</p>
+                                        @if($ticket->creador)
+                                            <p class="text-[10px] font-bold text-gray-600 mt-1 uppercase">{{ $ticket->creador->name }}</p>
+                                        @endif
+                                        @if($ticket->hora_visita)
+                                            <p class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
+                                                    🕒 Visita: {{ $ticket->hora_visita }}
+                                                </span>
+                                            </p>
+                                        @endif
+                                        @if($ticket->tiempo_resolucion)
+                                            <p class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-teal-500/10 text-teal-400 border border-teal-500/20 uppercase tracking-wider">
+                                                    ⏱️ Resol: {{ $ticket->tiempo_resolucion }} min
+                                                </span>
+                                            </p>
+                                        @endif
+                                        @if($ticket->planta)
+                                            <p class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">
+                                                    <i class="fa-solid fa-building"></i> Planta {{ $ticket->planta }}
+                                                </span>
+                                            </p>
+                                        @endif
+                                    </td>
+                                    <td class="px-10 py-8">
+                                        <span class="text-[10px] font-black uppercase text-gray-400">{{ $ticket->prioridad->nombre }}</span>
+                                    </td>
+                                    <td class="px-10 py-8">
+                                        @if($ticket->agente)
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-[9px] font-black uppercase border border-blue-500/20">
+                                                    {{ substr($ticket->agente->nombre_completo, 0, 2) }}
+                                                </div>
+                                                <span class="text-xs font-bold text-gray-300 uppercase tracking-tight">{{ $ticket->agente->nombre_completo }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 bg-white/5 px-2.5 py-1 rounded-lg">Sin Asignar</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-10 py-8">
+                                        @php
+                                            $estadoNombre = $ticket->estado->nombre;
+                                            $estadoClass = match(true) {
+                                                in_array($estadoNombre, ['Completado', 'Cerrado', 'Resuelto']) => 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30',
+                                                in_array($estadoNombre, ['Abierto', 'Nuevo']) => 'bg-blue-600/20 text-blue-300 border border-blue-500/30',
+                                                in_array($estadoNombre, ['En Proceso', 'En progreso']) => 'bg-yellow-600/20 text-yellow-300 border border-yellow-500/30',
+                                                default => 'bg-white/10 text-gray-300 border border-white/10'
+                                            };
+                                        @endphp
+                                        <span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest {{ $estadoClass }}">
+                                            {{ $estadoNombre }}
+                                        </span>
+                                    </td>
+                                    <td class="px-10 py-8 text-right">
+                                        <div class="flex items-center justify-end gap-3">
+                                            <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3.5 py-2 rounded-xl text-[9px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                Gestionar
+                                            </button>
+                                            <button wire:click="reopenTicket('{{ $ticket->id }}')"
+                                                    wire:confirm="¿Estás seguro de reabrir este ticket?"
+                                                    class="px-4 py-2 rounded-xl text-[9px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                Reabrir
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="6" class="p-10 text-center text-gray-500 font-bold uppercase text-[10px] tracking-widest">No hay tickets cerrados en el historial</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -497,8 +634,6 @@
                         ticketPlanta: '',
                         intStation: '',
                         intComment: '',
-                        sendingTicket: false,
-                        showSuccessScreen: false,
                         maquinas: {{ json_encode($maquinas ?? []) }},
                         findMachineId(name) {
                             if (!name) return null;
@@ -595,7 +730,7 @@
                         },
                         async submitManualTicket() {
                             if (!this.isManualReady) return;
-                            this.sendingTicket = true;
+                            window.dispatchEvent(new CustomEvent('show-sending-overlay'));
                             let mId = this.findMachineId(this.manualStation);
                             
                             try {
@@ -608,12 +743,12 @@
                                 });
                             } catch (e) {
                                 console.error(e);
+                                window.dispatchEvent(new CustomEvent('hide-sending-overlay'));
                             }
-                            this.sendingTicket = false;
                         },
                         async submitIntuitiveTicket() {
                             if (!this.isIntuitiveReady) return;
-                            this.sendingTicket = true;
+                            window.dispatchEvent(new CustomEvent('show-sending-overlay'));
                             $wire.set('ticketSectorId', this.selectedSector);
                             $wire.set('ticketCategory', this.category);
                             $wire.set('ticketSubcategory', this.subcategory);
@@ -637,11 +772,11 @@
                                 });
                             } catch (e) {
                                 console.error('Error al generar ticket rápido:', e);
+                                window.dispatchEvent(new CustomEvent('hide-sending-overlay'));
                             }
-                            this.sendingTicket = false;
                         }
                      }"
-                     @ticket-created.window="showSuccessScreen = true;">
+                     @clear-ticket-form.window="clearAll(); mode = 'selection';">
                      <div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
                          <div style="position:absolute;width:60vw;height:60vh;top:-10vh;right:-10vw;border-radius:50%;filter:blur(90px);background:radial-gradient(circle, rgba(45,27,150,0.25) 0%, rgba(30,15,100,0.1) 40%, transparent 70%);animation:nebulaDrift 28s ease-in-out infinite alternate;"></div>
                          <div style="position:absolute;width:50vw;height:50vh;bottom:-10vh;left:-5vw;border-radius:50%;filter:blur(80px);background:radial-gradient(circle, rgba(10,50,150,0.2) 0%, transparent 70%);animation:nebulaDrift 22s ease-in-out infinite alternate;animation-delay:-10s;"></div>
@@ -1145,72 +1280,7 @@
                                           </button>
                                       </div>
                                   </div>
-                                                    <style>
-                          @keyframes scale-in { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-                          @keyframes flyAwayAnimation {
-                              0% {
-                                  transform: translate(-100px, 100px) rotate(45deg) scale(0.6);
-                                  opacity: 0;
-                              }
-                              15% {
-                                  opacity: 1;
-                              }
-                              50% {
-                                  transform: translate(0px, 0px) rotate(45deg) scale(1);
-                              }
-                              85% {
-                                  opacity: 1;
-                              }
-                              100% {
-                                  transform: translate(150px, -150px) rotate(45deg) scale(0.4);
-                                  opacity: 0;
-                              }
-                          }
-                          .animate-fly-away {
-                              animation: flyAwayAnimation 2.2s ease-in-out infinite;
-                          }
-                      </style>
-
-                      {{-- SENDING SCREEN OVERLAY --}}
-                      <div x-show="sendingTicket" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md" x-transition.opacity style="display: none;">
-                          <div class="text-center space-y-8">
-                              <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
-                                  {{-- Paper plane icon flying --}}
-                                  <div class="animate-fly-away absolute">
-                                      <svg class="w-20 h-20 text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.6)]" fill="currentColor" viewBox="0 0 24 24">
-                                          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                                      </svg>
-                                  </div>
-                                  {{-- Decorative circles / radar lines --}}
-                                  <div class="absolute inset-0 rounded-full border border-white/5 animate-ping"></div>
-                                  <div class="absolute inset-4 rounded-full border border-white/10"></div>
                               </div>
-                              <div class="space-y-2 animate-pulse">
-                                  <h4 class="text-lg font-black text-white uppercase tracking-widest">Enviando Incidencia</h4>
-                                  <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Despegando hacia el Service Desk...</p>
-                              </div>
-                          </div>
-                      </div>
-
-                      {{-- SUCCESS SCREEN OVERLAY --}}
-                      <div x-show="showSuccessScreen" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md p-6" x-transition.opacity style="display: none;">
-                          <div class="bg-[#0b0b1e]/95 border border-white/10 rounded-[2.5rem] p-8 max-w-md w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
-                              <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 blur-[50px] rounded-full"></div>
-                              
-                              <div class="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-4xl mx-auto border border-emerald-500/20" style="animation: scale-in 0.5s ease-out;">
-                                  <i class="fa-solid fa-circle-check"></i>
-                              </div>
-                              
-                              <div class="space-y-2">
-                                  <h3 class="text-2xl font-black text-white uppercase tracking-tight">¡Ticket Generado!</h3>
-                                  <p class="text-xs text-gray-400 font-bold uppercase tracking-wider leading-relaxed">Tu solicitud ha sido registrada exitosamente en la plataforma de soporte técnico.</p>
-                              </div>
-                              
-                              <button @click="showSuccessScreen = false; clearAll(); mode = 'selection';" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all focus:outline-none">
-                                  Entendido
-                              </button>
-                          </div>
-                      </div>
                 </div>
             </template>
 
@@ -1254,20 +1324,19 @@
                                     </span>
                                 </div>
                                 <h4 class="font-black text-white text-sm uppercase tracking-tight truncate">{{ $ticket->titulo }}</h4>
-                                <div class="flex items-center gap-3 mt-1.5">
-                                     @if(auth()->user()->role === 'user')
-                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
-                                             @if($ticket->agente) bg-blue-500/10 text-blue-400 border border-blue-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                             👤 Soporte: {{ $ticket->agente ? $ticket->agente->nombre_completo : 'Por asignar' }}
-                                         </span>
-                                     @else
-                                         <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest truncate">PRIORIDAD: {{ $ticket->prioridad->nombre }}</p>
-                                     @endif
-                                    @if($ticket->hora_visita)
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-                                            🕒 Visita: {{ $ticket->hora_visita }}
-                                        </span>
-                                    @endif
+                                <div class="flex flex-wrap items-center gap-2 mt-2">
+                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
+                                         @if($ticket->agente) bg-blue-500/10 text-blue-400 border border-blue-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                         👤 Soporte: {{ $ticket->agente ? $ticket->agente->nombre_completo : 'Por asignar' }}
+                                     </span>
+                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
+                                         @if($ticket->hora_visita) bg-amber-500/10 text-amber-400 border border-amber-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                         🕒 Visita: {{ $ticket->hora_visita ?? 'Pendiente' }}
+                                     </span>
+                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
+                                         @if($ticket->tiempo_resolucion) bg-teal-500/10 text-teal-400 border border-teal-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                         ⏱️ Resol: {{ $ticket->tiempo_resolucion ? $ticket->tiempo_resolucion . ' min' : 'Pendiente' }}
+                                     </span>
                                 </div>
                             </div>
                             <div class="relative z-10 text-right hidden sm:block w-32 shrink-0">
@@ -1336,18 +1405,18 @@
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Motivo Reportado</h5>
                                             <p class="text-xs font-bold text-gray-300 uppercase tracking-tight">{{ $detTicket->titulo }}</p>
                                         </div>
-                                        @if($detTicket->hora_visita)
                                         <div>
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Hora de Visita Agente TI</h5>
-                                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">🕒 {{ $detTicket->hora_visita }}</span>
+                                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest @if($detTicket->hora_visita) bg-amber-500/20 text-amber-400 border border-amber-500/30 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                                🕒 {{ $detTicket->hora_visita ?? 'Pendiente de programar' }}
+                                            </span>
                                         </div>
-                                        @endif
-                                        @if($detTicket->tiempo_resolucion)
                                         <div>
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Tiempo Estimado de Resolución</h5>
-                                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-teal-500/20 text-teal-400 border border-teal-500/30">⏱️ {{ $detTicket->tiempo_resolucion }} minutos</span>
+                                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest @if($detTicket->tiempo_resolucion) bg-teal-500/20 text-teal-400 border border-teal-500/30 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                                                ⏱️ {{ $detTicket->tiempo_resolucion ? $detTicket->tiempo_resolucion . ' minutos' : 'Pendiente de estimar' }}
+                                            </span>
                                         </div>
-                                        @endif
                                         <div class="col-span-1 md:col-span-2 border-t border-white/10 pt-6 mt-2">
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Declaración Inicial</h5>
                                             <div class="bg-black/40 p-6 rounded-2xl text-xs font-medium text-gray-400 border border-white/5 shadow-inner leading-relax italic mb-6">
@@ -1484,7 +1553,7 @@
                                         $roleLabel = match(auth()->user()->role) {
                                             'admin' => 'Administrador',
                                             'agente' => 'Agente TI',
-                                            default => 'Operador',
+                                            default => 'Usuario',
                                         };
                                         $roleColor = match(auth()->user()->role) {
                                             'admin' => 'text-emerald-400',
@@ -2126,8 +2195,8 @@
                              </button>
                          </div>
                     </div>
-                    <div class="bg-[#1a1a2e]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] overflow-hidden shadow-3xl">
-                         <table class="w-full text-left border-collapse">
+                    <div class="bg-[#1a1a2e]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] overflow-x-auto shadow-3xl">
+                         <table class="w-full text-left border-collapse min-w-[800px]">
                              <thead>
                                  <tr class="bg-white/5 border-b border-white/5">
                                      <th class="px-10 py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Nombre</th>
@@ -2280,13 +2349,13 @@
                         <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Código de Acceso</label>
                         <input type="text" wire:model="userCodigoAcceso" required
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
-                            placeholder="Ej. OP-0001">
+                            placeholder="Ej. US-0001">
                         @error('userCodigoAcceso') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Rol</label>
                         <select wire:model="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none">
-                            <option value="user">Operador</option>
+                            <option value="user">Usuario</option>
                             <option value="agente">Agente TI</option>
                             <option value="admin">Administrador</option>
                         </select>
@@ -2616,6 +2685,73 @@
         </div>
     </div>
     @endif
+
+    <style>
+         @keyframes scale-in { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+         @keyframes flyAwayAnimation {
+             0% {
+                 transform: translate(-100px, 100px) rotate(45deg) scale(0.6);
+                 opacity: 0;
+             }
+             15% {
+                 opacity: 1;
+             }
+             50% {
+                 transform: translate(0px, 0px) rotate(45deg) scale(1);
+             }
+             85% {
+                 opacity: 1;
+             }
+             100% {
+                 transform: translate(150px, -150px) rotate(45deg) scale(0.4);
+                 opacity: 0;
+             }
+         }
+         .animate-fly-away {
+             animation: flyAwayAnimation 2.2s ease-in-out infinite;
+         }
+     </style>
+
+     {{-- SENDING SCREEN OVERLAY --}}
+     <div wire:ignore x-show="sendingTicket" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md" x-transition.opacity style="display: none;">
+         <div class="text-center space-y-8">
+             <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
+                 {{-- Paper plane icon flying --}}
+                 <div class="animate-fly-away absolute">
+                     <svg class="w-20 h-20 text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.6)]" fill="currentColor" viewBox="0 0 24 24">
+                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                     </svg>
+                 </div>
+                 {{-- Decorative circles / radar lines --}}
+                 <div class="absolute inset-0 rounded-full border border-white/5 animate-ping"></div>
+                 <div class="absolute inset-4 rounded-full border border-white/10"></div>
+             </div>
+             <div class="space-y-2 animate-pulse">
+                 <h4 class="text-lg font-black text-white uppercase tracking-widest">Enviando Incidencia</h4>
+                 <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Despegando hacia el Service Desk...</p>
+             </div>
+         </div>
+     </div>
+
+     {{-- SUCCESS SCREEN OVERLAY --}}
+     <div wire:ignore x-show="showSuccessScreen" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md p-6" x-transition.opacity style="display: none;">
+         <div class="bg-[#0b0b1e]/95 border border-white/10 rounded-[2.5rem] p-8 max-w-md w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
+             <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 blur-[50px] rounded-full"></div>
+             
+             <div class="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-4xl mx-auto border border-emerald-500/20" style="animation: scale-in 0.5s ease-out;">
+                 <i class="fa-solid fa-circle-check"></i>
+             </div>
+             
+             <div class="space-y-2">
+                 <h3 class="text-2xl font-black text-white uppercase tracking-tight">¡Ticket Generado!</h3>
+                 <p class="text-xs text-gray-400 font-bold uppercase tracking-wider leading-relaxed">Tu solicitud ha sido registrada exitosamente en la plataforma de soporte técnico.</p>
+             </div>
+             
+             <button @click="showSuccessScreen = false; window.dispatchEvent(new CustomEvent('clear-ticket-form')); if ('{{ auth()->user()->role }}' === 'user') { $wire.set('activeTab', 'mis_tickets'); }" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all focus:outline-none">
+                 Entendido
+             </button>
+         </div>
+     </div>
 
     {{-- Script de Notificaciones y Partículas --}}
     <script>

@@ -4,7 +4,7 @@
 
     <div x-data="{
         currentView: '{{ $errors->any() || old('codigo_acceso') ? 'login' : 'selection' }}',
-        selectedRole: '{{ old('selected_role', 'Operador') }}',
+        selectedRole: '{{ old('selected_role', 'Usuario') }}',
         codigoAcceso: '{{ old('codigo_acceso') }}',
         setRole(role) {
             this.selectedRole = role;
@@ -32,10 +32,10 @@
 
             <!-- Profile Grid: 3 Buttons -->
             <div class="flex flex-col sm:flex-row w-full gap-4 justify-center items-stretch">
-                <!-- Operador Button -->
+                <!-- Usuario Button -->
                 <button
                     type="button"
-                    @click="setRole('Operador')"
+                    @click="setRole('Usuario')"
                     class="group relative flex-1 bg-white/[0.02] hover:bg-blue-600/[0.04] p-6 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(37,99,235,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
                     <div class="flex flex-col items-center space-y-3">
@@ -44,7 +44,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <span class="text-base font-bold text-gray-200 group-hover:text-blue-400 transition-colors">Operador</span>
+                        <span class="text-base font-bold text-gray-200 group-hover:text-blue-400 transition-colors">Usuario</span>
                     </div>
                 </button>
 
@@ -105,11 +105,11 @@
                 
                 <!-- Dynamic Title -->
                 <h2 class="text-3xl font-black text-white tracking-tight uppercase">
-                    Acceso <span :class="selectedRole === 'Operador' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" x-text="selectedRole"></span>
+                    Acceso <span :class="selectedRole === 'Usuario' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" x-text="selectedRole"></span>
                 </h2>
                 <!-- Dynamic Subtitle -->
                 <p class="text-gray-500 text-xs mt-1"
-                   x-text="selectedRole === 'Operador' ? 'Ingresa tu ID de Empleado' : (selectedRole === 'Agente TI' ? 'Ingresa tu Código de Acceso' : 'Ingresa tu Código de Administrador')">
+                   x-text="selectedRole === 'Usuario' ? 'Ingresa tu ID de Empleado' : (selectedRole === 'Agente TI' ? 'Ingresa tu Código de Acceso' : 'Ingresa tu Código de Administrador')">
                 </p>
             </div>
 
@@ -123,19 +123,19 @@
                 <div>
                     <!-- Dynamic Label -->
                     <label for="codigo_acceso" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1"
-                           x-text="selectedRole === 'Operador' ? 'ID de Operador' : (selectedRole === 'Agente TI' ? 'PIN / Credencial TI' : 'Código de Administrador')">
+                           x-text="selectedRole === 'Usuario' ? 'ID de Usuario' : (selectedRole === 'Agente TI' ? 'PIN / Credencial TI' : 'Código de Administrador')">
                     </label>
                     <div class="relative bg-[#131b2f] border border-[#1e293b]/50 rounded-[0.75rem] flex items-center p-2.5 focus-within:border-blue-500/80 transition-all">
                         <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
                             <!-- Dynamic Icon Color -->
-                            <svg class="w-4 h-4" :class="selectedRole === 'Operador' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" :class="selectedRole === 'Usuario' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
                         <div class="ml-3 flex-1">
                             <input id="codigo_acceso" type="text" name="codigo_acceso" x-model="codigoAcceso" required autofocus
                                 class="block w-full border-0 p-0 text-sm text-white bg-transparent focus:ring-0 placeholder-slate-700 font-medium" 
-                                :placeholder="selectedRole === 'Operador' ? 'Ej. OP-1234' : '••••••••'" />
+                                :placeholder="selectedRole === 'Usuario' ? 'Ej. US-1234' : '••••••••'" />
                         </div>
                     </div>
                     <x-input-error :messages="$errors->get('codigo_acceso')" class="text-xs font-bold pl-2 mt-1 text-red-400" />
@@ -158,7 +158,7 @@
                 <!-- Submit Button -->
                 <div class="pt-2">
                     <button type="submit" 
-                        :class="selectedRole === 'Operador' ? 'bg-blue-600 hover:bg-blue-700 shadow-[0_8px_25px_rgba(37,99,235,0.3)]' : (selectedRole === 'Agente TI' ? 'bg-purple-600 hover:bg-purple-700 shadow-[0_8px_25px_rgba(124,58,237,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 shadow-[0_8px_25px_rgba(16,185,129,0.3)]')"
+                        :class="selectedRole === 'Usuario' ? 'bg-blue-600 hover:bg-blue-700 shadow-[0_8px_25px_rgba(37,99,235,0.3)]' : (selectedRole === 'Agente TI' ? 'bg-purple-600 hover:bg-purple-700 shadow-[0_8px_25px_rgba(124,58,237,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 shadow-[0_8px_25px_rgba(16,185,129,0.3)]')"
                         class="w-full py-4 rounded-xl text-white font-bold text-xs uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-95 text-center flex items-center justify-center">
                         Entrar al Sistema
                     </button>

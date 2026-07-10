@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         $adminRole = \App\Models\Role::firstOrCreate(['nombre' => 'Admin']);
         $agenteRole = \App\Models\Role::firstOrCreate(['nombre' => 'Agente TI']);
-        $operadorRole = \App\Models\Role::firstOrCreate(['nombre' => 'Operador']);
+        $usuarioRole = \App\Models\Role::firstOrCreate(['nombre' => 'Usuario']);
         
         User::create([
             'nombre_completo' => 'Admin Support',
@@ -49,11 +49,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'nombre_completo' => 'Usuario Operador',
-            'email' => 'operador@ejemplo.com',
+            'nombre_completo' => 'Usuario General',
+            'email' => 'usuario@ejemplo.com',
             'password' => bcrypt('password'),
-            'rol_id' => $operadorRole->id,
-            'codigo_acceso' => 'OP-4444',
+            'rol_id' => $usuarioRole->id,
+            'codigo_acceso' => 'US-4444',
             'grupo' => 'Técnico',
         ]);
 

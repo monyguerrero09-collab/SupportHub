@@ -109,7 +109,7 @@ class User extends Authenticatable
         return match($nombreRol) {
             'Admin' => 'admin',
             'Agente TI' => 'agente',
-            'Operador' => 'user',
+            'Usuario' => 'user',
             default => 'user'
         };
     }
@@ -121,24 +121,24 @@ class User extends Authenticatable
     {
         static::creating(function ($user) {
             if (empty($user->rol_id)) {
-                $operadorRole = Role::where('nombre', 'Operador')->first();
-                if ($operadorRole) {
-                    $user->rol_id = $operadorRole->id;
+                $usuarioRole = Role::where('nombre', 'Usuario')->first();
+                if ($usuarioRole) {
+                    $user->rol_id = $usuarioRole->id;
                 }
             }
             
             if (empty($user->codigo_acceso)) {
-                $prefix = 'OP';
+                $prefix = 'US';
                 if ($user->rol_id) {
                     $rolNombre = Role::find($user->rol_id)->nombre ?? '';
                     $prefix = match($rolNombre) {
                         'Admin' => 'AD',
                         'Agente TI' => 'TI',
-                        default => 'OP',
+                        default => 'US',
                     };
                 } else if ($user->grupo) {
                     $prefix = match($user->grupo) {
-                        'Técnico' => 'OP',
+                        'Técnico' => 'US',
                         default => 'AD',
                     };
                 }

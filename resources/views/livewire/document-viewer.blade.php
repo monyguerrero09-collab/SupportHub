@@ -124,7 +124,7 @@
                             </span>
                             @if(auth()->user()->role !== 'user' && isset($doc['visible_ops']))
                             <span class="text-[7px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded border {{ $doc['visible_ops'] ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-600/10 text-gray-500 border-gray-600/20' }}">
-                                {{ $doc['visible_ops'] ? '👁️ OPS' : '🔒 Solo TI' }}
+                                {{ $doc['visible_ops'] ? '👁️ USR' : '🔒 Solo TI' }}
                             </span>
                             @endif
                         </div>
@@ -506,8 +506,8 @@
                                         <input type="checkbox" wire:model="generalVisibleOperadores" class="sr-only" />
                                     </div>
                                     <div>
-                                        <p class="text-xs font-bold text-white">{{ $generalVisibleOperadores ? 'Visible para Operadores' : 'Solo TI / Admin' }}</p>
-                                        <p class="text-[9px] text-gray-500 mt-0.5">{{ $generalVisibleOperadores ? 'Los operadores podrán ver y descargar este archivo' : 'Solo agentes TI y administradores tienen acceso' }}</p>
+                                        <p class="text-xs font-bold text-white">{{ $generalVisibleOperadores ? 'Visible para Usuarios' : 'Solo TI / Admin' }}</p>
+                                        <p class="text-[9px] text-gray-500 mt-0.5">{{ $generalVisibleOperadores ? 'Los usuarios podrán ver y descargar este archivo' : 'Solo agentes TI y administradores tienen acceso' }}</p>
                                     </div>
                                 </div>
                                 <div class="text-2xl">

@@ -206,6 +206,18 @@
                 @endif
             </div>
 
+            <div class="flex flex-wrap gap-2 mb-4">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider @if($ticket->agente) bg-blue-500/10 text-blue-400 border border-blue-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                    👤 Soporte: {{ $ticket->agente ? $ticket->agente->nombre_completo : 'Por asignar' }}
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider @if($ticket->hora_visita) bg-amber-500/10 text-amber-400 border border-amber-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                    🕒 Visita: {{ $ticket->hora_visita ?? 'Pendiente' }}
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider @if($ticket->tiempo_resolucion) bg-teal-500/10 text-teal-400 border border-teal-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
+                    ⏱️ Resol: {{ $ticket->tiempo_resolucion ? $ticket->tiempo_resolucion . ' min' : 'Pendiente' }}
+                </span>
+            </div>
+
             <h4 class="text-base font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0c4aed] dark:group-hover:text-[#3a75ff] transition-colors leading-snug">{{ $ticket->titulo }}</h4>
             <p class="text-[13px] text-gray-500 dark:text-gray-400 mb-6 line-clamp-3 leading-relaxed w-full font-medium">{{ $ticket->descripcion }}</p>
 
