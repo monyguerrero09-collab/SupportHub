@@ -576,7 +576,25 @@ class SupportHub extends Component
             $this->dispatch('notify', 'No tienes permisos para eliminar usuarios');
             return;
         }
-        User::find($id)->delete();
+
+        if (Auth::id() == $id) {
+            $this->dispatch('notify', 'No puedes eliminar tu propio usuario');
+            return;
+        }
+
+        $user = User::find($id);
+        if ($user) {
+            $user->delete();
+
+            // Clear active database sessions for this user
+            \Illuminate\Support\Facades\DB::table('sessions')->where('user_id', $id)->delete();
+
+            // Clear their notifications cache and flush caching systems
+            \Illuminate\Support\Facades\Cache::forget('dismissed_notifications_' . $id);
+            \Illuminate\Support\Facades\Cache::flush();
+
+            $this->dispatch('notify', 'Usuario eliminado con éxito de la base de datos y sesiones/caché depuradas');
+        }
     }
 
     public function updateProfileEmail()
@@ -786,9 +804,7 @@ class SupportHub extends Component
         }
 
         $ticketsQuery = Ticket::with(['estado', 'prioridad', 'creador', 'agente'])->latest();
-        if (Auth::check() && Auth::user()->role === 'user') {
-            $ticketsQuery->whereNotIn('estado_id', [3, 4]);
-        }
+        $ticketsQuery->whereNotIn('estado_id', [3, 4]);
         if ($this->statusFilter !== 'Todos') {
             $ticketsQuery->whereHas('estado', function($q) {
                 if ($this->statusFilter === 'Abierto') {

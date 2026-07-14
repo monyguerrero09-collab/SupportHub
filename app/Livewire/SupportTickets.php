@@ -54,14 +54,13 @@ class SupportTickets extends Component
         $user = Auth::user();
         
         $query = Ticket::with(['tipoTicket', 'estado', 'prioridad', 'creador', 'agente', 'departamento', 'sector', 'maquina'])
+                       ->whereNotIn('estado_id', [3, 4])
                        ->orderBy('created_at', 'desc');
 
         if ($user->role === 'admin' || $user->role === 'agente') {
             $tickets = $query->get();
         } else {
-            $tickets = $query->where('usuario_creador_id', $user->id)
-                             ->whereNotIn('estado_id', [3, 4])
-                             ->get();
+            $tickets = $query->where('usuario_creador_id', $user->id)->get();
         }
 
         $tipos = TipoTicket::all();

@@ -12,6 +12,13 @@ use Livewire\Attributes\Layout;
 class StationMap extends Component
 {
     public $selectedStationId = null;
+
+    public function mount()
+    {
+        if (!auth()->check() || auth()->user()->role === 'user') {
+            return redirect()->route('supporthub');
+        }
+    }
     public $activePlant = 1;
     public $scale = 1;
     public $showingAssignModal = false;

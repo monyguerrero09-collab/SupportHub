@@ -144,16 +144,16 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
                 </button>
+                <button @click="activeTab = 'map'"
+                    :class="activeTab === 'map' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Infra Map</span>
+                </button>
             @endif
-            <button @click="activeTab = 'map'"
-                :class="activeTab === 'map' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
-                class="w-full flex items-center rounded-xl transition-all duration-200 group"
-                :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
-                <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                    <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
-                </div>
-                <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Infra Map</span>
-            </button>
             @if(auth()->user()->role !== 'user')
             <button @click="activeTab = 'users'"
                 :class="activeTab === 'users' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
@@ -330,12 +330,6 @@
                             </button>
                             <button wire:click="$set('statusFilter', 'En Proceso')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'En Proceso' ? 'bg-yellow-600 border-yellow-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
                                 <span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> En Proceso
-                            </button>
-                            <button wire:click="$set('statusFilter', 'Resuelto')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'Resuelto' ? 'bg-emerald-600 border-emerald-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Resueltos
-                            </button>
-                            <button wire:click="$set('statusFilter', 'Cerrado')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border flex items-center gap-1.5 {{ $statusFilter === 'Cerrado' ? 'bg-purple-600 border-purple-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span> Cerrados
                             </button>
                         </div>
 
@@ -1798,9 +1792,11 @@
                 <livewire:document-viewer wire:key="document-viewer-core" />
             </template>
 
+            @if(auth()->user()->role !== 'user')
             <div x-show="activeTab === 'map'" class="h-full">
                 <livewire:station-map wire:key="station-map-core" />
             </div>
+            @endif
 
             <template x-if="activeTab === 'statistics'">
                 @php
