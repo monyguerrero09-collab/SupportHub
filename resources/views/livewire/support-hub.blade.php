@@ -1798,473 +1798,402 @@
             </div>
             @endif
 
-                                                <template x-if="activeTab === 'statistics'">
-    <div class="space-y-6">
-        <!-- Secure JSON Data Bridge for Alpine -->
-        <div id="stats-json-payload" class="hidden" data-payload="{{ json_encode([
-            'categoryData' => $categoryData,
-            'statusCounts' => $statusCounts,
-            'plantaCounts' => $plantaCounts,
-            'trendMonths' => $trendMonths,
-            'trendData' => $trendData,
-            'trendClosedData' => $trendClosedData,
-            'slaPercent' => (int)($slaPercent ?? 0)
-        ]) }}"></div>
-        
-        <!-- Alpine Component Initializer -->
-        <div x-init="
-            const initCharts = () => {
-                setTimeout(() => {
-                    if (window.renderSupportHubCharts) {
-                        const payloadElement = document.getElementById('stats-json-payload');
-                        if (payloadElement) {
-                            try {
-                                const data = JSON.parse(payloadElement.dataset.payload);
-                                window.renderSupportHubCharts(data);
-                            } catch (e) {
-                                console.error('Failed to parse chart data:', e);
-                            }
-                        }
-                    }
-                }, 100);
-            };
-            initCharts();
-            window.addEventListener('ticket-created', initCharts);
-            window.addEventListener('refreshCharts', initCharts);
-        "></div>
+                                                
+{{-- ═══════════════════════════════════════════════════════
+     STATISTICS TAB — uses x-show so canvases always exist in DOM
+     Charts are initialised in the <script> block below.
+═══════════════════════════════════════════════════════════ --}}
+<div x-show="activeTab === 'statistics'" class="pb-10">
 
-        <!-- Info/Intro Banner -->
-        <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-black/20">
+    {{-- ── HEADER BANNER ───────────────────────────────────────── --}}
+    <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(6,182,212,0.10),rgba(16,185,129,0.08));border:1px solid rgba(99,102,241,0.25);margin-bottom:2rem;">
+        <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(99,102,241,0.3),transparent 70%);pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;padding:2rem 2.5rem;">
             <div>
-                <h2 class="text-xl font-bold text-white mb-1">¡Bienvenido a tu Centro de Mando Analítico! <span class="text-xs bg-red-500 px-2 py-1 rounded">DEBUG: Renderizado OK</span></h2>
-                <p class="text-sm text-slate-400 max-w-2xl">
-                    Este reporte consolida las métricas clave de tus operaciones. Registra incidentes usando el panel lateral y observa las gráficas actualizarse de inmediato.
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                    <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fa-solid fa-chart-mixed" style="color:#fff;font-size:14px;"></i>
+                    </div>
+                    <h2 style="font-size:1.5rem;font-weight:900;background:linear-gradient(to right,#fff,#c7d2fe,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:-0.03em;margin:0;">
+                        Centro de Mando Analítico
+                    </h2>
+                </div>
+                <p style="font-size:13px;color:rgba(147,197,253,0.7);font-weight:500;max-width:500px;margin:0;">
+                    Métricas en tiempo real desde tu base de datos operativa.
                 </p>
             </div>
-            <div class="flex items-center gap-3 shrink-0">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en línea
-                </span>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
-                    <i class="fa-solid fa-arrows-rotate"></i> Sync Live
-                </span>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
+                <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);">
+                    <span style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 8px #34d399;"></span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;text-transform:uppercase;letter-spacing:0.15em;">Sistema en línea</span>
+                </div>
+                <button wire:click="$refresh" style="display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;">
+                    <i class="fa-solid fa-arrows-rotate" style="color:#818cf8;"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── KPI CARDS ────────────────────────────────────────────── --}}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        {{-- Total --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(99,102,241,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <div style="width:38px;height:38px;border-radius:12px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-ticket" style="color:#818cf8;font-size:13px;"></i>
+                </div>
+                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#6366f1;background:rgba(99,102,241,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(99,102,241,0.25);">TOTAL</span>
+            </div>
+            <div style="font-size:3rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-0.05em;">{{ array_sum($statusCounts->toArray()) }}</div>
+            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">Tickets globales</p>
+        </div>
+
+        {{-- Abiertos --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(59,130,246,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <div style="width:38px;height:38px;border-radius:12px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-regular fa-clock" style="color:#60a5fa;font-size:13px;"></i>
+                </div>
+                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#60a5fa;background:rgba(59,130,246,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(59,130,246,0.25);">ABIERTOS</span>
+            </div>
+            <div style="font-size:3rem;font-weight:900;color:#60a5fa;line-height:1;letter-spacing:-0.05em;">{{ $statusCounts[1] ?? 0 }}</div>
+            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">Pendientes</p>
+        </div>
+
+        {{-- En Proceso --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(245,158,11,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <div style="width:38px;height:38px;border-radius:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-gear" style="color:#fbbf24;font-size:13px;"></i>
+                </div>
+                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#fbbf24;background:rgba(245,158,11,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(245,158,11,0.25);">EN PROCESO</span>
+            </div>
+            <div style="font-size:3rem;font-weight:900;color:#fbbf24;line-height:1;letter-spacing:-0.05em;">{{ $statusCounts[2] ?? 0 }}</div>
+            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">En atención</p>
+        </div>
+
+        {{-- Resueltos --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(16,185,129,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <div style="width:38px;height:38px;border-radius:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-check" style="color:#34d399;font-size:13px;"></i>
+                </div>
+                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#34d399;background:rgba(16,185,129,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(16,185,129,0.25);">RESUELTOS</span>
+            </div>
+            <div style="font-size:3rem;font-weight:900;color:#34d399;line-height:1;letter-spacing:-0.05em;">{{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}</div>
+            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">Finalizados</p>
+        </div>
+    </div>
+
+    {{-- ── TENDENCIA (full width) ───────────────────────────────── --}}
+    <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:10px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-chart-line" style="color:#818cf8;font-size:11px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.15em;margin:0;">Tendencia de Tickets</h3>
+                    <p style="font-size:9px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Últimos 7 meses · datos en vivo</p>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <div style="width:18px;height:3px;background:#6366f1;border-radius:2px;"></div>
+                    <span style="font-size:10px;color:#94a3b8;font-weight:600;">Creados</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <div style="width:18px;height:0;border-top:2px dashed #10b981;"></div>
+                    <span style="font-size:10px;color:#94a3b8;font-weight:600;">Cerrados</span>
+                </div>
+            </div>
+        </div>
+        <div style="padding:1.25rem 1.75rem 1.75rem;height:280px;">
+            <canvas id="ch-trend" style="width:100%;height:100%;"></canvas>
+        </div>
+    </div>
+
+    {{-- ── 3 CHARTS ROW ─────────────────────────────────────────── --}}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-bottom:1.5rem;">
+
+        {{-- Distribución Planta --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="width:30px;height:30px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-building" style="color:#22d3ee;font-size:10px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Distribución Planta</h3>
+                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Tickets por planta</p>
+                </div>
+            </div>
+            <div style="padding:1.25rem;flex:1;min-height:230px;position:relative;">
+                <canvas id="ch-planta" style="width:100%;height:100%;"></canvas>
             </div>
         </div>
 
-        <!-- 4 KPI Cards -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Card 1: Total Incidents (Hubo) -->
-            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <i class="fa-solid fa-ticket text-5xl text-brand-500"></i>
+        {{-- Tipos de Problema --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="width:30px;height:30px;border-radius:10px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-tags" style="color:#c084fc;font-size:10px;"></i>
                 </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400 border border-brand-500/20">
-                            <i class="fa-solid fa-list-ol"></i>
-                        </div>
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tickets Totales</h3>
-                    </div>
-                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts->sum() }}</div>
-                    <div class="text-[10px] text-slate-500 font-medium">Registrados globalmente</div>
-                </div>
-            </div>
-
-            <!-- Card 2: Abiertos (Actuales) -->
-            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <i class="fa-solid fa-folder-open text-5xl text-blue-500"></i>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
-                            <i class="fa-solid fa-clock"></i>
-                        </div>
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Abiertos</h3>
-                    </div>
-                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts[1] ?? 0 }}</div>
-                    <div class="flex items-center gap-1.5 text-[10px] text-blue-400 font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pendientes de atención
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3: En Proceso -->
-            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <i class="fa-solid fa-gears text-5xl text-amber-500"></i>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
-                            <i class="fa-solid fa-spinner"></i>
-                        </div>
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">En Proceso</h3>
-                    </div>
-                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts[2] ?? 0 }}</div>
-                    <div class="flex items-center gap-1.5 text-[10px] text-amber-400 font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Siendo atendidos
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4: Resueltos -->
-            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <i class="fa-solid fa-check-double text-5xl text-emerald-500"></i>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resueltos</h3>
-                    </div>
-                    <div class="text-3xl font-black text-white mb-1">{{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}</div>
-                    <div class="flex items-center gap-1.5 text-[10px] text-emerald-400 font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Tareas finalizadas
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Filtros Rapidos -->
-        <section class="flex flex-wrap items-center gap-2">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mr-2">Filtros:</span>
-            <button class="bg-brand-600/20 border border-brand-500/30 text-brand-400 hover:bg-brand-600/30 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
-                Este Mes
-            </button>
-            <button class="bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
-                Trimestre
-            </button>
-            <button class="bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
-                Año
-            </button>
-        </section>
-
-        <!-- Charts Grid (2 columns) -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Tendencia (Line) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chart-line text-brand-500"></i> Tendencia de Tickets
-                        </h4>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Evolución de incidentes a través del tiempo</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
-                    <canvas id="trendChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Categorias (Bar) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chart-bar text-brand-500"></i> Tipos de Problemas
-                        </h4>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Top categorías reportadas</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Distribucion (Doughnut) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-brand-500"></i> Distribución por Área
-                        </h4>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Impacto por plantas o sectores</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
-                    <canvas id="plantaChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Estados (Polar Area) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chart-area text-brand-500"></i> Proporción de Estados
-                        </h4>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Balance de atención</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
-                    <canvas id="stateChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Formulario Simulador y Tabla Integrada -->
-        <section class="grid grid-cols-1 lg:grid-cols-10 gap-6 pb-10">
-            <!-- Left side: Form -->
-            <div class="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
-                <h4 class="text-base font-bold text-white flex items-center gap-2 mb-1">
-                    <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Simulador Rápido
-                </h4>
-                <p class="text-xs text-slate-400 mb-6">Inyecta datos para probar los gráficos en tiempo real.</p>
-                <form wire:submit.prevent="crearTicketSimulador" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Planta/Ubicación *</label>
-                        <select wire:model.defer="simPlanta" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
-                            <option value="Planta 1">Planta 1</option>
-                            <option value="Planta 2">Planta 2</option>
-                            <option value="Centro Dist.">Centro Dist.</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Categoría (Falla) *</label>
-                        <select wire:model.defer="simCategory" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
-                            <option value="Falla de Software">Falla de Software</option>
-                            <option value="Falla de Hardware">Falla de Hardware</option>
-                            <option value="Redes / Internet">Redes / Internet</option>
-                            <option value="Mantenimiento">Mantenimiento</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción corta *</label>
-                        <input type="text" wire:model.defer="simDesc" placeholder="Ej: No enciende equipo..." required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Prioridad *</label>
-                            <select wire:model.defer="simPriority" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
-                                <option value="Baja">Baja</option>
-                                <option value="Media">Media</option>
-                                <option value="Alta">Alta</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Estado *</label>
-                            <select wire:model.defer="simStatus" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
-                                <option value="Abierto">Abierto</option>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Resuelto">Resuelto</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="pt-2">
-                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold py-3 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
-                            <i class="fa-solid fa-paper-plane"></i> Generar Ticket
-                            <div wire:loading wire:target="crearTicketSimulador" class="w-4 h-4 ml-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Right side: Real-time ticket list -->
-            <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
                 <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h4 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-list-check text-indigo-400"></i> Registro Reciente
-                            </h4>
-                            <p class="text-xs text-slate-400">Últimos tickets creados en la plataforma.</p>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 max-h-[290px] overflow-y-auto">
-                        <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800 sticky top-0">
-                                <tr>
-                                    <th class="px-4 py-3">ID / Descripción</th>
-                                    <th class="px-4 py-3">Planta / Área</th>
-                                    <th class="px-4 py-3">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($tickets->take(8) as $t)
-                                <tr class="border-b border-slate-900 hover:bg-slate-900/40 transition-colors">
-                                    <td class="px-4 py-3">
-                                        <div class="font-semibold text-white text-xs">T-{{ $t->id }}</div>
-                                        <div class="text-slate-400 text-[11px] truncate max-w-[180px]">{{ $t->descripcion ?? $t->titulo }}</div>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="text-slate-200 text-xs">Planta {{ $t->planta }}</div>
-                                        <div class="text-[10px] text-slate-500">{{ explode(']', str_replace('[', '', $t->titulo))[0] ?? 'N/A' }}</div>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        @if($t->estado_id == 1)
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Abierto</span>
-                                        @elseif($t->estado_id == 2)
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>En Curso</span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Resuelto</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Tipos de Problema</h3>
+                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Categorías de incidencia</p>
                 </div>
             </div>
-        </section>
+            <div style="padding:1.25rem;flex:1;min-height:230px;position:relative;">
+                <canvas id="ch-cat" style="width:100%;height:100%;"></canvas>
+            </div>
+        </div>
+
+        {{-- Proporción de Estados --}}
+        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="width:30px;height:30px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-chart-pie" style="color:#fbbf24;font-size:10px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Proporción de Estados</h3>
+                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Distribución de estados</p>
+                </div>
+            </div>
+            <div style="padding:1.25rem;flex:1;min-height:230px;position:relative;">
+                <canvas id="ch-status" style="width:100%;height:100%;"></canvas>
+            </div>
+        </div>
     </div>
-</template>
 
+    {{-- ── TABLA RECIENTE ──────────────────────────────────────────── --}}
+    <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-bolt" style="color:#fbbf24;font-size:11px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.15em;margin:0;">Actividad Reciente</h3>
+                    <p style="font-size:9px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Últimos tickets registrados</p>
+                </div>
+            </div>
+            <button wire:click="setTab('tickets')" style="font-size:10px;font-weight:800;color:#818cf8;text-transform:uppercase;letter-spacing:0.12em;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;">
+                Ver todos <i class="fa-solid fa-arrow-right" style="font-size:8px;"></i>
+            </button>
+        </div>
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;min-width:540px;">
+                <thead>
+                    <tr>
+                        <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">ID</th>
+                        <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Título</th>
+                        <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Planta</th>
+                        <th style="padding:11px 16px;text-align:center;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Estado</th>
+                        <th style="padding:11px 16px;text-align:right;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($tickets->sortByDesc('created_at')->take(8) as $t)
+                    <tr style="border-top:1px solid rgba(255,255,255,0.04);">
+                        <td style="padding:12px 16px;">
+                            <span style="font-size:11px;font-weight:800;color:#475569;background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:6px;">#{{ str_pad($t->id,4,'0',STR_PAD_LEFT) }}</span>
+                        </td>
+                        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#cbd5e1;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            {{ Str::limit($t->titulo ?? 'Sin título', 42) }}
+                        </td>
+                        <td style="padding:12px 16px;">
+                            <span style="font-size:9px;font-weight:800;color:#c4b5fd;background:rgba(139,92,246,0.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(139,92,246,0.2);text-transform:uppercase;letter-spacing:0.1em;">Planta {{ $t->planta ?? 1 }}</span>
+                        </td>
+                        <td style="padding:12px 16px;text-align:center;">
+                            @if($t->estado_id == 1)
+                                <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:#60a5fa;background:rgba(59,130,246,0.1);padding:4px 10px;border-radius:99px;border:1px solid rgba(59,130,246,0.2);text-transform:uppercase;"><span style="width:6px;height:6px;background:#3b82f6;border-radius:50%;display:inline-block;"></span>Abierto</span>
+                            @elseif($t->estado_id == 2)
+                                <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:#fbbf24;background:rgba(245,158,11,0.1);padding:4px 10px;border-radius:99px;border:1px solid rgba(245,158,11,0.2);text-transform:uppercase;"><span style="width:6px;height:6px;background:#f59e0b;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;"></span>Proceso</span>
+                            @elseif($t->estado_id == 3)
+                                <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:#34d399;background:rgba(16,185,129,0.1);padding:4px 10px;border-radius:99px;border:1px solid rgba(16,185,129,0.2);text-transform:uppercase;"><span style="width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;"></span>Resuelto</span>
+                            @else
+                                <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:#94a3b8;background:rgba(100,116,139,0.1);padding:4px 10px;border-radius:99px;border:1px solid rgba(100,116,139,0.2);text-transform:uppercase;"><span style="width:6px;height:6px;background:#64748b;border-radius:50%;display:inline-block;"></span>Cerrado</span>
+                            @endif
+                        </td>
+                        <td style="padding:12px 16px;font-size:11px;font-weight:600;color:#475569;text-align:right;white-space:nowrap;">
+                            {{ $t->created_at->format('d/m/Y') }}
+                            <span style="color:#334155;font-size:10px;margin-left:4px;">{{ $t->created_at->format('H:i') }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="5" style="padding:40px;text-align:center;font-size:13px;color:#475569;">No hay tickets registrados.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@once
 <script>
-    window.renderSupportHubCharts = function(data) {
-        if (typeof Chart === 'undefined') {
-            const container = document.getElementById('trendChart');
-            if (container) {
-                const parent = container.parentElement;
-                parent.innerHTML = '<div class="text-red-500 bg-red-500/10 p-4 rounded border border-red-500"><strong>Error:</strong> Chart.js no pudo ser cargado.</div>';
-            }
-            return;
-        }
+(function () {
+    /* ── PHP data injected server-side ── */
+    var STAT_DATA = {
+        months:   {{ Js::from($trendMonths->values()) }},
+        created:  {{ Js::from($trendData) }},
+        closed:   {{ Js::from($trendClosedData) }},
+        pLabels:  {{ Js::from(array_keys($plantaCounts)) }},
+        pValues:  {{ Js::from(array_values($plantaCounts)) }},
+        cLabels:  {{ Js::from($categoryData->keys()->values()) }},
+        cValues:  {{ Js::from($categoryData->values()->values()) }},
+        sOpen:    {{ $statusCounts[1] ?? 0 }},
+        sProc:    {{ $statusCounts[2] ?? 0 }},
+        sDone:    {{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}
+    };
 
-        // Helper to destroy existing chart instances
-        const destroyChart = (id) => {
-            const el = document.getElementById(id);
-            if (el && el.__chartInstance) {
-                el.__chartInstance.destroy();
-                delete el.__chartInstance;
-            }
-        };
+    var TIP = {
+        backgroundColor: '#0f172a',
+        titleColor: '#f1f5f9',
+        bodyColor: '#94a3b8',
+        borderColor: '#1e293b',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 10
+    };
 
+    function kill(id) {
+        var el = document.getElementById(id);
+        if (el && el._ch) { el._ch.destroy(); delete el._ch; }
+    }
+
+    function buildCharts() {
         if (typeof Chart === 'undefined') return;
 
-        // 1. CHART DE TENDENCIA (Líneas)
-        destroyChart('trendChart');
-        const ctxTrend = document.getElementById('trendChart');
-        if (ctxTrend) {
-            ctxTrend.__chartInstance = new Chart(ctxTrend, {
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(51,65,85,0.25)';
+
+        /* 1. TENDENCIA */
+        kill('ch-trend');
+        var c1 = document.getElementById('ch-trend');
+        if (c1) {
+            c1._ch = new Chart(c1, {
                 type: 'line',
                 data: {
-                    labels: data.trendMonths,
+                    labels: STAT_DATA.months,
                     datasets: [
                         {
-                            label: 'Tickets Totales',
-                            data: data.trendData,
-                            borderColor: '#8b5cf6', // brand-500
-                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: '#8b5cf6',
-                            pointBorderColor: '#0f172a'
+                            label: 'Creados',
+                            data: STAT_DATA.created,
+                            borderColor: '#6366f1',
+                            backgroundColor: function(ctx) {
+                                var g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+                                g.addColorStop(0, 'rgba(99,102,241,0.28)');
+                                g.addColorStop(1, 'rgba(99,102,241,0)');
+                                return g;
+                            },
+                            borderWidth: 3, tension: 0.45, fill: true,
+                            pointBackgroundColor: '#6366f1', pointBorderColor: '#0f172a',
+                            pointRadius: 5, pointHoverRadius: 9, pointBorderWidth: 2
                         },
                         {
-                            label: 'Tickets Cerrados',
-                            data: data.trendClosedData,
-                            borderColor: '#10b981', // emerald-500
+                            label: 'Cerrados',
+                            data: STAT_DATA.closed,
+                            borderColor: '#10b981',
                             backgroundColor: 'transparent',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            tension: 0.4,
-                            pointBackgroundColor: '#10b981',
-                            pointBorderColor: '#0f172a'
+                            borderWidth: 2, borderDash: [6, 4], tension: 0.45,
+                            pointBackgroundColor: '#10b981', pointBorderColor: '#0f172a',
+                            pointRadius: 4, pointHoverRadius: 7, pointBorderWidth: 2
                         }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { labels: { color: '#94a3b8' } }, tooltip: { backgroundColor: '#1e293b' } },
+                    plugins: {
+                        legend: { labels: { usePointStyle: true, pointStyleWidth: 10, padding: 20, font: { size: 11, weight: 'bold' } } },
+                        tooltip: TIP
+                    },
                     scales: {
-                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8' } },
-                        y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' }, beginAtZero: true }
+                        x: { grid: { color: 'rgba(51,65,85,0.2)' }, ticks: { font: { size: 11 } } },
+                        y: { grid: { color: 'rgba(51,65,85,0.2)' }, ticks: { precision: 0, font: { size: 11 } }, beginAtZero: true }
                     }
                 }
             });
         }
 
-        // 2. CHART DE DISTRIBUCIÓN POR PLANTA (Doughnut)
-        destroyChart('plantaChart');
-        const ctxPlanta = document.getElementById('plantaChart');
-        if (ctxPlanta) {
-            ctxPlanta.__chartInstance = new Chart(ctxPlanta, {
+        /* 2. DISTRIBUCIÓN PLANTA */
+        kill('ch-planta');
+        var c2 = document.getElementById('ch-planta');
+        if (c2) {
+            c2._ch = new Chart(c2, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(data.plantaCounts),
-                    datasets: [{
-                        data: Object.values(data.plantaCounts),
-                        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'],
-                        borderColor: '#0f172a',
-                        borderWidth: 2,
-                        hoverOffset: 4
-                    }]
+                    labels: STAT_DATA.pLabels,
+                    datasets: [{ data: STAT_DATA.pValues, backgroundColor: ['#6366f1','#06b6d4'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', usePointStyle: true, padding: 20 } }, tooltip: { backgroundColor: '#1e293b' } }
-                }
-            });
-        }
-
-        // 3. CHART DE CATEGORÍAS (Barras horizontales)
-        destroyChart('categoryChart');
-        const ctxCategory = document.getElementById('categoryChart');
-        if (ctxCategory) {
-            const catLabels = Object.keys(data.categoryData);
-            const catValues = Object.values(data.categoryData);
-            ctxCategory.__chartInstance = new Chart(ctxCategory, {
-                type: 'bar',
-                data: {
-                    labels: catLabels,
-                    datasets: [{
-                        label: 'Tickets',
-                        data: catValues,
-                        backgroundColor: 'rgba(168, 85, 247, 0.65)',
-                        borderColor: '#a855f7',
-                        borderWidth: 1.5,
-                        borderRadius: 6,
-                        barThickness: 18
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } },
-                    scales: {
-                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' } },
-                        y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                    responsive: true, maintainAspectRatio: false, cutout: '72%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16, font: { size: 11, weight: 'bold' } } },
+                        tooltip: TIP
                     }
                 }
             });
         }
 
-        // 4. CHART ESTADOS (Polar)
-        destroyChart('stateChart');
-        const ctxState = document.getElementById('stateChart');
-        if (ctxState) {
-            ctxState.__chartInstance = new Chart(ctxState, {
-                type: 'polarArea',
+        /* 3. TIPOS DE PROBLEMA */
+        kill('ch-cat');
+        var c3 = document.getElementById('ch-cat');
+        if (c3) {
+            var bgs = ['rgba(168,85,247,0.75)','rgba(59,130,246,0.75)','rgba(16,185,129,0.75)','rgba(245,158,11,0.75)','rgba(239,68,68,0.75)','rgba(20,184,166,0.75)'];
+            c3._ch = new Chart(c3, {
+                type: 'bar',
                 data: {
-                    labels: ['Abiertos', 'En Proceso', 'Resueltos'],
-                    datasets: [{
-                        data: [data.statusCounts[1] || 0, data.statusCounts[2] || 0, (data.statusCounts[3] || 0) + (data.statusCounts[4] || 0)],
-                        backgroundColor: ['rgba(59, 130, 246, 0.55)', 'rgba(245, 158, 11, 0.55)', 'rgba(16, 185, 129, 0.55)'],
-                        borderColor: '#0f172a',
-                        borderWidth: 2
-                    }]
+                    labels: STAT_DATA.cLabels.length ? STAT_DATA.cLabels : ['Sin datos'],
+                    datasets: [{ label: 'Tickets', data: STAT_DATA.cValues.length ? STAT_DATA.cValues : [0], backgroundColor: bgs, borderRadius: 8, barThickness: 22 }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { r: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { backdropColor: 'transparent', color: '#94a3b8' } } },
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } }
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: TIP },
+                    scales: {
+                        x: { grid: { color: 'rgba(51,65,85,0.2)' }, ticks: { precision: 0, font: { size: 10 } }, beginAtZero: true },
+                        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
                 }
             });
         }
-    };
+
+        /* 4. PROPORCIÓN DE ESTADOS */
+        kill('ch-status');
+        var c4 = document.getElementById('ch-status');
+        if (c4) {
+            c4._ch = new Chart(c4, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Abiertos','En Proceso','Resueltos'],
+                    datasets: [{ data: [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone], backgroundColor: ['#3b82f6','#f59e0b','#10b981'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { size: 10, weight: 'bold' } } },
+                        tooltip: TIP
+                    }
+                }
+            });
+        }
+    }
+
+    /* Run after page fully loads */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', buildCharts);
+    } else {
+        buildCharts();
+    }
+
+    /* Also re-run whenever Livewire refreshes the component */
+    document.addEventListener('livewire:morph', buildCharts);
+    document.addEventListener('livewire:update', function() { setTimeout(buildCharts, 150); });
+})();
 </script>
+@endonce
+
+
 
             {{-- Users Tab --}}
             <template x-if="activeTab === 'users'">
