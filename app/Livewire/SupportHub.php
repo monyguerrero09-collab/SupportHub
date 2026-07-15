@@ -626,7 +626,7 @@ class SupportHub extends Component
     public function createManualTicket($data)
     {
         $this->ticketSectorId = $data['sectorId'] ?? null;
-        $this->ticketCategory = 'MANUAL';
+        $this->ticketCategory = 'SOPORTE';
         $this->ticketSubcategory = $data['subcategory'] ?? null;
         $this->ticketDescription = $data['description'] ?? null;
         $this->ticketPlanta = $data['planta'] ?? null;
@@ -806,6 +806,19 @@ class SupportHub extends Component
         $this->reset(['simDesc']);
         $this->dispatch('notify', 'Ticket del simulador generado y guardado en la base de datos.');
         $this->dispatch('ticket-created');
+    }
+
+    public function deleteTicket($ticketId)
+    {
+        $ticket = Ticket::find($ticketId);
+        if ($ticket) {
+            \App\Models\HistorialTicket::create([
+                'ticket_id' => $ticket->id,
+                'accion' => 'Ticket ' . $ticket->id . ' eliminado por duplicado'
+            ]);
+            $ticket->delete();
+            $this->dispatch('notify', 'Ticket eliminado correctamente.');
+        }
     }
 
     public function render()

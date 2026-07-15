@@ -358,23 +358,24 @@
                     </div>
 
                     {{-- Tickets Table... --}}
-                    <div class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
-                        <table class="w-full text-left border-collapse min-w-[1100px]">
+                    <div wire:poll.15s class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
+                        <table class="w-full text-left border-collapse min-w-[800px] md:min-w-0" style="table-layout: auto;">
                             <thead>
                                 <tr class="bg-white/5 border-b border-white/5">
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">ID</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Incidencia</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Prioridad</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asignado A</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">ID</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Incidencia</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Prioridad</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Asignado A</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Hora</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/[0.03]">
                                 @forelse($tickets as $ticket)
                                 <tr class="group hover:bg-white/[0.03] transition-all">
-                                    <td class="px-10 py-8 text-blue-500 font-black text-xs">#{{ $ticket->id }}</td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4 text-blue-500 font-black text-xs">#{{ $ticket->id }}</td>
+                                    <td class="px-4 md:px-5 py-4">
                                         <p class="text-sm font-black text-white uppercase tracking-tight">{{ $ticket->titulo }}</p>
                                         @if($ticket->creador)
                                             <p class="text-[10px] font-bold text-gray-600 mt-1 uppercase">{{ $ticket->creador->name }}</p>
@@ -401,10 +402,10 @@
                                             </p>
                                         @endif
                                     </td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4">
                                         <span class="text-[10px] font-black uppercase text-gray-400">{{ $ticket->prioridad->nombre }}</span>
                                     </td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4">
                                         @if($ticket->agente)
                                             <div class="flex items-center gap-2">
                                                 <div class="w-6 h-6 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-[9px] font-black uppercase border border-blue-500/20">
@@ -416,7 +417,7 @@
                                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 bg-white/5 px-2.5 py-1 rounded-lg">Sin Asignar</span>
                                         @endif
                                     </td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4">
                                         @php
                                             $estadoNombre = $ticket->estado->nombre;
                                             $estadoClass = match(true) {
@@ -430,20 +431,27 @@
                                             {{ $estadoNombre }}
                                         </span>
                                     </td>
-                                    <td class="px-10 py-8 text-right">
+                                    <td class="px-4 md:px-5 py-4">
+                                        <span class="text-[10px] font-black uppercase text-gray-400 block">{{ $ticket->created_at->format('H:i') }}</span>
+                                        <span class="text-[8px] font-bold text-gray-500 mt-1 block">{{ $ticket->created_at->diffForHumans() }}</span>
+                                    </td>
+                                    <td class="px-4 md:px-5 py-4 text-right">
                                         <div class="flex items-center justify-end gap-3">
                                             @if(in_array(auth()->user()->role, ['admin', 'agente']))
                                                 <div class="flex gap-2">
-                                                    <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3.5 py-2 rounded-xl text-[9px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
+                                                    <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                         Gestionar
+                                                    </button>
+                                                    <button wire:click="deleteTicket({{ $ticket->id }})" wire:confirm="¿Estás seguro de eliminar este ticket? Se enviará a la papelera." class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-red-600/20 text-red-400 border border-red-500/20 hover:bg-red-600/40 transition-all flex items-center gap-1.5" title="Eliminar duplicado">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                     </button>
                                                 </div>
                                                 {{-- Mostrar Reabrir rápido en tabla si está finalizado --}}
                                                 @if(in_array($ticket->estado->nombre, ['Completado', 'Cerrado', 'Resuelto']))
                                                     <button wire:click="reopenTicket('{{ $ticket->id }}')"
                                                             wire:confirm="¿Estás seguro de reabrir este ticket?"
-                                                            class="px-4 py-2 rounded-xl text-[9px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
+                                                            class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                                         Reabrir
                                                     </button>
@@ -496,23 +504,24 @@
                     </div>
 
                     {{-- Historial Table --}}
-                    <div class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
-                        <table class="w-full text-left border-collapse min-w-[1100px]">
+                    <div wire:poll.15s class="bg-[#1a1a2e]/40 backdrop-blur-3xl border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-x-auto shadow-2xl">
+                        <table class="w-full text-left border-collapse min-w-[800px] md:min-w-0" style="table-layout: auto;">
                             <thead>
                                 <tr class="bg-white/5 border-b border-white/5">
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">ID</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Incidencia</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Prioridad</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asignado A</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
-                                    <th class="px-6 md:px-10 py-5 md:py-7 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">ID</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Incidencia</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Prioridad</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Asignado A</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest">Hora</th>
+                                    <th class="px-4 md:px-5 py-4 md:py-5 text-[9px] font-black text-gray-500 uppercase tracking-widest text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/[0.03]">
                                 @forelse($historialTickets as $ticket)
                                 <tr class="group hover:bg-white/[0.03] transition-all">
-                                    <td class="px-10 py-8 text-blue-500 font-black text-xs">#{{ $ticket->id }}</td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4 text-blue-500 font-black text-xs">#{{ $ticket->id }}</td>
+                                    <td class="px-4 md:px-5 py-4">
                                         <p class="text-sm font-black text-white uppercase tracking-tight">{{ $ticket->titulo }}</p>
                                         @if($ticket->creador)
                                             <p class="text-[10px] font-bold text-gray-600 mt-1 uppercase">{{ $ticket->creador->name }}</p>
@@ -539,10 +548,10 @@
                                             </p>
                                         @endif
                                     </td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4">
                                         <span class="text-[10px] font-black uppercase text-gray-400">{{ $ticket->prioridad->nombre }}</span>
                                     </td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4">
                                         @if($ticket->agente)
                                             <div class="flex items-center gap-2">
                                                 <div class="w-6 h-6 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-[9px] font-black uppercase border border-blue-500/20">
@@ -554,7 +563,7 @@
                                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 bg-white/5 px-2.5 py-1 rounded-lg">Sin Asignar</span>
                                         @endif
                                     </td>
-                                    <td class="px-10 py-8">
+                                    <td class="px-4 md:px-5 py-4">
                                         @php
                                             $estadoNombre = $ticket->estado->nombre;
                                             $estadoClass = match(true) {
@@ -568,15 +577,19 @@
                                             {{ $estadoNombre }}
                                         </span>
                                     </td>
-                                    <td class="px-10 py-8 text-right">
+                                    <td class="px-4 md:px-5 py-4">
+                                        <span class="text-[10px] font-black uppercase text-gray-400 block">{{ $ticket->created_at->format('H:i') }}</span>
+                                        <span class="text-[8px] font-bold text-gray-500 mt-1 block">{{ $ticket->created_at->diffForHumans() }}</span>
+                                    </td>
+                                    <td class="px-4 md:px-5 py-4 text-right">
                                         <div class="flex items-center justify-end gap-3">
-                                            <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-3.5 py-2 rounded-xl text-[9px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
+                                            <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                 Gestionar
                                             </button>
                                             <button wire:click="reopenTicket('{{ $ticket->id }}')"
                                                     wire:confirm="¿Estás seguro de reabrir este ticket?"
-                                                    class="px-4 py-2 rounded-xl text-[9px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
+                                                    class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                                 Reabrir
                                             </button>
@@ -1803,7 +1816,7 @@
      STATISTICS TAB — uses x-show so canvases always exist in DOM
      Charts are initialised in the <script> block below.
 ═══════════════════════════════════════════════════════════ --}}
-<div x-show="activeTab === 'statistics'" class="pb-10">
+<div x-show="activeTab === 'statistics'" x-init="$watch('activeTab', val => { if (val === 'statistics' && window.buildHubCharts) { setTimeout(window.buildHubCharts, 100); } })" class="pb-10">
 
     {{-- ── HEADER BANNER ───────────────────────────────────────── --}}
     <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(6,182,212,0.10),rgba(16,185,129,0.08));border:1px solid rgba(99,102,241,0.25);margin-bottom:2rem;">
@@ -1982,7 +1995,7 @@
             </button>
         </div>
         <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;min-width:540px;">
+            <table style="width:100%;border-collapse:collapse;">
                 <thead>
                     <tr>
                         <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">ID</th>
@@ -2018,6 +2031,7 @@
                         <td style="padding:12px 16px;font-size:11px;font-weight:600;color:#475569;text-align:right;white-space:nowrap;">
                             {{ $t->created_at->format('d/m/Y') }}
                             <span style="color:#334155;font-size:10px;margin-left:4px;">{{ $t->created_at->format('H:i') }}</span>
+                            <div style="font-size:8px;color:#64748b;margin-top:2px;">{{ $t->created_at->diffForHumans() }}</div>
                         </td>
                     </tr>
                     @empty
@@ -2061,8 +2075,14 @@
         if (el && el._ch) { el._ch.destroy(); delete el._ch; }
     }
 
-    function buildCharts() {
-        if (typeof Chart === 'undefined') return;
+    window.buildHubCharts = function() {
+        if (typeof Chart === 'undefined') {
+            let script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+            script.onload = function() { window.buildHubCharts(); };
+            document.head.appendChild(script);
+            return;
+        }
 
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = 'rgba(51,65,85,0.25)';
@@ -2181,14 +2201,14 @@
 
     /* Run after page fully loads */
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', buildCharts);
+        document.addEventListener('DOMContentLoaded', window.buildHubCharts);
     } else {
-        buildCharts();
+        window.buildHubCharts();
     }
 
     /* Also re-run whenever Livewire refreshes the component */
-    document.addEventListener('livewire:morph', buildCharts);
-    document.addEventListener('livewire:update', function() { setTimeout(buildCharts, 150); });
+    document.addEventListener('livewire:morph', window.buildHubCharts);
+    document.addEventListener('livewire:update', function() { setTimeout(window.buildHubCharts, 150); });
 })();
 </script>
 @endonce
