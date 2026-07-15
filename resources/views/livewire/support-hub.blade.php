@@ -1816,8 +1816,23 @@
      STATISTICS TAB — uses x-show so canvases always exist in DOM
      Charts are initialised in the <script> block below.
 ═══════════════════════════════════════════════════════════ --}}
-<div x-show="activeTab === 'statistics'" x-init="$watch('activeTab', val => { if (val === 'statistics' && window.buildHubCharts) { setTimeout(window.buildHubCharts, 100); } })" class="pb-10">
-
+<div x-show="activeTab === 'statistics'"
+     wire:poll.15s
+     id="statistics-container"
+     data-stats="{{ json_encode([
+         'months' => $trendMonths->values(),
+         'created' => $trendData,
+         'closed' => $trendClosedData,
+         'pLabels' => array_keys($plantaCounts),
+         'pValues' => array_values($plantaCounts),
+         'cLabels' => $categoryData->keys()->values(),
+         'cValues' => $categoryData->values()->values(),
+         'sOpen' => $statusCounts[1] ?? 0,
+         'sProc' => $statusCounts[2] ?? 0,
+         'sDone' => ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0)
+     ]) }}"
+     x-init="$watch('activeTab', val => { if (val === 'statistics' && window.buildHubCharts) { setTimeout(window.buildHubCharts, 350); } })" 
+     class="pb-10">
     {{-- ── HEADER BANNER ───────────────────────────────────────── --}}
     <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(6,182,212,0.10),rgba(16,185,129,0.08));border:1px solid rgba(99,102,241,0.25);margin-bottom:2rem;">
         <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(99,102,241,0.3),transparent 70%);pointer-events:none;"></div>
@@ -1921,8 +1936,10 @@
                 </div>
             </div>
         </div>
-        <div style="padding:1.25rem 1.75rem 1.75rem;height:280px;">
-            <canvas id="ch-trend" style="width:100%;height:100%;"></canvas>
+        <div style="padding:1rem 1.75rem 1.75rem;">
+            <div wire:ignore style="position:relative;height:280px;width:100%;">
+                <canvas id="ch-trend"></canvas>
+            </div>
         </div>
     </div>
 
@@ -1940,8 +1957,10 @@
                     <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Tickets por planta</p>
                 </div>
             </div>
-            <div style="padding:1.25rem;flex:1;min-height:230px;position:relative;">
-                <canvas id="ch-planta" style="width:100%;height:100%;"></canvas>
+            <div style="padding:1rem 1.25rem 1.25rem;flex:1;">
+                <div wire:ignore style="position:relative;height:220px;width:100%;">
+                    <canvas id="ch-planta"></canvas>
+                </div>
             </div>
         </div>
 
@@ -1956,8 +1975,10 @@
                     <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Categorías de incidencia</p>
                 </div>
             </div>
-            <div style="padding:1.25rem;flex:1;min-height:230px;position:relative;">
-                <canvas id="ch-cat" style="width:100%;height:100%;"></canvas>
+            <div style="padding:1rem 1.25rem 1.25rem;flex:1;">
+                <div wire:ignore style="position:relative;height:220px;width:100%;">
+                    <canvas id="ch-cat"></canvas>
+                </div>
             </div>
         </div>
 
@@ -1972,8 +1993,10 @@
                     <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Distribución de estados</p>
                 </div>
             </div>
-            <div style="padding:1.25rem;flex:1;min-height:230px;position:relative;">
-                <canvas id="ch-status" style="width:100%;height:100%;"></canvas>
+            <div style="padding:1rem 1.25rem 1.25rem;flex:1;">
+                <div wire:ignore style="position:relative;height:220px;width:100%;">
+                    <canvas id="ch-status"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -2046,20 +2069,6 @@
 @once
 <script>
 (function () {
-    /* ── PHP data injected server-side ── */
-    var STAT_DATA = {
-        months:   {{ Js::from($trendMonths->values()) }},
-        created:  {{ Js::from($trendData) }},
-        closed:   {{ Js::from($trendClosedData) }},
-        pLabels:  {{ Js::from(array_keys($plantaCounts)) }},
-        pValues:  {{ Js::from(array_values($plantaCounts)) }},
-        cLabels:  {{ Js::from($categoryData->keys()->values()) }},
-        cValues:  {{ Js::from($categoryData->values()->values()) }},
-        sOpen:    {{ $statusCounts[1] ?? 0 }},
-        sProc:    {{ $statusCounts[2] ?? 0 }},
-        sDone:    {{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}
-    };
-
     var TIP = {
         backgroundColor: '#0f172a',
         titleColor: '#f1f5f9',
@@ -2070,12 +2079,7 @@
         cornerRadius: 10
     };
 
-    function kill(id) {
-        var el = document.getElementById(id);
-        if (el && el._ch) { el._ch.destroy(); delete el._ch; }
-    }
-
-    window.buildHubCharts = function() {
+        window.buildHubCharts = function() {
         if (typeof Chart === 'undefined') {
             let script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
@@ -2084,120 +2088,112 @@
             return;
         }
 
+        var container = document.getElementById('statistics-container');
+        if (!container) return;
+        var statsAttr = container.getAttribute('data-stats');
+        if (!statsAttr) return;
+        var STAT_DATA = JSON.parse(statsAttr);
+
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = 'rgba(51,65,85,0.25)';
 
-        /* 1. TENDENCIA */
-        kill('ch-trend');
+                /* 1. TENDENCIA */
         var c1 = document.getElementById('ch-trend');
         if (c1) {
-            c1._ch = new Chart(c1, {
-                type: 'line',
-                data: {
-                    labels: STAT_DATA.months,
-                    datasets: [
-                        {
-                            label: 'Creados',
-                            data: STAT_DATA.created,
-                            borderColor: '#6366f1',
-                            backgroundColor: function(ctx) {
-                                var g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
-                                g.addColorStop(0, 'rgba(99,102,241,0.28)');
-                                g.addColorStop(1, 'rgba(99,102,241,0)');
-                                return g;
+            if (c1._ch) {
+                c1._ch.data.labels = STAT_DATA.months;
+                c1._ch.data.datasets[0].data = STAT_DATA.created;
+                c1._ch.data.datasets[1].data = STAT_DATA.closed;
+                c1._ch.update();
+            } else {
+                c1._ch = new Chart(c1, {
+                    type: 'line',
+                    data: {
+                        labels: STAT_DATA.months,
+                        datasets: [
+                            {
+                                label: 'Creados', data: STAT_DATA.created, borderColor: '#6366f1',
+                                backgroundColor: function(ctx) {
+                                    var g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+                                    g.addColorStop(0, 'rgba(99,102,241,0.28)');
+                                    g.addColorStop(1, 'rgba(99,102,241,0)');
+                                    return g;
+                                },
+                                borderWidth: 3, tension: 0.45, fill: true,
+                                pointBackgroundColor: '#6366f1', pointBorderColor: '#0f172a',
+                                pointRadius: 5, pointHoverRadius: 9, pointBorderWidth: 2
                             },
-                            borderWidth: 3, tension: 0.45, fill: true,
-                            pointBackgroundColor: '#6366f1', pointBorderColor: '#0f172a',
-                            pointRadius: 5, pointHoverRadius: 9, pointBorderWidth: 2
-                        },
-                        {
-                            label: 'Cerrados',
-                            data: STAT_DATA.closed,
-                            borderColor: '#10b981',
-                            backgroundColor: 'transparent',
-                            borderWidth: 2, borderDash: [6, 4], tension: 0.45,
-                            pointBackgroundColor: '#10b981', pointBorderColor: '#0f172a',
-                            pointRadius: 4, pointHoverRadius: 7, pointBorderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { labels: { usePointStyle: true, pointStyleWidth: 10, padding: 20, font: { size: 11, weight: 'bold' } } },
-                        tooltip: TIP
+                            {
+                                label: 'Cerrados', data: STAT_DATA.closed, borderColor: '#10b981',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2, borderDash: [6, 4], tension: 0.45,
+                                pointBackgroundColor: '#10b981', pointBorderColor: '#0f172a',
+                                pointRadius: 4, pointHoverRadius: 7, pointBorderWidth: 2
+                            }
+                        ]
                     },
-                    scales: {
-                        x: { grid: { color: 'rgba(51,65,85,0.2)' }, ticks: { font: { size: 11 } } },
-                        y: { grid: { color: 'rgba(51,65,85,0.2)' }, ticks: { precision: 0, font: { size: 11 } }, beginAtZero: true }
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: 'bold' } } }, tooltip: TIP },
+                        scales: { x: { grid: { color: 'rgba(51,65,85,0.2)' } }, y: { grid: { color: 'rgba(51,65,85,0.2)' }, beginAtZero: true } }
                     }
-                }
-            });
+                });
+            }
         }
 
         /* 2. DISTRIBUCIÓN PLANTA */
-        kill('ch-planta');
         var c2 = document.getElementById('ch-planta');
+        var pLabels = STAT_DATA.pLabels.length ? STAT_DATA.pLabels : ['Sin datos'];
+        var pValues = STAT_DATA.pValues.length ? STAT_DATA.pValues : [0.001]; // Prevents crash
         if (c2) {
-            c2._ch = new Chart(c2, {
-                type: 'doughnut',
-                data: {
-                    labels: STAT_DATA.pLabels,
-                    datasets: [{ data: STAT_DATA.pValues, backgroundColor: ['#6366f1','#06b6d4'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '72%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16, font: { size: 11, weight: 'bold' } } },
-                        tooltip: TIP
-                    }
-                }
-            });
+            if (c2._ch) {
+                c2._ch.data.labels = pLabels;
+                c2._ch.data.datasets[0].data = pValues;
+                c2._ch.update();
+            } else {
+                c2._ch = new Chart(c2, {
+                    type: 'doughnut',
+                    data: { labels: pLabels, datasets: [{ data: pValues, backgroundColor: ['#6366f1','#06b6d4'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } }, tooltip: TIP } }
+                });
+            }
         }
 
         /* 3. TIPOS DE PROBLEMA */
-        kill('ch-cat');
         var c3 = document.getElementById('ch-cat');
+        var cLabels = STAT_DATA.cLabels.length ? STAT_DATA.cLabels : ['Sin datos'];
+        var cValues = STAT_DATA.cValues.length ? STAT_DATA.cValues : [0.001];
         if (c3) {
             var bgs = ['rgba(168,85,247,0.75)','rgba(59,130,246,0.75)','rgba(16,185,129,0.75)','rgba(245,158,11,0.75)','rgba(239,68,68,0.75)','rgba(20,184,166,0.75)'];
-            c3._ch = new Chart(c3, {
-                type: 'bar',
-                data: {
-                    labels: STAT_DATA.cLabels.length ? STAT_DATA.cLabels : ['Sin datos'],
-                    datasets: [{ label: 'Tickets', data: STAT_DATA.cValues.length ? STAT_DATA.cValues : [0], backgroundColor: bgs, borderRadius: 8, barThickness: 22 }]
-                },
-                options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: TIP },
-                    scales: {
-                        x: { grid: { color: 'rgba(51,65,85,0.2)' }, ticks: { precision: 0, font: { size: 10 } }, beginAtZero: true },
-                        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                    }
-                }
-            });
+            if (c3._ch) {
+                c3._ch.data.labels = cLabels;
+                c3._ch.data.datasets[0].data = cValues;
+                c3._ch.update();
+            } else {
+                c3._ch = new Chart(c3, {
+                    type: 'bar',
+                    data: { labels: cLabels, datasets: [{ label: 'Tickets', data: cValues, backgroundColor: bgs, borderRadius: 8, barThickness: 22 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: TIP }, scales: { x: { beginAtZero: true } } }
+                });
+            }
         }
 
         /* 4. PROPORCIÓN DE ESTADOS */
-        kill('ch-status');
         var c4 = document.getElementById('ch-status');
         if (c4) {
-            c4._ch = new Chart(c4, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Abiertos','En Proceso','Resueltos'],
-                    datasets: [{ data: [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone], backgroundColor: ['#3b82f6','#f59e0b','#10b981'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '70%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { size: 10, weight: 'bold' } } },
-                        tooltip: TIP
-                    }
-                }
-            });
+            if (c4._ch) {
+                c4._ch.data.datasets[0].data = [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone];
+                c4._ch.update();
+            } else {
+                c4._ch = new Chart(c4, {
+                    type: 'doughnut',
+                    data: { labels: ['Abiertos','En Proceso','Resueltos'], datasets: [{ data: [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone], backgroundColor: ['#3b82f6','#f59e0b','#10b981'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } }, tooltip: TIP } }
+                });
+            }
         }
-    }
+    };
 
     /* Run after page fully loads */
     if (document.readyState === 'loading') {
