@@ -1,0 +1,466 @@
+<template x-if="activeTab === 'statistics'">
+    <div class="space-y-6">
+        <!-- Secure JSON Data Bridge for Alpine -->
+        <div id="stats-json-payload" class="hidden" data-payload="{{ json_encode([
+            'categoryData' => $categoryData,
+            'statusCounts' => $statusCounts,
+            'plantaCounts' => $plantaCounts,
+            'trendMonths' => $trendMonths,
+            'trendData' => $trendData,
+            'trendClosedData' => $trendClosedData,
+            'slaPercent' => (int)($slaPercent ?? 0)
+        ]) }}"></div>
+        
+        <!-- Alpine Component Initializer -->
+        <div x-init="
+            const renderCharts = () => {
+                if (window.renderSupportHubCharts) {
+                    const payloadElement = document.getElementById('stats-json-payload');
+                    if (payloadElement) {
+                        try {
+                            const data = JSON.parse(payloadElement.dataset.payload);
+                            window.renderSupportHubCharts(data);
+                        } catch (e) {
+                            console.error('Failed to parse chart data:', e);
+                        }
+                    }
+                }
+            };
+            
+            // Watch tab changes
+            $watch('activeTab', (val) => {
+                if (val === 'statistics') $nextTick(renderCharts);
+            });
+            
+            // Initial render
+            if (activeTab === 'statistics') $nextTick(renderCharts);
+            
+            // Watch global events
+            window.addEventListener('ticket-created', () => {
+                if (activeTab === 'statistics') $nextTick(renderCharts);
+            });
+        "></div>
+
+        <!-- Info/Intro Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-black/20">
+            <div>
+                <h2 class="text-xl font-bold text-white mb-1">¡Bienvenido a tu Centro de Mando Analítico!</h2>
+                <p class="text-sm text-slate-400 max-w-2xl">
+                    Este reporte consolida las métricas clave de tus operaciones. Registra incidentes usando el panel lateral y observa las gráficas actualizarse de inmediato.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en línea
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
+                    <i class="fa-solid fa-arrows-rotate"></i> Sync Live
+                </span>
+            </div>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card 1: Total Incidents (Hubo) -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-ticket text-5xl text-brand-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400 border border-brand-500/20">
+                            <i class="fa-solid fa-list-ol"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tickets Totales</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ array_sum($statusCounts) }}</div>
+                    <div class="text-[10px] text-slate-500 font-medium">Registrados globalmente</div>
+                </div>
+            </div>
+
+            <!-- Card 2: Abiertos (Actuales) -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-folder-open text-5xl text-blue-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Abiertos</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts[1] ?? 0 }}</div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-blue-400 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pendientes de atención
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: En Proceso -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-gears text-5xl text-amber-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
+                            <i class="fa-solid fa-spinner"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">En Proceso</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts[2] ?? 0 }}</div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-amber-400 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Siendo atendidos
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Resueltos -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-check-double text-5xl text-emerald-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resueltos</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}</div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-emerald-400 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Tareas finalizadas
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtros Rapidos -->
+        <section class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mr-2">Filtros:</span>
+            <button class="bg-brand-600/20 border border-brand-500/30 text-brand-400 hover:bg-brand-600/30 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Este Mes
+            </button>
+            <button class="bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Trimestre
+            </button>
+            <button class="bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Año
+            </button>
+        </section>
+
+        <!-- Charts Grid (2 columns) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Tendencia (Line) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-brand-500"></i> Tendencia de Tickets
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Evolución de incidentes a través del tiempo</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Categorias (Bar) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-brand-500"></i> Tipos de Problemas
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Top categorías reportadas</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Distribucion (Doughnut) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-brand-500"></i> Distribución por Área
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Impacto por plantas o sectores</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="plantaChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Estados (Polar Area) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-brand-500"></i> Proporción de Estados
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Balance de atención</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="stateChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulario Simulador y Tabla Integrada -->
+        <section class="grid grid-cols-1 lg:grid-cols-10 gap-6 pb-10">
+            <!-- Left side: Form -->
+            <div class="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+                <h4 class="text-base font-bold text-white flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Simulador Rápido
+                </h4>
+                <p class="text-xs text-slate-400 mb-6">Inyecta datos para probar los gráficos en tiempo real.</p>
+                <form wire:submit.prevent="crearTicketSimulador" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Planta/Ubicación *</label>
+                        <select wire:model.defer="simPlanta" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                            <option value="Planta 1">Planta 1</option>
+                            <option value="Planta 2">Planta 2</option>
+                            <option value="Centro Dist.">Centro Dist.</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Categoría (Falla) *</label>
+                        <select wire:model.defer="simCategory" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                            <option value="Falla de Software">Falla de Software</option>
+                            <option value="Falla de Hardware">Falla de Hardware</option>
+                            <option value="Redes / Internet">Redes / Internet</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción corta *</label>
+                        <input type="text" wire:model.defer="simDesc" placeholder="Ej: No enciende equipo..." required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Prioridad *</label>
+                            <select wire:model.defer="simPriority" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                                <option value="Baja">Baja</option>
+                                <option value="Media">Media</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Estado *</label>
+                            <select wire:model.defer="simStatus" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                                <option value="Abierto">Abierto</option>
+                                <option value="En Proceso">En Proceso</option>
+                                <option value="Resuelto">Resuelto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold py-3 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+                            <i class="fa-solid fa-paper-plane"></i> Generar Ticket
+                            <div wire:loading wire:target="crearTicketSimulador" class="w-4 h-4 ml-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right side: Real-time ticket list -->
+            <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-indigo-400"></i> Registro Reciente
+                            </h4>
+                            <p class="text-xs text-slate-400">Últimos tickets creados en la plataforma.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 max-h-[290px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3">ID / Descripción</th>
+                                    <th class="px-4 py-3">Planta / Área</th>
+                                    <th class="px-4 py-3">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tickets->take(8) as $t)
+                                <tr class="border-b border-slate-900 hover:bg-slate-900/40 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="font-semibold text-white text-xs">T-{{ $t->id }}</div>
+                                        <div class="text-slate-400 text-[11px] truncate max-w-[180px]">{{ $t->descripcion ?? $t->titulo }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="text-slate-200 text-xs">Planta {{ $t->planta }}</div>
+                                        <div class="text-[10px] text-slate-500">{{ explode(']', str_replace('[', '', $t->titulo))[0] ?? 'N/A' }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if($t->estado_id == 1)
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Abierto</span>
+                                        @elseif($t->estado_id == 2)
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>En Curso</span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Resuelto</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>
+
+<script>
+    window.renderSupportHubCharts = function(data) {
+        // Helper to destroy existing chart instances
+        const destroyChart = (id) => {
+            const el = document.getElementById(id);
+            if (el && el.__chartInstance) {
+                el.__chartInstance.destroy();
+                delete el.__chartInstance;
+            }
+        };
+
+        if (typeof Chart === 'undefined') return;
+
+        // 1. CHART DE TENDENCIA (Líneas)
+        destroyChart('trendChart');
+        const ctxTrend = document.getElementById('trendChart');
+        if (ctxTrend) {
+            ctxTrend.__chartInstance = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: data.trendMonths,
+                    datasets: [
+                        {
+                            label: 'Tickets Totales',
+                            data: data.trendData,
+                            borderColor: '#8b5cf6', // brand-500
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#8b5cf6',
+                            pointBorderColor: '#0f172a'
+                        },
+                        {
+                            label: 'Tickets Cerrados',
+                            data: data.trendClosedData,
+                            borderColor: '#10b981', // emerald-500
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#0f172a'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { labels: { color: '#94a3b8' } }, tooltip: { backgroundColor: '#1e293b' } },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' }, beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // 2. CHART DE DISTRIBUCIÓN POR PLANTA (Doughnut)
+        destroyChart('plantaChart');
+        const ctxPlanta = document.getElementById('plantaChart');
+        if (ctxPlanta) {
+            ctxPlanta.__chartInstance = new Chart(ctxPlanta, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.plantaCounts),
+                    datasets: [{
+                        data: Object.values(data.plantaCounts),
+                        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'],
+                        borderColor: '#0f172a',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', usePointStyle: true, padding: 20 } }, tooltip: { backgroundColor: '#1e293b' } }
+                }
+            });
+        }
+
+        // 3. CHART DE CATEGORÍAS (Barras horizontales)
+        destroyChart('categoryChart');
+        const ctxCategory = document.getElementById('categoryChart');
+        if (ctxCategory) {
+            const catLabels = Object.keys(data.categoryData);
+            const catValues = Object.values(data.categoryData);
+            ctxCategory.__chartInstance = new Chart(ctxCategory, {
+                type: 'bar',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        label: 'Tickets',
+                        data: catValues,
+                        backgroundColor: 'rgba(168, 85, 247, 0.65)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        barThickness: 18
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // 4. CHART ESTADOS (Polar)
+        destroyChart('stateChart');
+        const ctxState = document.getElementById('stateChart');
+        if (ctxState) {
+            ctxState.__chartInstance = new Chart(ctxState, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Abiertos', 'En Proceso', 'Resueltos'],
+                    datasets: [{
+                        data: [data.statusCounts[1] || 0, data.statusCounts[2] || 0, (data.statusCounts[3] || 0) + (data.statusCounts[4] || 0)],
+                        backgroundColor: ['rgba(59, 130, 246, 0.55)', 'rgba(245, 158, 11, 0.55)', 'rgba(16, 185, 129, 0.55)'],
+                        borderColor: '#0f172a',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { backdropColor: 'transparent', color: '#94a3b8' } } },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } }
+                }
+            });
+        }
+    };
+</script>

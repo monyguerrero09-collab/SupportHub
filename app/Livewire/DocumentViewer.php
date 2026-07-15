@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 use App\Models\Equipment;
 use App\Models\ArchivoAdjunto;
 use App\Models\Documento;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -39,6 +40,7 @@ class DocumentViewer extends Component
     public $generalAuthor = '';
     public $generalLicense = 'no-especificada';
     public $generalVisibleOperadores = false; // Control de visibilidad para usuarios
+    public $generalDestinatarioId = null; // Dirigido a usuario específico
     public $showingUploadModal = false;
 
     protected $rules = [
@@ -51,6 +53,7 @@ class DocumentViewer extends Component
         'generalAuthor' => 'required|string|max:255',
         'generalLicense' => 'required|string|max:50',
         'generalVisibleOperadores' => 'boolean',
+        'generalDestinatarioId' => 'nullable',
     ];
 
     protected $validationAttributes = [
@@ -213,10 +216,11 @@ class DocumentViewer extends Component
             'autor' => $this->generalAuthor ?: null,
             'licencia' => $this->generalLicense ?: null,
             'visible_operadores' => $this->generalVisibleOperadores ? 1 : 0,
+            'destinatario_id' => $this->generalDestinatarioId ?: null,
         ]);
 
         $this->showingUploadModal = false;
-        $this->reset(['generalFile', 'generalFileName', 'generalCategory', 'generalEquipmentId', 'generalArea', 'generalDescription', 'generalLicense', 'generalVisibleOperadores']);
+        $this->reset(['generalFile', 'generalFileName', 'generalCategory', 'generalEquipmentId', 'generalArea', 'generalDescription', 'generalLicense', 'generalVisibleOperadores', 'generalDestinatarioId']);
         $this->generalAuthor = auth()->user()->name;
         
         $this->selectDocument('gen_' . $doc->id);
@@ -283,10 +287,14 @@ class DocumentViewer extends Component
 
         // 3. Load General Documents
         if ($this->filterSource === 'all' || $this->filterSource === 'general') {
-            $generalsQuery = Documento::with(['usuario', 'equipment']);
-            // Users can only see documents explicitly marked visible_operadores=true
+            $generalsQuery = Documento::with(['usuario', 'equipment', 'destinatario']);
+            // Users can only see documents explicitly marked visible_operadores=true and directed to them or to everyone
             if (auth()->user()->role === 'user') {
-                $generalsQuery->where('visible_operadores', true);
+                $generalsQuery->where('visible_operadores', true)
+                              ->where(function($q) {
+                                  $q->whereNull('destinatario_id')
+                                    ->orWhere('destinatario_id', auth()->id());
+                              });
             }
             $generals = $generalsQuery->get();
             foreach ($generals as $item) {
@@ -296,6 +304,9 @@ class DocumentViewer extends Component
                 $assoc = $item->categoria;
                 if ($item->equipment) {
                     $assoc .= ' • ' . $item->equipment->name;
+                }
+                if ($item->destinatario) {
+                    $assoc .= ' • Dirigido a: ' . $item->destinatario->name;
                 }
                 if ($item->area) {
                     // Look up Area name dynamically
@@ -382,6 +393,7 @@ class DocumentViewer extends Component
         return view('livewire.document-viewer', [
             'documents' => $this->getDocuments(),
             'equipments' => Equipment::all(),
+            'usuariosList' => User::orderBy('nombre_completo')->get(),
             'areasList' => [
                 ['id' => 'sec', 'name' => 'Seguridad TI'],
                 ['id' => 'red', 'name' => 'Redes/WiFi'],

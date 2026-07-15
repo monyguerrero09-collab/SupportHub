@@ -91,6 +91,20 @@ class SupportTickets extends Component
     {
         $this->validate();
 
+        // Prevención de duplicados (Idempotencia)
+        $recentTicket = Ticket::where('usuario_creador_id', Auth::id())
+            ->where('titulo', $this->title)
+            ->where('descripcion', $this->description)
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->first();
+
+        if ($recentTicket) {
+            $this->attachments = [];
+            $this->isCreating = false;
+            session()->flash('message', 'Este ticket ya fue generado recientemente (se evitó duplicado).');
+            return;
+        }
+
         // Assuming status 1 is "Abierto" as seeded.
         $estadoAbierto = EstadoTicket::where('nombre', 'Abierto')->first();
 
@@ -100,30 +114,40 @@ class SupportTickets extends Component
             $prioridadId = $prioridadDefault ? $prioridadDefault->id : 1;
         }
 
-        $ticket = Ticket::create([
-            'titulo' => $this->title,
-            'descripcion' => $this->description,
-            'tipo_ticket_id' => $this->tipo_ticket_id,
-            'estado_id' => $estadoAbierto->id ?? 1,
-            'prioridad_id' => $prioridadId,
-            'usuario_creador_id' => Auth::id(),
-            'agente_asignado_id' => null,
-            'departamento_id' => Auth::user()->departamento_id,
-            'sector_id' => null,
-            'maquina_id' => null,
-        ]);
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            $ticket = Ticket::create([
+                'titulo' => $this->title,
+                'descripcion' => $this->description,
+                'tipo_ticket_id' => $this->tipo_ticket_id,
+                'estado_id' => $estadoAbierto->id ?? 1,
+                'prioridad_id' => $prioridadId,
+                'usuario_creador_id' => Auth::id(),
+                'agente_asignado_id' => null,
+                'departamento_id' => Auth::user()->departamento_id,
+                'sector_id' => null,
+                'maquina_id' => null,
+            ]);
 
-        if (!empty($this->attachments)) {
-            foreach ($this->attachments as $file) {
-                $path = $file->store('tickets', 'public');
+            if (!empty($this->attachments)) {
+                foreach ($this->attachments as $file) {
+                    $path = $file->store('tickets', 'public');
 
-                ArchivoAdjunto::create([
-                    'ticket_id' => $ticket->id,
-                    'nombre_archivo' => $file->getClientOriginalName(),
-                    'ruta_archivo' => $path,
-                    'visible_operadores' => true,
-                ]);
+                    ArchivoAdjunto::create([
+                        'ticket_id' => $ticket->id,
+                        'nombre_archivo' => $file->getClientOriginalName(),
+                        'ruta_archivo' => $path,
+                        'visible_operadores' => true,
+                    ]);
+                }
             }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error saving ticket in SupportTickets: ' . $e->getMessage());
+            session()->flash('message', 'Ocurrió un error al crear el ticket.');
+            return;
         }
 
         $this->attachments = [];

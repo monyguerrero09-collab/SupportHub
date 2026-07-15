@@ -24,4 +24,12 @@ class Documento extends Model
     {
         return $this->belongsTo(Equipment::class, 'equipment_id');
     }
+
+    /**
+     * Get the user whom the document is directed to.
+     */
+    public function destinatario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'destinatario_id');
+    }
 }

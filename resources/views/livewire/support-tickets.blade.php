@@ -149,9 +149,14 @@
                     <button type="button" wire:click="cancelCreate" class="px-6 py-3.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-sm transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800">
                         Cancelar
                     </button>
-                    <button type="submit" class="px-8 py-3.5 bg-[#0c4aed] text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_20px_-10px_rgba(12,74,237,0.5)] flex items-center gap-2">
-                        Aperturar Ticket
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    <button type="submit" 
+                        wire:loading.attr="disabled"
+                        wire:target="saveTicket"
+                        class="px-8 py-3.5 bg-[#0c4aed] text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_20px_-10px_rgba(12,74,237,0.5)] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span wire:loading.remove wire:target="saveTicket">Aperturar Ticket</span>
+                        <span wire:loading wire:target="saveTicket">Guardando...</span>
+                        <svg wire:loading.remove wire:target="saveTicket" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <i wire:loading wire:target="saveTicket" class="fa-solid fa-spinner fa-spin w-4 h-4 text-white"></i>
                     </button>
                 </div>
             </form>

@@ -492,6 +492,24 @@
                             @error('generalDescription') <span class="text-xs text-red-500 mt-1 font-bold ml-2 block">{{ $message }}</span> @enderror
                         </div>
 
+                        {{-- Destinatario del archivo --}}
+                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'agente')
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-blue-500 uppercase tracking-widest ml-2">Dirigido a (Usuario Destinatario - Opcional)</label>
+                            <select 
+                                wire:model="generalDestinatarioId" 
+                                class="w-full bg-[#131b2f] border border-white/10 rounded-xl px-4 py-3.5 text-xs text-white outline-none focus:border-blue-500 focus:bg-[#162035]/90 transition-all appearance-none font-bold"
+                            >
+                                <option value="" class="bg-[#131b2f]">-- Todos los Usuarios --</option>
+                                @foreach($usuariosList as $usr)
+                                    <option value="{{ $usr->id }}" class="bg-[#131b2f]">{{ $usr->nombre_completo }} ({{ $usr->email }})</option>
+                                @endforeach
+                            </select>
+                            <p class="text-[9px] text-gray-500 mt-1 ml-2 uppercase tracking-wide font-medium">Si seleccionas un usuario, el archivo solo le aparecerá a él (y a TI/Admin) si la visibilidad está activa.</p>
+                            @error('generalDestinatarioId') <span class="text-xs text-red-500 mt-1 font-bold ml-2 block">{{ $message }}</span> @enderror
+                        </div>
+                        @endif
+
                         {{-- Control de Visibilidad para Operadores --}}
                         @if(auth()->user()->role === 'admin' || auth()->user()->role === 'agente')
                         <div class="space-y-2">

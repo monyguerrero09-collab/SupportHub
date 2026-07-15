@@ -1,0 +1,10 @@
+{
+  "ArtifactMetadata": "{\"ArtifactType\":\"other\",\"RequestFeedback\":false,\"Summary\":\"Script to recover transcript\"}",
+  "CodeContent": "\"const fs = require('fs');\\nconst readline = require('readline');\\nconst path = 'C:\\\\\\\\Users\\\\\\\\monyg\\\\\\\\.gemini\\\\\\\\antigravity\\\\\\\\brain\\\\\\\\6b2fbe8e-05d4-4143-956f-18d1010a2557\\\\\\\\.system_generated\\\\\\\\logs\\\\\\\\transcript.jsonl';\\n\\nasync function processLineByLine() {\\n    const fileStream = fs.createReadStream(path);\\n    const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });\\n\\n    for await (const line of rl) {\\n        if (line.includes('simPlant')) {\\n            const obj = JSON.parse(line);\\n            if (obj.tool_calls) {\\n                console.log(\\\"Found in tool calls step: \\\" + obj.step_index);\\n                for (let t of obj.tool_calls) {\\n                    if (t.name === 'write_to_file' || t.name === 'multi_replace_file_content' || t.name === 'replace_file_content') {\\n                        fs.writeFileSync('c:\\\\\\\\Users\\\\\\\\monyg\\\\\\\\OneDrive\\\\\\\\Documentos\\\\\\\\ticket_plataforma\\\\\\\\recovered_tool_' + obj.step_index + '.json', JSON.stringify(t.args, null, 2));\\n                    }\\n                }\\n            }\\n        }\\n    }\\n}\\nprocessLineByLine();\"",
+  "Description": "\"Recovering lost changes\"",
+  "IsArtifact": "false",
+  "Overwrite": "true",
+  "TargetFile": "\"c:\\\\Users\\\\monyg\\\\OneDrive\\\\Documentos\\\\ticket_plataforma\\\\recover.cjs\"",
+  "toolAction": "\"Writing recovery script\"",
+  "toolSummary": "\"Write recover.cjs\""
+}

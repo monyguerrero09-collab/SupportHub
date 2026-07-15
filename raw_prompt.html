@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI & Analítica de Incidentes - Dashboard</title>
+    <!-- Tailwind CSS para el diseño premium responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos limpios y modernos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para gráficos fluidos e interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                            950: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Personalización de scrollbar para mantener la estética */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<b
+<truncated 45214 bytes>
+                 <span class="w-2 h-2 rounded-full inline-block" style="background-color: ${plantChartInstance.data.datasets[0].backgroundColor[i]}"></span>
+                            ${label}
+                        </span>
+                        <span class="font-semibold text-slate-200">${count} tickets (${pct}%)</span>
+                    </div>
+                `;
+            });
+
+            // C. Gráfico de Áreas (Horizontal Bars: Qué área pide más soporte)
+            const areaKeys = ["Sistemas / TI", "Mantenimiento", "Producción", "Calidad", "Logística & Embarques", "Recursos Humanos"];
+            const countsByArea = areaKeys.map(a => filtered.filter(t => t.area === a).length);
+
+            areaChartInstance.data.labels = areaKeys;
+            areaChartInstance.data.datasets[0].data = countsByArea;
+            areaChartInstance.update();
+
+            // Definir ganador de áreas
+            let maxArea = "-";
+            let maxAreaVal = 0;
+            areaKeys.forEach((area, idx) => {
+                if(countsByArea[idx] > maxAreaVal) {
+                    maxAreaVal = countsByArea[idx];
+                    maxArea = area;
+                }
+            });
+            document.getElementById('area-winner-txt').innerHTML = maxAreaVal > 0 
+                ? `Máximo: <strong class="text-purple-400 font-bold">${maxArea}</strong>` 
+                : 'Sin registros';
+
+            // D. Gráfico Polar: Estado y Severidad
+            const statusOpen = filtered.filter(t => t.status === "Abierto").length;
+            const statusProcess = filtered.filter(t => t.status === "En Proceso").length;
+            const statusResolved = filtered.filter(t => t.status === "Resuelto").length;
+
+            stateChartInstance.data.datasets[0].data = [statusOpen, statusProcess, statusResolved];
+            stateChartInstance.update();
+
+            document.get
+<truncated 3751 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

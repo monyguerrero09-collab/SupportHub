@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ApexCharts (Local) -->
     <script src="{{ asset('apexcharts.js') }}"></script>
+    <!-- Chart.js (Local) -->
+    <script src="{{ asset('chart.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         /* =====================================================

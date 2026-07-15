@@ -1798,383 +1798,473 @@
             </div>
             @endif
 
-            <template x-if="activeTab === 'statistics'">
-                @php
-                    $slaColor = $slaPercent >= 90 ? '#10b981' : ($slaPercent >= 70 ? '#f59e0b' : '#ef4444');
-                    
-                    $statusLabelsArr = $estadoNames->values()->toArray();
-                    $statusDataArr   = $estadoNames->keys()->map(fn($id) => $statusCounts[$id] ?? 0)->values()->toArray();
-                    $catLabelsArr    = $categoryData->keys()->map(fn($k) => Str::limit($k, 18))->values()->toArray();
-                    $catDataArr      = $categoryData->values()->toArray();
-                    $monthsArr       = $trendMonths->toArray();
-                    
-                    $plantaLabelsArr = ['Planta 1', 'Planta 2'];
-                    $plantaDataArr   = [(int)($plantaCounts['Planta 1'] ?? 0), (int)($plantaCounts['Planta 2'] ?? 0)];
-                    $freqLabelsArr   = $frequentIncidents->keys()->map(fn($k) => Str::limit($k, 25))->values()->toArray();
-                    $freqDataArr     = $frequentIncidents->values()->toArray();
-                @endphp
-                <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8"
-                     x-data="{
-                         plantaData: {{ Js::from($plantaDataArr) }},
-                         plantaLabels: {{ Js::from($plantaLabelsArr) }},
-                         statusData: {{ Js::from($statusDataArr) }},
-                         statusLabels: {{ Js::from($statusLabelsArr) }},
-                         catData: {{ Js::from($catDataArr) }},
-                         catLabels: {{ Js::from($catLabelsArr) }},
-                         trend: {{ Js::from($trendData) }},
-                         trendClosed: {{ Js::from($trendClosedData) }},
-                         months: {{ Js::from($monthsArr) }},
-                         slaPercent: {{ (int)$slaPercent }},
-                         slaColor: '{{ $slaColor }}',
-                         freqData: {{ Js::from($freqDataArr) }},
-                         freqLabels: {{ Js::from($freqLabelsArr) }},
-                         priorityData: [{{ (int)($priorityCounts[3] ?? 0) }}, {{ (int)($priorityCounts[2] ?? 0) }}, {{ (int)($priorityCounts[1] ?? 0) }}],
-                         priorityLabels: ['Alta', 'Media', 'Baja'],
-                         total: {{ (int)$stats['total'] }}
-                     }"
-                     x-init="$nextTick(() => {
-                         window.drawStatsCharts({
-                             plantaData, plantaLabels, statusData, statusLabels, catData, catLabels,
-                             trend, trendClosed, months, slaPercent, slaColor, freqData, freqLabels,
-                             priorityData, priorityLabels, total
-                         });
-                     })"
-                     x-effect="
-                         if (activeTab === 'statistics') {
-                             $nextTick(() => {
-                                 window.drawStatsCharts({
-                                     plantaData, plantaLabels, statusData, statusLabels, catData, catLabels,
-                                     trend, trendClosed, months, slaPercent, slaColor, freqData, freqLabels,
-                                     priorityData, priorityLabels, total
-                                 });
-                             });
-                         }
-                     }">
-                    <!-- Layout Grid: 12-cols -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        
-                        <!-- Left side: 3 big vertical cards (col-span-3) -->
-                        <div class="lg:col-span-3 flex flex-col gap-6">
-                            <!-- Card 1: Tickets Past Due -->
-                            <div class="relative overflow-hidden bg-gradient-to-br from-red-950/20 via-slate-900/60 to-slate-900/40 border border-red-500/20 rounded-[2rem] p-8 flex flex-col items-center justify-between text-center min-h-[180px] group transition-all duration-300 hover:border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.05)]">
-                                <div class="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full filter blur-xl transition-all group-hover:bg-red-500/10"></div>
-                                <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 group-hover:scale-115 transition-transform shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-                                    <svg class="w-6 h-6 text-red-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-red-400/80 transition-colors">Tickets Atrasados</p>
-                                    <p class="text-6xl font-black text-red-400 tracking-tighter leading-none">{{ str_pad($stats['overdue'], 2, '0', STR_PAD_LEFT) }}</p>
-                                </div>
-                            </div>
+                                                <template x-if="activeTab === 'statistics'">
+    <div class="space-y-6">
+        <!-- Secure JSON Data Bridge for Alpine -->
+        <div id="stats-json-payload" class="hidden" data-payload="{{ json_encode([
+            'categoryData' => $categoryData,
+            'statusCounts' => $statusCounts,
+            'plantaCounts' => $plantaCounts,
+            'trendMonths' => $trendMonths,
+            'trendData' => $trendData,
+            'trendClosedData' => $trendClosedData,
+            'slaPercent' => (int)($slaPercent ?? 0)
+        ]) }}"></div>
+        
+        <!-- Alpine Component Initializer -->
+        <div x-init="
+            const initCharts = () => {
+                setTimeout(() => {
+                    if (window.renderSupportHubCharts) {
+                        const payloadElement = document.getElementById('stats-json-payload');
+                        if (payloadElement) {
+                            try {
+                                const data = JSON.parse(payloadElement.dataset.payload);
+                                window.renderSupportHubCharts(data);
+                            } catch (e) {
+                                console.error('Failed to parse chart data:', e);
+                            }
+                        }
+                    }
+                }, 100);
+            };
+            initCharts();
+            window.addEventListener('ticket-created', initCharts);
+            window.addEventListener('refreshCharts', initCharts);
+        "></div>
 
-                            <!-- Card 2: New Tickets Today -->
-                            <div class="relative overflow-hidden bg-gradient-to-br from-blue-950/20 via-slate-900/60 to-slate-900/40 border border-blue-500/20 rounded-[2rem] p-8 flex flex-col items-center justify-between text-center min-h-[180px] group transition-all duration-300 hover:border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.05)]">
-                                <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full filter blur-xl transition-all group-hover:bg-blue-500/10"></div>
-                                <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-115 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-blue-400/80 transition-colors">Nuevos Tickets Hoy</p>
-                                    <p class="text-6xl font-black text-blue-400 tracking-tighter leading-none">{{ str_pad($stats['dueToday'], 2, '0', STR_PAD_LEFT) }}</p>
-                                </div>
-                            </div>
+        <!-- Info/Intro Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-black/20">
+            <div>
+                <h2 class="text-xl font-bold text-white mb-1">¡Bienvenido a tu Centro de Mando Analítico! <span class="text-xs bg-red-500 px-2 py-1 rounded">DEBUG: Renderizado OK</span></h2>
+                <p class="text-sm text-slate-400 max-w-2xl">
+                    Este reporte consolida las métricas clave de tus operaciones. Registra incidentes usando el panel lateral y observa las gráficas actualizarse de inmediato.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en línea
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
+                    <i class="fa-solid fa-arrows-rotate"></i> Sync Live
+                </span>
+            </div>
+        </div>
 
-                            <!-- Card 3: Tickets Closed Today -->
-                            <div class="relative overflow-hidden bg-gradient-to-br from-green-950/20 via-slate-900/60 to-slate-900/40 border border-green-500/20 rounded-[2rem] p-8 flex flex-col items-center justify-between text-center min-h-[180px] group transition-all duration-300 hover:border-green-500/30 shadow-[0_0_20px_rgba(16,185,129,0.05)]">
-                                <div class="absolute top-0 right-0 w-24 h-24 bg-green-500/5 rounded-full filter blur-xl transition-all group-hover:bg-green-500/10"></div>
-                                <div class="w-12 h-12 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4 group-hover:scale-115 transition-transform shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-green-400/80 transition-colors">Tickets Resueltos Hoy</p>
-                                    <p class="text-6xl font-black text-green-400 tracking-tighter leading-none">{{ str_pad($stats['closedToday'], 2, '0', STR_PAD_LEFT) }}</p>
-                                </div>
-                            </div>
+        <!-- 4 KPI Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card 1: Total Incidents (Hubo) -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-ticket text-5xl text-brand-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400 border border-brand-500/20">
+                            <i class="fa-solid fa-list-ol"></i>
                         </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tickets Totales</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts->sum() }}</div>
+                    <div class="text-[10px] text-slate-500 font-medium">Registrados globalmente</div>
+                </div>
+            </div>
 
-                        <!-- Right side: 9 columns (col-span-9) -->
-                        <div class="lg:col-span-9 flex flex-col gap-6">
-                            
-                            <!-- Row 1: Combined Chart & Last 30 Days (grid 3 cols) -->
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                
-                                <!-- Combined Chart (col-span-2) -->
-                                <div class="lg:col-span-2 bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between overflow-hidden shadow-2xl">
-                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-indigo-500 pl-3">Total Tickets v/s Cerrados</h4>
-                                    <div id="trendCombinedNexus" wire:ignore class="w-full"></div>
-                                </div>
+            <!-- Card 2: Abiertos (Actuales) -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-folder-open text-5xl text-blue-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Abiertos</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts[1] ?? 0 }}</div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-blue-400 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pendientes de atención
+                    </div>
+                </div>
+            </div>
 
-                                <!-- Last 30 Days Panel (col-span-1) -->
-                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
-                                    <div>
-                                        <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-6 border-l-4 border-emerald-500 pl-3">Últimos 30 Días</h4>
-                                        
-                                        <!-- Metric 1: Total Tickets -->
-                                        <div class="mb-6">
-                                            <div class="flex items-baseline justify-between mb-2">
-                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Creados</p>
-                                                <p class="text-2xl font-black text-white tracking-tight">{{ $last30DaysTotal }}</p>
-                                            </div>
-                                            <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
-                                                <div class="bg-indigo-500 h-full rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" style="width: 100%"></div>
-                                            </div>
-                                        </div>
+            <!-- Card 3: En Proceso -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-gears text-5xl text-amber-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
+                            <i class="fa-solid fa-spinner"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">En Proceso</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ $statusCounts[2] ?? 0 }}</div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-amber-400 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Siendo atendidos
+                    </div>
+                </div>
+            </div>
 
-                                        <!-- Metric 2: Resolution rate -->
-                                        <div>
-                                            <div class="flex items-baseline justify-between mb-2">
-                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Porcentaje Resolución</p>
-                                                <p class="text-2xl font-black text-emerald-400 tracking-tight">{{ $last30DaysRate }}%</p>
-                                            </div>
-                                            <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
-                                                <div class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: {{ $last30DaysRate }}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mt-4 pt-4 border-t border-white/5 text-[9px] font-black text-gray-500 uppercase tracking-widest text-center">
-                                        Rendimiento mensual
-                                    </div>
-                                </div>
-                            </div>
+            <!-- Card 4: Resueltos -->
+            <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 relative overflow-hidden transition-all duration-300 group shadow-lg">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-check-double text-5xl text-emerald-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resueltos</h3>
+                    </div>
+                    <div class="text-3xl font-black text-white mb-1">{{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}</div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-emerald-400 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Tareas finalizadas
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                            <!-- Row 2: Due Times, Sourcewise, and Priority Open (grid 3 cols) -->
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                
-                                <!-- Ticket Due Times (Tiempos de Vencimiento) -->
-                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
-                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-amber-500 pl-3">Estados y Tiempos</h4>
-                                    
-                                    <div class="flex flex-col gap-4 my-2">
-                                        @php
-                                            $dueTimes = [
-                                                ['label' => 'Atrasados', 'val' => $stats['overdue'], 'color' => 'bg-red-500/10 text-red-400 border-red-500/20'],
-                                                ['label' => 'Creados Hoy', 'val' => $stats['dueToday'], 'color' => 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
-                                                ['label' => 'Sin Asignar', 'val' => $stats['unassigned'], 'color' => 'bg-purple-500/10 text-purple-400 border-purple-500/20'],
-                                                ['label' => 'Abiertos', 'val' => $stats['open'], 'color' => 'bg-blue-500/10 text-blue-400 border-blue-500/20'],
-                                                ['label' => 'En Espera', 'val' => $stats['hold'], 'color' => 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'],
-                                                ['label' => 'Total Histórico', 'val' => $stats['total'], 'color' => 'bg-white/10 text-white border-white/20'],
-                                            ];
-                                        @endphp
-                                        @foreach($dueTimes as $dt)
-                                        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-                                            <span class="text-gray-400">{{ $dt['label'] }}</span>
-                                            <span class="flex-grow mx-4 border-b border-dashed border-white/5"></span>
-                                            <span class="px-3 py-1 text-[11px] font-black rounded-full border {{ $dt['color'] }} shadow-lg">{{ str_pad($dt['val'], 2, '0', STR_PAD_LEFT) }}</span>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
+        <!-- Filtros Rapidos -->
+        <section class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mr-2">Filtros:</span>
+            <button class="bg-brand-600/20 border border-brand-500/30 text-brand-400 hover:bg-brand-600/30 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Este Mes
+            </button>
+            <button class="bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Trimestre
+            </button>
+            <button class="bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Año
+            </button>
+        </section>
 
-                                <!-- Sourcewise Tickets (Tickets por Planta) -->
-                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
-                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-2 border-l-4 border-blue-500 pl-3">Distribución por Planta (Pastel)</h4>
-                                    <div id="plantaDonutNexus" wire:ignore class="my-auto animate-in fade-in duration-500"></div>
-                                </div>
+        <!-- Charts Grid (2 columns) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Tendencia (Line) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-brand-500"></i> Tendencia de Tickets
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Evolución de incidentes a través del tiempo</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
 
-                                <!-- Open Tickets by Priority -->
-                                <div class="bg-[#1a1a2e]/60 backdrop-blur border border-white/5 rounded-[2rem] p-6 flex flex-col justify-between shadow-2xl">
-                                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 border-l-4 border-rose-500 pl-3">Tickets Abiertos por Prioridad</h4>
-                                    
-                                    <div class="flex flex-col gap-6 my-auto">
-                                        <!-- Alta -->
-                                        <div>
-                                            <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2">
-                                                <span class="text-red-400 flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
-                                                    Alta / Urgente
-                                                </span>
-                                                <span class="text-white">{{ (int)($priorityCounts[3] ?? 0) + (int)($priorityCounts[4] ?? 0) }}</span>
-                                            </div>
-                                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                                                <div class="bg-red-500 h-full rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]" style="width: {{ $stats['total'] > 0 ? (((int)($priorityCounts[3] ?? 0) + (int)($priorityCounts[4] ?? 0)) / $stats['total']) * 100 : 0 }}%"></div>
-                                            </div>
-                                        </div>
+            <!-- Categorias (Bar) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-brand-500"></i> Tipos de Problemas
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Top categorías reportadas</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
 
-                                        <!-- Media -->
-                                        <div>
-                                            <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2">
-                                                <span class="text-amber-400 flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
-                                                    Media
-                                                </span>
-                                                <span class="text-white">{{ (int)($priorityCounts[2] ?? 0) }}</span>
-                                            </div>
-                                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                                                <div class="bg-amber-500 h-full rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" style="width: {{ $stats['total'] > 0 ? ((int)($priorityCounts[2] ?? 0) / $stats['total']) * 100 : 0 }}%"></div>
-                                            </div>
-                                        </div>
+            <!-- Distribucion (Doughnut) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-brand-500"></i> Distribución por Área
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Impacto por plantas o sectores</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="plantaChart"></canvas>
+                </div>
+            </div>
 
-                                        <!-- Baja -->
-                                        <div>
-                                            <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2">
-                                                <span class="text-blue-400 flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
-                                                    Baja
-                                                </span>
-                                                <span class="text-white">{{ (int)($priorityCounts[1] ?? 0) }}</span>
-                                            </div>
-                                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                                                <div class="bg-blue-500 h-full rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" style="width: {{ $stats['total'] > 0 ? ((int)($priorityCounts[1] ?? 0) / $stats['total']) * 100 : 0 }}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            <!-- Estados (Polar Area) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-brand-500"></i> Proporción de Estados
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Balance de atención</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[250px] relative w-full h-[250px]">
+                    <canvas id="stateChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulario Simulador y Tabla Integrada -->
+        <section class="grid grid-cols-1 lg:grid-cols-10 gap-6 pb-10">
+            <!-- Left side: Form -->
+            <div class="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+                <h4 class="text-base font-bold text-white flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Simulador Rápido
+                </h4>
+                <p class="text-xs text-slate-400 mb-6">Inyecta datos para probar los gráficos en tiempo real.</p>
+                <form wire:submit.prevent="crearTicketSimulador" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Planta/Ubicación *</label>
+                        <select wire:model.defer="simPlanta" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                            <option value="Planta 1">Planta 1</option>
+                            <option value="Planta 2">Planta 2</option>
+                            <option value="Centro Dist.">Centro Dist.</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Categoría (Falla) *</label>
+                        <select wire:model.defer="simCategory" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                            <option value="Falla de Software">Falla de Software</option>
+                            <option value="Falla de Hardware">Falla de Hardware</option>
+                            <option value="Redes / Internet">Redes / Internet</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción corta *</label>
+                        <input type="text" wire:model.defer="simDesc" placeholder="Ej: No enciende equipo..." required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Prioridad *</label>
+                            <select wire:model.defer="simPriority" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                                <option value="Baja">Baja</option>
+                                <option value="Media">Media</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Estado *</label>
+                            <select wire:model.defer="simStatus" required class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none transition-all">
+                                <option value="Abierto">Abierto</option>
+                                <option value="En Proceso">En Proceso</option>
+                                <option value="Resuelto">Resuelto</option>
+                            </select>
                         </div>
                     </div>
-                </template>
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold py-3 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+                            <i class="fa-solid fa-paper-plane"></i> Generar Ticket
+                            <div wire:loading wire:target="crearTicketSimulador" class="w-4 h-4 ml-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-            {{-- Chart init data (always rendered so PHP vars are available) --}}
-            <script>
-                window.drawStatsCharts = function (data, retries = 0) {
-                    if (!document.querySelector('#plantaDonutNexus')) {
-                        if (retries < 25) {
-                            setTimeout(() => window.drawStatsCharts(data, retries + 1), 100);
+            <!-- Right side: Real-time ticket list -->
+            <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-indigo-400"></i> Registro Reciente
+                            </h4>
+                            <p class="text-xs text-slate-400">Últimos tickets creados en la plataforma.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 max-h-[290px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3">ID / Descripción</th>
+                                    <th class="px-4 py-3">Planta / Área</th>
+                                    <th class="px-4 py-3">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tickets->take(8) as $t)
+                                <tr class="border-b border-slate-900 hover:bg-slate-900/40 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="font-semibold text-white text-xs">T-{{ $t->id }}</div>
+                                        <div class="text-slate-400 text-[11px] truncate max-w-[180px]">{{ $t->descripcion ?? $t->titulo }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="text-slate-200 text-xs">Planta {{ $t->planta }}</div>
+                                        <div class="text-[10px] text-slate-500">{{ explode(']', str_replace('[', '', $t->titulo))[0] ?? 'N/A' }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if($t->estado_id == 1)
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Abierto</span>
+                                        @elseif($t->estado_id == 2)
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>En Curso</span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Resuelto</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>
+
+<script>
+    window.renderSupportHubCharts = function(data) {
+        if (typeof Chart === 'undefined') {
+            const container = document.getElementById('trendChart');
+            if (container) {
+                const parent = container.parentElement;
+                parent.innerHTML = '<div class="text-red-500 bg-red-500/10 p-4 rounded border border-red-500"><strong>Error:</strong> Chart.js no pudo ser cargado.</div>';
+            }
+            return;
+        }
+
+        // Helper to destroy existing chart instances
+        const destroyChart = (id) => {
+            const el = document.getElementById(id);
+            if (el && el.__chartInstance) {
+                el.__chartInstance.destroy();
+                delete el.__chartInstance;
+            }
+        };
+
+        if (typeof Chart === 'undefined') return;
+
+        // 1. CHART DE TENDENCIA (Líneas)
+        destroyChart('trendChart');
+        const ctxTrend = document.getElementById('trendChart');
+        if (ctxTrend) {
+            ctxTrend.__chartInstance = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: data.trendMonths,
+                    datasets: [
+                        {
+                            label: 'Tickets Totales',
+                            data: data.trendData,
+                            borderColor: '#8b5cf6', // brand-500
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#8b5cf6',
+                            pointBorderColor: '#0f172a'
+                        },
+                        {
+                            label: 'Tickets Cerrados',
+                            data: data.trendClosedData,
+                            borderColor: '#10b981', // emerald-500
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#0f172a'
                         }
-                        return; // Element not present
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { labels: { color: '#94a3b8' } }, tooltip: { backgroundColor: '#1e293b' } },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' }, beginAtZero: true }
                     }
+                }
+            });
+        }
 
-                    if (!window.ApexCharts) {
-                        if (!window.__loadingApexCharts) {
-                            window.__loadingApexCharts = true;
-                            const script = document.createElement('script');
-                            script.src = "/apexcharts.js";
-                            script.onload = () => {
-                                window.__loadingApexCharts = false;
-                                window.drawStatsCharts(data, retries);
-                            };
-                            script.onerror = () => {
-                                window.__loadingApexCharts = false;
-                                console.error("Failed to load ApexCharts dynamically.");
-                            };
-                            document.head.appendChild(script);
-                        }
-                        return;
+        // 2. CHART DE DISTRIBUCIÓN POR PLANTA (Doughnut)
+        destroyChart('plantaChart');
+        const ctxPlanta = document.getElementById('plantaChart');
+        if (ctxPlanta) {
+            ctxPlanta.__chartInstance = new Chart(ctxPlanta, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.plantaCounts),
+                    datasets: [{
+                        data: Object.values(data.plantaCounts),
+                        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'],
+                        borderColor: '#0f172a',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', usePointStyle: true, padding: 20 } }, tooltip: { backgroundColor: '#1e293b' } }
+                }
+            });
+        }
+
+        // 3. CHART DE CATEGORÍAS (Barras horizontales)
+        destroyChart('categoryChart');
+        const ctxCategory = document.getElementById('categoryChart');
+        if (ctxCategory) {
+            const catLabels = Object.keys(data.categoryData);
+            const catValues = Object.values(data.categoryData);
+            ctxCategory.__chartInstance = new Chart(ctxCategory, {
+                type: 'bar',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        label: 'Tickets',
+                        data: catValues,
+                        backgroundColor: 'rgba(168, 85, 247, 0.65)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        barThickness: 18
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
                     }
+                }
+            });
+        }
 
-                    // Destroy previous instances if any to avoid duplicates
-                    ['#trendCombinedNexus','#plantaDonutNexus'].forEach(id => {
-                        var el = document.querySelector(id);
-                        if (el && el.__apexCharts) {
-                            try { el.__apexCharts.destroy(); } catch(e) {}
-                        }
-                        if (el) el.innerHTML = '';
-                    });
-
-                    var dark = { mode: 'dark' };
-                    var gridOpts = { borderColor: 'rgba(255,255,255,0.05)' };
-
-                    // Helper to render and store instance
-                    function renderChart(selector, options) {
-                        try {
-                            var el = document.querySelector(selector);
-                            if (!el) return;
-                            var chart = new ApexCharts(el, options);
-                            chart.render();
-                            el.__apexCharts = chart;
-                        } catch (err) {
-                            console.error("Error rendering chart " + selector + ":", err);
-                        }
-                    }
-
-                    // 1. Total Tickets vs Closed Tickets (Combined Column & Line)
-                    renderChart('#trendCombinedNexus', {
-                        chart: {
-                            height: 280,
-                            type: 'line',
-                            background: 'transparent',
-                            toolbar: { show: false }
-                        },
-                        stroke: {
-                            width: [0, 4],
-                            curve: 'smooth'
-                        },
-                        plotOptions: {
-                            bar: {
-                                columnWidth: '50%',
-                                borderRadius: 5
-                            }
-                        },
-                        series: [
-                            {
-                                name: 'Total Tickets',
-                                type: 'column',
-                                data: data.trend
-                            },
-                            {
-                                name: 'Tickets Cerrados',
-                                type: 'line',
-                                data: data.trendClosed
-                            }
-                        ],
-                        colors: ['#6366f1', '#10b981'], // Indigo for Total, Emerald/Green for Closed
-                        theme: dark,
-                        fill: {
-                            opacity: [0.85, 1],
-                            gradient: {
-                                inverseColors: false,
-                                shade: 'light',
-                                type: "vertical",
-                                opacityFrom: 0.85,
-                                opacityTo: 0.55
-                            }
-                        },
-                        labels: data.months,
-                        markers: {
-                            size: 5,
-                            colors: ['#10b981'],
-                            strokeColors: '#050510',
-                            strokeWidth: 2
-                        },
-                        xaxis: {
-                            type: 'category',
-                            labels: { style: { colors: '#6b7280' } }
-                        },
-                        yaxis: {
-                            min: 0,
-                            labels: { style: { colors: '#6b7280' } }
-                        },
-                        grid: gridOpts,
-                        legend: {
-                            position: 'top',
-                            labels: { colors: '#9ca3af' }
-                        }
-                    });
-
-                    // 2. Planta Donut (Pastel)
-                    renderChart('#plantaDonutNexus', {
-                        chart: { type: 'donut', height: 260, background: 'transparent' },
-                        series: data.plantaData,
-                        labels: data.plantaLabels,
-                        colors: ['#3b82f6', '#a855f7'], // Cyan for Planta 1, Violet/Purple for Planta 2
-                        theme: dark,
-                        plotOptions: {
-                            pie: {
-                                donut: {
-                                    size: '75%',
-                                    labels: {
-                                        show: true,
-                                        total: {
-                                            show: true,
-                                            label: 'PLANTAS',
-                                            color: '#9ca3af',
-                                            fontSize: '11px',
-                                            fontWeight: 900,
-                                            formatter: function() {
-                                                return data.total;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        legend: { position: 'bottom', labels: { colors: '#9ca3af' } },
-                        dataLabels: { enabled: false },
-                        stroke: { width: 0 }
-                    });
-                };
-            </script>
+        // 4. CHART ESTADOS (Polar)
+        destroyChart('stateChart');
+        const ctxState = document.getElementById('stateChart');
+        if (ctxState) {
+            ctxState.__chartInstance = new Chart(ctxState, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Abiertos', 'En Proceso', 'Resueltos'],
+                    datasets: [{
+                        data: [data.statusCounts[1] || 0, data.statusCounts[2] || 0, (data.statusCounts[3] || 0) + (data.statusCounts[4] || 0)],
+                        backgroundColor: ['rgba(59, 130, 246, 0.55)', 'rgba(245, 158, 11, 0.55)', 'rgba(16, 185, 129, 0.55)'],
+                        borderColor: '#0f172a',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { backdropColor: 'transparent', color: '#94a3b8' } } },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } }
+                }
+            });
+        }
+    };
+</script>
 
             {{-- Users Tab --}}
             <template x-if="activeTab === 'users'">
@@ -2822,4 +2912,163 @@
             });
         });
     </script>
+
+
+
+
+
+<script>
+    window.renderSupportHubCharts = function(data) {
+        if (typeof Chart === 'undefined') {
+            setTimeout(() => window.renderSupportHubCharts(data), 50);
+            return;
+        }
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = 'Inter, sans-serif';
+        if (Chart.defaults.plugins.legend) {
+            Chart.defaults.plugins.legend.labels.color = '#e2e8f0';
+        }
+
+        const destroyChart = (id) => {
+            const el = document.getElementById(id);
+            if (el && el.__chartInstance) {
+                el.__chartInstance.destroy();
+            }
+        };
+
+        // 1. CHART TENDENCIA (Línea / Barra Mixta)
+        destroyChart('trendChart');
+        const ctxTrend = document.getElementById('trendChart');
+        if (ctxTrend) {
+            ctxTrend.__chartInstance = new Chart(ctxTrend, {
+                type: 'bar',
+                data: {
+                    labels: Object.values(data.trendMonths),
+                    datasets: [
+                        {
+                            label: 'Incidencias Totales',
+                            data: Object.values(data.trendData),
+                            backgroundColor: 'rgba(99, 102, 241, 0.4)',
+                            borderColor: '#6366f1',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            order: 2
+                        },
+                        {
+                            label: 'Incidentes Resueltos',
+                            data: Object.values(data.trendClosedData || data.trendData),
+                            type: 'line',
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#10b981',
+                            pointHoverRadius: 7,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 15, font: { size: 11 } } },
+                        tooltip: { backgroundColor: '#1e293b', titleColor: '#fff', bodyColor: '#cbd5e1', cornerRadius: 8 }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { stepSize: 1, color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // 2. CHART PLANTAS (Dona)
+        destroyChart('plantChart');
+        const ctxPlant = document.getElementById('plantChart');
+        if (ctxPlant) {
+            ctxPlant.__chartInstance = new Chart(ctxPlant, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Planta 1', 'Planta 2'],
+                    datasets: [{
+                        data: [data.plantaCounts['Planta 1'] || 0, data.plantaCounts['Planta 2'] || 0],
+                        backgroundColor: ['#6366f1', '#f59e0b'],
+                        borderWidth: 3,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 10 } } },
+                        tooltip: { backgroundColor: '#1e293b' }
+                    }
+                }
+            });
+        }
+
+        // 3. CHART ÁREAS (Barras Horizontales)
+        destroyChart('areaChart');
+        const ctxArea = document.getElementById('areaChart');
+        if (ctxArea) {
+            const labels = Object.keys(data.categoryData || {});
+            const counts = Object.values(data.categoryData || {});
+            
+            ctxArea.__chartInstance = new Chart(ctxArea, {
+                type: 'bar',
+                data: {
+                    labels: labels.length ? labels : ['Sin datos'],
+                    datasets: [{
+                        label: 'Número de Solicitudes',
+                        data: counts.length ? counts : [0],
+                        backgroundColor: 'rgba(168, 85, 247, 0.65)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        barThickness: 18
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { precision: 0, color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // 4. CHART ESTADOS (Polar)
+        destroyChart('stateChart');
+        const ctxState = document.getElementById('stateChart');
+        if (ctxState) {
+            ctxState.__chartInstance = new Chart(ctxState, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Abiertos', 'En Proceso', 'Resueltos'],
+                    datasets: [{
+                        data: [data.statusCounts[1] || 0, data.statusCounts[2] || 0, (data.statusCounts[3] || 0) + (data.statusCounts[4] || 0)],
+                        backgroundColor: ['rgba(59, 130, 246, 0.55)', 'rgba(245, 158, 11, 0.55)', 'rgba(16, 185, 129, 0.55)'],
+                        borderColor: '#0f172a',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { backdropColor: 'transparent', color: '#94a3b8' } } },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b' } }
+                }
+            });
+        }
+    };
+</script>
 </div>
