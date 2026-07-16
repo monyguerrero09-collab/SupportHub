@@ -35,6 +35,7 @@ class User extends Authenticatable
         'nombre_completo',
         'name',
         'email',
+        'telefono',
         'rol_id',
         'codigo_acceso',
         'activo',

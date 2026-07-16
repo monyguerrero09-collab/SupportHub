@@ -70,6 +70,15 @@
         <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
             @if(auth()->user()->role === 'user')
                 {{-- Rutas de usuario normal --}}
+                <button @click="activeTab = 'inicio'"
+                    :class="activeTab === 'inicio' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inicio</span>
+                </button>
                 <button @click="activeTab = 'generar_ticket'"
                     :class="activeTab === 'generar_ticket' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -99,6 +108,15 @@
                 </button>
             @else
                 {{-- Rutas de Admin/Agente --}}
+                <button @click="activeTab = 'inicio'"
+                    :class="activeTab === 'inicio' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inicio</span>
+                </button>
                 <button @click="activeTab = 'statistics'"
                     :class="activeTab === 'statistics' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -223,6 +241,7 @@
                 <div class="min-w-0">
                     <h2 class="text-base sm:text-xl md:text-2xl font-black text-white tracking-tighter uppercase leading-none truncate" x-text="activeTab.replace(/_/g, ' ').toUpperCase()"></h2>
                     <p class="text-[10px] text-gray-500 font-medium mt-0.5 truncate" x-show="activeTab === 'generar_ticket'">Configura los detalles de tu requerimiento técnico</p>
+                    <p class="text-[10px] text-gray-500 font-medium mt-0.5 truncate" x-show="activeTab === 'inicio'">Bienvenido al panel general de CGR Connect</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3 shrink-0" x-data="{ notifOpen: false }">
@@ -295,7 +314,7 @@
         <div class="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 lg:p-10 space-y-6 md:space-y-10">
             
             {{-- Welcome Greeting Banner --}}
-            <div class="animate-in fade-in slide-in-from-top-5 duration-700 shrink-0">
+            <div x-show="activeTab !== 'inicio'" class="animate-in fade-in slide-in-from-top-5 duration-700 shrink-0">
                 <div class="bg-gradient-to-r from-blue-600/10 via-indigo-600/5 to-transparent border border-white/5 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
                     <div class="absolute inset-0 bg-blue-500/[0.02] rounded-2xl blur-lg pointer-events-none"></div>
                     <div class="relative z-10">
@@ -606,6 +625,182 @@
             </template>
 
             {{-- Tabs for Normal User --}}
+            <template x-if="activeTab === 'inicio'">
+                <div class="animate-in fade-in duration-500 p-4 sm:p-6 lg:p-8 flex-grow flex flex-col justify-center max-w-7xl mx-auto w-full relative z-10" x-init="initInicioWidgets()">
+                    <!-- Contenedor Principal Glassmorphism -->
+                    <div wire:ignore class="relative w-full rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 p-6 sm:p-8 lg:p-10 shadow-[0_0_50px_rgba(37,99,235,0.15)] flex flex-col justify-between overflow-hidden min-h-[580px]">
+                        
+                        <!-- Destellos Galácticos en esquinas -->
+                        <div class="absolute top-0 right-0 w-[450px] h-[450px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+                        <!-- Cabecera -->
+                        <div class="relative z-10 w-full mb-6">
+                            <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white select-none uppercase">
+                                    BIENVENIDO, {{ auth()->user()->nombre_completo ?? 'USUARIO' }}!
+                                </h2>
+                                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase font-mono">CGR International • México</span>
+                            </div>
+                            
+                            <div class="relative flex items-center mt-3 w-full max-w-2xl">
+                                <div class="w-3 h-3 rounded-full border-2 border-blue-500 bg-[#050510] flex-shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
+                                <div class="flex-grow h-[2px] bg-gradient-to-r from-blue-500 to-transparent opacity-50"></div>
+                            </div>
+                        </div>
+
+                        <!-- WIDGETS (Hora, Clima, Calendario, Info) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10 my-auto items-stretch">
+                            
+                            <!-- COLUMNA IZQUIERDA: Hora y Clima -->
+                            <div class="lg:col-span-5 flex flex-col justify-between gap-6">
+                                
+                                <!-- Reloj Digital 3D + AM/PM Integrado -->
+                                <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col justify-center items-center shadow-lg relative overflow-hidden group hover:border-blue-400/30 hover:bg-white/10 transition-all duration-300">
+                                    <div class="absolute -right-10 -bottom-10 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/30 transition"></div>
+                                    
+                                    <span class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-3 self-start flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span>
+                                        Tiempo de Planta (QRO)
+                                    </span>
+
+                                    <div class="flex items-center gap-3">
+                                        <!-- Dígitos del Reloj 3D -->
+                                        <div class="flex items-center text-white font-black text-4xl sm:text-5xl tracking-tighter tabular-nums">
+                                            <span id="clock-hours" class="bg-white/10 text-white px-3 py-1.5 rounded-xl mx-0.5 border-b-4 border-blue-500/50 shadow-[0_4px_15px_rgba(0,0,0,0.5)] inline-block min-w-[3rem] text-center">{{ now()->format('h') }}</span>
+                                            
+                                            <!-- Indicadores Neón -->
+                                            <div class="flex flex-col gap-2 mx-2">
+                                                <div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(96,165,250,0.8)] animate-pulse"></div>
+                                                <div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(96,165,250,0.8)] animate-pulse"></div>
+                                            </div>
+                                            
+                                            <span id="clock-minutes" class="bg-white/10 text-white px-3 py-1.5 rounded-xl mx-0.5 border-b-4 border-blue-500/50 shadow-[0_4px_15px_rgba(0,0,0,0.5)] inline-block min-w-[3rem] text-center">{{ now()->format('i') }}</span>
+                                        </div>
+
+                                        <!-- Indicador AM / PM -->
+                                        <div class="flex flex-col justify-center bg-[#07071a]/50 border border-white/10 px-3 py-2 rounded-xl tabular-nums">
+                                            <span id="clock-ampm" class="text-lg font-black text-cyan-400 tracking-wider">{{ now()->format('A') }}</span>
+                                            <span class="text-[8px] text-gray-400 font-bold uppercase text-center mt-0.5" id="seconds-counter">{{ now()->format('s') }}s</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- WIDGET 2: Clima -->
+                                <div class="bg-white/5 backdrop-blur-md p-5 rounded-2xl border border-white/10 flex items-center justify-between shadow-lg hover:border-cyan-400/40 hover:bg-white/10 transition-all duration-300">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1 flex items-center gap-1.5">
+                                            <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+                                            Clima en Querétaro
+                                        </span>
+                                        <span class="text-xl font-extrabold text-white" id="weather-temp">--°C</span>
+                                        <span class="text-[11px] text-gray-400 font-medium" id="weather-desc">Cargando...</span>
+                                        <span class="text-[9px] text-gray-500 mt-1">Planta El Pueblito, Qro.</span>
+                                    </div>
+
+                                    <div class="flex flex-col items-center justify-center bg-white/5 p-3.5 rounded-xl border border-white/10">
+                                        <i id="weather-icon" class="fa-solid fa-cloud-sun text-4xl text-amber-400 animate-bounce" style="animation-duration: 3s;"></i>
+                                        <div class="flex gap-2 mt-2 text-[9px] text-gray-400">
+                                            <span><i class="fa-solid fa-droplet text-blue-400 mr-0.5"></i> 45%</span>
+                                            <span><i class="fa-solid fa-wind text-gray-400 mr-0.5"></i> 12 km/h</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- COLUMNA CENTRAL-DERECHA: Calendario y Marca -->
+                            <div class="lg:col-span-7 bg-white/5 backdrop-blur-md p-5 rounded-3xl border border-white/10 flex flex-col md:flex-row gap-5 items-stretch shadow-xl">
+                                
+                                <!-- Calendario Dinámico -->
+                                <div class="bg-[#050510]/80 border border-white/10 text-white rounded-2xl p-4 shadow-2xl flex-grow w-full md:w-1/2 transition-all duration-300">
+                                    <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-white/10">
+                                        <span class="bg-blue-500/20 text-blue-400 font-extrabold px-2.5 py-0.5 rounded-lg text-xs" id="cal-year">----</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <button @click="prevMonth()" class="text-gray-400 hover:text-white transition p-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                                            <span class="font-black tracking-wider text-gray-200 text-xs uppercase" id="cal-month">---</span>
+                                            <button @click="nextMonth()" class="text-gray-400 hover:text-white transition p-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-7 gap-0.5 text-center text-[9px] font-black text-blue-400 mb-1 uppercase">
+                                        <div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div>
+                                    </div>
+
+                                    <div class="grid grid-cols-7 gap-0.5 text-center text-[11px] font-bold" id="calendar-days">
+                                        <!-- Inyectado por JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Panel de Marca CGR (Galaxy style) -->
+                                <div class="bg-gradient-to-br from-blue-900/40 to-blue-600/10 rounded-2xl p-5 w-full md:w-1/2 flex flex-col justify-between border border-blue-500/20 shadow-inner text-white relative overflow-hidden group">
+                                    <div class="absolute -right-8 -bottom-8 w-40 h-28 opacity-10 pointer-events-none">
+                                        <svg class="w-full h-full overflow-visible" viewBox="0 0 100 50">
+                                            <path d="M 5,25 C 5,45 85,45 95,25 C 95,5 15,5 5,25" fill="none" stroke="#ffffff" stroke-width="5" />
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <span class="text-[9px] uppercase tracking-widest text-cyan-300 font-extrabold bg-blue-900/50 border border-blue-500/30 px-2 py-0.5 rounded-md">Identidad</span>
+                                        <div class="flex items-center gap-2 mt-4">
+                                            <div class="relative w-16 h-10 flex-shrink-0">
+                                                <span class="absolute top-0.5 left-0.5 text-2xl font-black text-white tracking-tighter z-10" style="text-shadow: 0 0 10px rgba(255,255,255,0.5);">CGR</span>
+                                                <svg class="absolute -top-1 -left-2 w-20 h-12 overflow-visible" viewBox="0 0 100 50">
+                                                    <path d="M 5,25 C 5,45 85,45 95,25 C 95,5 15,5 5,25" fill="none" stroke="#3b82f6" stroke-width="4.5" class="drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <p class="text-[11px] text-gray-300 italic mt-3 font-medium">"Form your world."</p>
+                                    </div>
+
+                                    <div class="mt-4 pt-3 border-t border-white/10 text-[10px] text-gray-400">
+                                        <p class="font-bold text-gray-200">CGR Querétaro Plant</p>
+                                        <p>Manufactura de alta precisión para autopartes y herramentales.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta Inspiradora -->
+                        <div class="relative z-10 w-full mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            
+                            <div class="md:col-span-8 relative rounded-2xl overflow-hidden h-36 border border-white/10 shadow-xl group">
+                                <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" 
+                                     alt="Manufactura CGR" 
+                                     class="absolute inset-0 w-full h-full object-cover filter brightness-[0.25] group-hover:scale-105 group-hover:brightness-[0.35] transition duration-700">
+                                
+                                <div class="absolute inset-0 bg-gradient-to-r from-[#020205]/90 via-[#020205]/60 to-transparent"></div>
+
+                                <div class="absolute inset-0 p-5 flex flex-col justify-center">
+                                    <span class="text-[8px] sm:text-[9px] uppercase tracking-widest font-extrabold text-blue-400 mb-1">CGR Motivación Diario</span>
+                                    <blockquote class="text-xs sm:text-sm font-semibold text-gray-200 italic leading-relaxed max-w-xl">
+                                        "La precisión en nuestro trabajo moldea el estándar del mañana. Con esfuerzo y seguridad, en CGR Querétaro formamos nuestro mundo."
+                                    </blockquote>
+                                    <p class="text-[9px] text-gray-400 mt-2 font-bold">— Equipo de Calidad y Procesos, CGR México.</p>
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-4 bg-white/5 border border-white/10 rounded-2xl p-4 h-36 flex flex-col justify-center backdrop-blur-md">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-ping"></span>
+                                    <p class="text-blue-400 text-xs font-bold uppercase tracking-wider">Estado Operativo</p>
+                                </div>
+                                <p class="text-xs text-gray-300 leading-relaxed">
+                                    Turno de producción: <span class="text-white font-bold" id="current-shift">
+                                        @php
+                                            $hour = now()->hour;
+                                            if($hour >= 6 && $hour < 14) echo 'Matutino (Turno A)';
+                                            elseif($hour >= 14 && $hour < 22) echo 'Vespertino (Turno B)';
+                                            else echo 'Nocturno (Turno C)';
+                                        @endphp
+                                    </span>.<br>
+                                    Para reportar fallas críticas o paros de línea, use la pestaña de <span class="text-blue-400 font-extrabold">Generar Ticket</span>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
             <template x-if="activeTab === 'generar_ticket'">
                 <div class="animate-in fade-in duration-500 w-full block text-left" 
                      style="background: linear-gradient(135deg, #020210 0%, #06051a 40%, #030318 70%, #010108 100%); position: relative;"
@@ -2674,12 +2869,21 @@
                 </button>
             </div>
             <form wire:submit.prevent="saveUser" class="p-5 space-y-4 pb-6">
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Nombre Completo</label>
-                    <input type="text" wire:model="userName" required
-                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
-                        placeholder="">
-                    @error('userName') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Nombre Completo</label>
+                        <input type="text" wire:model="userName" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
+                            placeholder="">
+                        @error('userName') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Teléfono / WhatsApp</label>
+                        <input type="text" wire:model="userTelefono"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
+                            placeholder="Ej. 1234567890">
+                        @error('userTelefono') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-3">
@@ -3376,5 +3580,156 @@
             });
         }
     };
+
+    // --- LÓGICA DE WIDGETS PANEL DE INICIO ---
+    window.initInicioWidgets = function() {
+        if (!document.getElementById('clock-hours')) return; // Solo ejecutar si los elementos existen
+
+        // Reloj
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            const hoursStr = String(hours).padStart(2, '0');
+
+            const clockHours = document.getElementById('clock-hours');
+            if(clockHours) {
+                clockHours.innerText = hoursStr;
+                document.getElementById('clock-minutes').innerText = minutes;
+                document.getElementById('clock-ampm').innerText = ampm;
+                document.getElementById('seconds-counter').innerText = `${seconds}s`;
+
+                let currentShift = "Turno Mixto (C)";
+                const realHour = now.getHours();
+                if (realHour >= 6 && realHour < 14) currentShift = "Matutino (Turno A)";
+                else if (realHour >= 14 && realHour < 22) currentShift = "Vespertino (Turno B)";
+                else currentShift = "Nocturno (Turno C)";
+                
+                document.getElementById('current-shift').innerText = currentShift;
+            }
+        }
+        
+        // Clima
+        function updateWeather() {
+            const now = new Date();
+            const hour = now.getHours();
+            let temp = 24, desc = "Parcialmente Nublado", iconClass = "fa-solid fa-cloud-sun text-gray-400";
+
+            if (hour >= 6 && hour < 12) {
+                temp = 19; desc = "Despejado y Fresco"; iconClass = "fa-solid fa-sun text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]";
+            } else if (hour >= 12 && hour < 18) {
+                temp = 27; desc = "Cálido y Despejado"; iconClass = "fa-solid fa-sun text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)] animate-spin";
+            } else if (hour >= 18 && hour < 22) {
+                temp = 21; desc = "Templado / Nublado"; iconClass = "fa-solid fa-cloud-sun text-gray-300";
+            } else {
+                temp = 15; desc = "Fresco y Despejado"; iconClass = "fa-solid fa-moon text-indigo-300 drop-shadow-[0_0_10px_rgba(165,180,252,0.8)]";
+            }
+
+            const wTemp = document.getElementById('weather-temp');
+            if(wTemp) {
+                wTemp.innerText = `${temp}°C`;
+                document.getElementById('weather-desc').innerText = desc;
+                const iconElement = document.getElementById('weather-icon');
+                iconElement.className = `${iconClass} text-4xl`;
+                iconElement.style.animationDuration = (hour >= 12 && hour < 18) ? "25s" : "3s";
+            }
+        }
+
+        // Calendario
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        function renderCalendar() {
+            const daysContainer = document.getElementById('calendar-days');
+            if(!daysContainer) return;
+            
+            document.getElementById('cal-month').innerText = monthNames[currentMonth];
+            document.getElementById('cal-year').innerText = currentYear;
+
+            daysContainer.innerHTML = '';
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const prevTotalDays = new Date(currentYear, currentMonth, 0).getDate();
+
+            for (let i = firstDayIndex; i > 0; i--) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = "text-gray-600 p-1.5 select-none opacity-40";
+                dayDiv.innerText = prevTotalDays - i + 1;
+                daysContainer.appendChild(dayDiv);
+            }
+
+            const today = new Date();
+            for (let day = 1; day <= totalDays; day++) {
+                const dayDiv = document.createElement('div');
+                const isToday = (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear());
+                
+                if (isToday) {
+                    dayDiv.className = "p-1.5 bg-blue-600 text-white rounded-lg font-black shadow-[0_0_15px_rgba(37,99,235,0.6)] cursor-default select-none ring-2 ring-blue-400";
+                } else {
+                    dayDiv.className = "p-1.5 text-gray-300 hover:bg-white/10 hover:text-white rounded-lg cursor-default select-none transition-colors";
+                }
+                
+                dayDiv.innerText = day;
+                daysContainer.appendChild(dayDiv);
+            }
+
+            const totalSlots = firstDayIndex + totalDays;
+            const remainingSlots = 42 - totalSlots;
+            for (let i = 1; i <= remainingSlots; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = "text-gray-600 p-1.5 select-none opacity-40";
+                dayDiv.innerText = i;
+                daysContainer.appendChild(dayDiv);
+            }
+        }
+
+        window.prevMonth = function() {
+            currentMonth--;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar();
+        };
+
+        window.nextMonth = function() {
+            currentMonth++;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        };
+
+        // Limpiar intervalos previos para evitar múltiples ejecuciones y parpadeos
+        if (window.inicioClockInterval) clearInterval(window.inicioClockInterval);
+        if (window.inicioWeatherInterval) clearInterval(window.inicioWeatherInterval);
+
+        // Arrancar
+        updateClock();
+        window.inicioClockInterval = setInterval(updateClock, 1000);
+        
+        updateWeather();
+        window.inicioWeatherInterval = setInterval(updateWeather, 300000); 
+        
+        renderCalendar();
+    };
+
+    // Asegurar que se inicie al cargar la página si la pestaña es inicio
+    document.addEventListener('livewire:initialized', () => {
+        if(Livewire.first().activeTab === 'inicio') {
+            setTimeout(window.initInicioWidgets, 100);
+        }
+        
+        // Escuchar cambios de pestaña para inicializar el reloj cuando cambien a inicio
+        Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+            succeed(({ snapshot, effect }) => {
+                const activeTab = component.ephemeral.activeTab || snapshot.data.activeTab;
+                if (activeTab === 'inicio') {
+                    setTimeout(window.initInicioWidgets, 100);
+                }
+            })
+        });
+    });
 </script>
 </div>

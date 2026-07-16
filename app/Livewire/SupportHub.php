@@ -21,7 +21,7 @@ class SupportHub extends Component
     use WithFileUploads;
 
     #[Url]
-    public $activeTab = 'generar_ticket'; // tickets, inventory, map, statistics, users, gestion_archivos
+    public $activeTab = 'inicio'; // inicio, tickets, inventory, map, statistics, users, gestion_archivos
     public $ticketFiles = [];
     public $userProfileEmail = '';
     public $selectedEquipmentId = null;
@@ -224,6 +224,7 @@ class SupportHub extends Component
     // User Management
     public $userName;
     public $userEmail;
+    public $userTelefono;
     public $userPassword;
     public $userRole = 'user';
     public $userCodigoAcceso;
@@ -361,47 +362,11 @@ class SupportHub extends Component
                     'es_cliente' => false,
                 ]);
 
-                // Notification to user
-                if ($ticket->creador) {
-                    try {
-                        \Illuminate\Support\Facades\Mail::raw(
-                            "Estimado usuario, su ticket #{$ticket->id} ha recibido una actualización:\n\n" .
-                            $this->aTicketKoment . $extraText . "\n\n" .
-                            "Estado actual: " . (\App\Models\EstadoTicket::find($this->aTicketStatus)->nombre ?? 'Desconocido'),
-                            function ($mail) use ($ticket) {
-                                $mail->to($ticket->creador->email)
-                                     ->subject("Actualización de su Ticket #{$ticket->id}");
-                            }
-                        );
-                    } catch (\Exception $e) {}
-                }
+                // Notificación al usuario eliminada por solicitud (WhatsApp solo para admins/agentes)
             } elseif ($oldStatusId != $this->aTicketStatus) {
-                // Notificación automática de cambio de estado si no hay comentario manual
-                 if ($ticket->creador) {
-                    try {
-                        $estadoNombre = \App\Models\EstadoTicket::find($this->aTicketStatus)->nombre ?? 'Desconocido';
-                        \Illuminate\Support\Facades\Mail::raw(
-                            "Estimado usuario, el estado de su ticket #{$ticket->id} ha cambiado a: {$estadoNombre}.{$extraText}\n\n",
-                            function ($mail) use ($ticket, $estadoNombre) {
-                                $mail->to($ticket->creador->email)
-                                     ->subject("Su Ticket #{$ticket->id} se encuentra en: {$estadoNombre}");
-                            }
-                        );
-                    } catch (\Exception $e) {}
-                }
+                // Notificación automática de cambio de estado eliminada
             } elseif ($oldHoraVisita != $this->aTicketHoraVisita) {
-                // Notificación de cambio de hora de visita únicamente
-                if ($ticket->creador) {
-                    try {
-                        \Illuminate\Support\Facades\Mail::raw(
-                            "Estimado usuario, se ha programado/actualizado la hora de visita para su ticket #{$ticket->id} a: {$this->aTicketHoraVisita}.\n\n",
-                            function ($mail) use ($ticket) {
-                                $mail->to($ticket->creador->email)
-                                     ->subject("Hora de visita actualizada - Ticket #{$ticket->id}");
-                            }
-                        );
-                    } catch (\Exception $e) {}
-                }
+                // Notificación de cambio de hora de visita eliminada
             }
 
             $this->showingAdminTicket = false;
@@ -502,12 +467,13 @@ class SupportHub extends Component
             $this->dispatch('notify', 'No tienes permisos para editar usuarios');
             return;
         }
-        $this->reset(['userName', 'userEmail', 'userPassword', 'userRole', 'userCodigoAcceso', 'selectedUserId']);
+        $this->reset(['userName', 'userEmail', 'userTelefono', 'userPassword', 'userRole', 'userCodigoAcceso', 'selectedUserId']);
         if ($id) {
             $user = User::find($id);
             $this->selectedUserId = $id;
             $this->userName = $user->nombre_completo;
             $this->userEmail = $user->email;
+            $this->userTelefono = $user->telefono;
             $this->userRole = $user->role ?? 'user';
             $this->userCodigoAcceso = $user->codigo_acceso;
         }
@@ -524,6 +490,7 @@ class SupportHub extends Component
         // Validation rules: codigo_acceso must be unique (except for the user being updated)
         $rules = [
             'userName' => 'required|string|max:255',
+            'userTelefono' => 'nullable|string|max:20',
             'userRole' => 'required|in:admin,agente,user',
             'userCodigoAcceso' => 'required|string|max:50|unique:usuarios,codigo_acceso,' . ($this->selectedUserId ?? 'NULL'),
         ];
@@ -549,6 +516,7 @@ class SupportHub extends Component
         $data = [
             'nombre_completo' => $this->userName,
             'email' => $this->userEmail,
+            'telefono' => $this->userTelefono,
             'rol_id' => $rol ? $rol->id : 3,
             'codigo_acceso' => $this->userCodigoAcceso,
         ];
@@ -698,27 +666,25 @@ class SupportHub extends Component
             }
         }
 
-        // Send Email to Agent, Admin, and Creator using NotificacionTicket Mailable
+        // Notify Admins and Agents via WhatsApp (Node.js microservice)
         try {
-            // 1. Notify Admins and Agents
             $adminsAndAgents = User::whereHas('rol', function ($q) {
                 $q->whereIn('nombre', ['Admin', 'Agente TI']);
-            })->get();
-            $msgForStaff = "Se ha registrado una nueva solicitud de soporte técnico en la plataforma. A continuación los detalles.";
+            })->whereNotNull('telefono')->get();
+            
+            $msgForStaff = "NUEVO TICKET REQUERIDO 🚨\n\nTicket ID: #{$ticket->id}\nDe: " . (Auth::user()->nombre_completo ?? 'Usuario') . "\nCategoría: {$ticket->titulo}\n\nIngresa al sistema para revisar los detalles.";
+            
             foreach ($adminsAndAgents as $notifyUser) {
-                if (!empty($notifyUser->email)) {
-                    \Illuminate\Support\Facades\Mail::to($notifyUser->email)->send(new \App\Mail\NotificacionTicket($ticket, $msgForStaff));
+                if (!empty($notifyUser->telefono)) {
+                    \Illuminate\Support\Facades\Http::post('http://localhost:3000/api/send', [
+                        'token' => 'OMEGA123456',
+                        'phone' => $notifyUser->telefono,
+                        'message' => $msgForStaff
+                    ]);
                 }
             }
-
-            // 2. Notify Creator (User)
-            $creator = Auth::user();
-            if ($creator && !empty($creator->email)) {
-                $msgForCreator = "Hemos recibido tu solicitud de soporte técnico correctamente. Nuestro equipo de TI la revisará a la brevedad.";
-                \Illuminate\Support\Facades\Mail::to($creator->email)->send(new \App\Mail\NotificacionTicket($ticket, $msgForCreator));
-            }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error sending ticket creation emails: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error sending whatsapp notification: ' . $e->getMessage());
         }
 
         $this->showingNewTicket = false;

@@ -44,7 +44,7 @@ class DocumentViewer extends Component
     public $showingUploadModal = false;
 
     protected $rules = [
-        'generalFile' => 'required|file|max:15360', // max 15MB
+        'generalFile' => 'required|file|max:51200', // max 50MB para soportar videos
         'generalFileName' => 'required|string|max:255',
         'generalCategory' => 'required|string|in:Manual,Política,Guía,General',
         'generalEquipmentId' => 'nullable|exists:equipment,id',
@@ -384,6 +384,9 @@ class DocumentViewer extends Component
         }
         if (in_array($ext, ['txt', 'log', 'csv', 'ini', 'json', 'xml', 'md', 'sql', 'html', 'css', 'js', 'php', 'py', 'sh', 'bat', 'yml', 'yaml', 'env'])) {
             return 'text';
+        }
+        if (in_array($ext, ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'])) {
+            return 'video';
         }
         return 'other';
     }

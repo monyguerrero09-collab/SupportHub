@@ -62,6 +62,7 @@
                         ['id' => 'image', 'name' => 'Imágenes', 'icon' => '🖼️'],
                         ['id' => 'word', 'name' => 'Documentos', 'icon' => '📝'],
                         ['id' => 'text', 'name' => 'Consola/Texto', 'icon' => '💻'],
+                        ['id' => 'video', 'name' => 'Videos', 'icon' => '🎥'],
                         ['id' => 'other', 'name' => 'Otros', 'icon' => '📦'],
                     ];
                 @endphp
@@ -94,13 +95,15 @@
                                 📝
                             @elseif($doc['tipo'] === 'text')
                                 💻
+                            @elseif($doc['tipo'] === 'video')
+                                🎥
                             @else
                                 📦
                             @endif
                         </div>
 
                         {{-- Datos del archivo --}}
-                        <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0 pr-16">
                             <h4 class="font-black text-white text-xs truncate group-hover:text-blue-400 transition-colors uppercase tracking-tight" title="{{ $doc['nombre'] }}">
                                 {{ $doc['nombre'] }}
                             </h4>
@@ -255,6 +258,19 @@
                                     </div>
                                 </div>
                                 <pre class="flex-1 p-5 overflow-auto text-emerald-400 text-[10px] leading-relaxed custom-scrollbar selection:bg-emerald-500/30 selection:text-white" style="margin: 0;"><code>{{ $textContent }}</code></pre>
+                            </div>
+                            
+                        @elseif($selectedDoc['tipo'] === 'video')
+                            {{-- Visualizador de Video Nativo --}}
+                            <div class="flex-1 flex items-center justify-center bg-black/80 rounded-2xl border border-white/10 overflow-hidden shadow-inner p-2">
+                                <video 
+                                    controls 
+                                    class="max-w-full max-h-full rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+                                    preload="metadata"
+                                >
+                                    <source src="{{ asset('storage/' . $selectedDoc['ruta_real']) }}" type="video/{{ $selectedDoc['ext'] === 'mov' ? 'mp4' : $selectedDoc['ext'] }}">
+                                    Tu navegador no soporta la reproducción de video.
+                                </video>
                             </div>
                             
                         @else
