@@ -812,12 +812,33 @@ class SupportHub extends Component
     {
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
-            \App\Models\HistorialTicket::create([
-                'ticket_id' => $ticket->id,
-                'accion' => 'Ticket ' . $ticket->id . ' eliminado por duplicado'
-            ]);
+            if (Auth::user()->role === 'user' && $ticket->usuario_creador_id !== Auth::id()) {
+                $this->dispatch('notify', 'No tienes permiso para eliminar este ticket.');
+                return;
+            }
+
+            // Eliminar archivos del almacenamiento
+            $adjuntos = \App\Models\ArchivoAdjunto::where('ticket_id', $ticket->id)->get();
+            foreach ($adjuntos as $adjunto) {
+                if ($adjunto->ruta_archivo) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($adjunto->ruta_archivo);
+                }
+            }
+            \App\Models\ArchivoAdjunto::where('ticket_id', $ticket->id)->delete();
+            
+            // Eliminar comentarios asociados
+            $ticket->comentarios()->delete();
+            
+            // Eliminar cualquier historial previo
+            \App\Models\HistorialTicket::where('ticket_id', $ticket->id)->delete();
+
+            // Eliminar ticket definitivamente
             $ticket->delete();
-            $this->dispatch('notify', 'Ticket eliminado correctamente.');
+            if (method_exists($ticket, 'forceDelete')) {
+                $ticket->forceDelete();
+            }
+
+            $this->dispatch('notify', 'Ticket eliminado permanentemente.');
         }
     }
 

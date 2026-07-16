@@ -792,34 +792,179 @@
                          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.7) 1.5px, transparent 1.5px);background-size:130px 130px;background-position:35px 35px;opacity:0.06;"></div>
                      </div>
                      <div class="max-w-[1200px] w-full px-4 sm:px-6 py-6 md:px-8 mx-auto relative z-20">
-                         <div x-show="mode === 'selection'" class="w-full max-w-4xl text-center py-8 animate-in fade-in duration-300">
-                             <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight uppercase">¿Cómo deseas generar tu ticket?</h2>
-                             <p class="text-gray-400 max-w-lg mx-auto mb-12 text-sm sm:text-base">Selecciona el método que mejor se adapte a tu reporte de tecnología.</p>
-                             <div class="grid md:grid-cols-2 gap-8 px-4">
-                                 <button @click="mode = 'manual'" class="group text-left bg-[#1a1a2e]/40 border-2 border-white/5 hover:border-blue-500/50 rounded-[2rem] p-8 shadow-2xl hover:shadow-[0_0_40px_rgba(37,99,235,0.25)] transition-all duration-300 focus:outline-none relative overflow-hidden flex flex-col justify-between h-80 backdrop-blur-md">
-                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] group-hover:bg-blue-500/5 rounded-bl-full transition-colors duration-300 -z-0"></div>
-                                     <div class="relative z-10">
-                                         <div class="w-16 h-16 bg-white/5 group-hover:bg-blue-600 text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 mb-6 shadow-sm border border-white/10 group-hover:border-transparent">
-                                             <i class="fa-solid fa-file-signature"></i>
+                         <div x-show="mode === 'selection'" class="w-full max-w-5xl mx-auto py-8 animate-in fade-in duration-300">
+                             
+                             <div class="bg-[#11111e]/80 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 md:p-12 relative shadow-2xl">
+                                 <!-- Top icon / Header -->
+                                 <div class="flex justify-center mb-3">
+                                     <div class="text-indigo-400 text-2xl"><i class="fa-solid fa-ticket"></i></div>
+                                 </div>
+                                 
+                                 <h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-2 tracking-tight">
+                                     ¿CÓMO DESEAS <span class="text-indigo-500">GENERAR TU TICKET?</span>
+                                 </h2>
+                                 <p class="text-gray-400 text-center mb-12 text-sm">
+                                     Elige la opción que mejor se adapte a tu necesidad. Estamos <span class="text-indigo-400 font-bold">aquí para ayudarte</span>.
+                                 </p>
+
+                                 <!-- Cards Container -->
+                                 <div class="grid md:grid-cols-2 gap-8 mb-12">
+                                     
+                                     <!-- Card 1 -->
+                                     <div class="bg-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col relative transition-transform hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/30">
+                                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+                                             <!-- Illustration circle -->
+                                             <div class="shrink-0">
+                                                 <svg viewBox="0 0 200 200" class="w-24 h-24 sm:w-28 sm:h-28">
+                                                   <circle cx="100" cy="100" r="100" fill="#E8DEFF" />
+                                                   <!-- Clipboard -->
+                                                   <rect x="55" y="40" width="70" height="95" rx="8" fill="#FFFFFF" stroke="#291854" stroke-width="6" />
+                                                   <!-- Clip -->
+                                                   <path d="M75 40 V 30 C 75 25, 80 20, 85 20 H 95 C 100 20, 105 25, 105 30 V 40 Z" fill="#8B5CF6" stroke="#291854" stroke-width="6" />
+                                                   <rect x="70" y="35" width="40" height="10" rx="3" fill="#8B5CF6" stroke="#291854" stroke-width="6" />
+                                                   <circle cx="90" cy="28" r="4" fill="#FFFFFF" />
+                                                   <!-- Lines and Checkboxes -->
+                                                   <rect x="65" y="60" width="12" height="12" rx="2" fill="#D8B4FE" stroke="#291854" stroke-width="4" />
+                                                   <path d="M 68 66 L 70 69 L 75 63" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                                   <line x1="85" y1="66" x2="115" y2="66" stroke="#291854" stroke-width="5" stroke-linecap="round" />
+                                                   <rect x="65" y="85" width="12" height="12" rx="2" fill="#D8B4FE" stroke="#291854" stroke-width="4" />
+                                                   <path d="M 68 91 L 70 94 L 75 88" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                                   <line x1="85" y1="91" x2="115" y2="91" stroke="#291854" stroke-width="5" stroke-linecap="round" />
+                                                   <rect x="65" y="110" width="12" height="12" rx="2" fill="#D8B4FE" stroke="#291854" stroke-width="4" />
+                                                   <path d="M 68 116 L 70 119 L 75 113" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                                   <line x1="85" y1="116" x2="105" y2="116" stroke="#291854" stroke-width="5" stroke-linecap="round" />
+                                                   <!-- Pencil -->
+                                                   <g transform="translate(135, 75) rotate(35)">
+                                                     <rect x="0" y="15" width="20" height="70" fill="#9333EA" stroke="#291854" stroke-width="5" />
+                                                     <line x1="7" y1="15" x2="7" y2="85" stroke="#7E22CE" stroke-width="3" />
+                                                     <line x1="13" y1="15" x2="13" y2="85" stroke="#7E22CE" stroke-width="3" />
+                                                     <polygon points="0,85 10,115 20,85" fill="#FDE047" stroke="#291854" stroke-width="5" stroke-linejoin="round" />
+                                                     <polygon points="6,103 10,115 14,103" fill="#291854" />
+                                                     <rect x="0" y="15" width="20" height="10" fill="#CBD5E1" stroke="#291854" stroke-width="5" />
+                                                     <path d="M 0 15 V 8 C 0 3, 4 0, 10 0 C 16 0, 20 3, 20 8 V 15 Z" fill="#291854" />
+                                                     <path d="M 3 13 V 8 C 3 5, 6 3, 10 3 C 14 3, 17 5, 17 8 V 13 Z" fill="#D8B4FE" />
+                                                   </g>
+                                                 </svg>
+                                             </div>
+                                             <!-- Text -->
+                                             <div class="text-center sm:text-left">
+                                                 <h3 class="text-2xl font-black text-white mb-2 leading-tight">Redactar<br class="hidden sm:block"> problema</h3>
+                                                 <p class="text-gray-400 text-xs leading-relaxed">Describe tu problema con detalle para que podamos entender y ayudarte mejor.</p>
+                                             </div>
                                          </div>
-                                         <h3 class="text-xl sm:text-2xl font-black text-white mb-3 group-hover:text-blue-400 transition-colors uppercase tracking-tight">Modo Manual</h3>
-                                         <p class="text-gray-400 text-sm leading-relaxed font-medium">Escribe detalladamente todo el problema que ocurrió con tus equipos o software. Ideal para fallos únicos o situaciones complejas que requieran explicaciones minuciosas.</p>
-                                     </div>
-                                     <div class="relative z-10 flex items-center text-blue-400 font-bold text-xs uppercase tracking-wider mt-4">Redactar problema <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i></div>
-                                 </button>
-                                 <button @click="mode = 'intuitive'" class="group text-left bg-[#1a1a2e]/40 border-2 border-white/5 hover:border-blue-500/50 rounded-[2rem] p-8 shadow-2xl hover:shadow-[0_0_40px_rgba(37,99,235,0.25)] transition-all duration-300 focus:outline-none relative overflow-hidden flex flex-col justify-between h-80 backdrop-blur-md">
-                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] group-hover:bg-blue-500/5 rounded-bl-full transition-colors duration-300 -z-0"></div>
-                                     <div class="relative z-10">
-                                         <div class="w-16 h-16 bg-white/5 group-hover:bg-blue-600 text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 mb-6 shadow-sm border border-white/10 group-hover:border-transparent">
-                                             <i class="fa-solid fa-circle-nodes"></i>
+                                         
+                                         <div class="bg-indigo-500/10 rounded-lg p-3.5 mb-8 flex items-start gap-3 mx-auto sm:mx-0">
+                                             <i class="fa-regular fa-lightbulb text-indigo-400 text-base mt-0.5"></i>
+                                             <p class="text-[11px] text-indigo-200/80 font-medium leading-snug">Ideal para situaciones nuevas o que requieren explicación.</p>
                                          </div>
-                                         <h3 class="text-xl sm:text-2xl font-black text-white mb-3 group-hover:text-blue-400 transition-colors uppercase tracking-tight">Modo Botones</h3>
-                                         <p class="text-gray-400 text-sm leading-relaxed font-medium">Selecciona los problemas más frecuentes en el área de TI mediante botones dinámicos clasificados. ¡Genera tu ticket con solo un par de clics y sin escribir de más!</p>
+
+                                         <button @click="mode = 'manual'" class="w-full py-4 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-xl font-bold text-sm tracking-wide text-center transition-colors flex items-center justify-center gap-2 mt-auto">
+                                             Redactar problema <i class="fa-solid fa-arrow-right"></i>
+                                         </button>
                                      </div>
-                                     <div class="relative z-10 flex items-center text-blue-400 font-bold text-xs uppercase tracking-wider mt-4">Seleccionar botones rápidos <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i></div>
-                                 </button>
+
+                                     <!-- Card 2 -->
+                                     <div class="bg-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col relative transition-transform hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/30">
+                                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+                                             <!-- Illustration circle -->
+                                             <div class="shrink-0">
+                                                 <svg viewBox="0 0 200 200" class="w-24 h-24 sm:w-28 sm:h-28">
+                                                   <circle cx="100" cy="100" r="100" fill="#DBEAFE" />
+                                                   <!-- Click Rays -->
+                                                   <g stroke="#1D4ED8" stroke-width="8" stroke-linecap="round">
+                                                     <line x1="70" y1="35" x2="70" y2="55" />
+                                                     <line x1="105" y1="70" x2="125" y2="70" />
+                                                     <line x1="15" y1="70" x2="35" y2="70" />
+                                                     <line x1="40" y1="40" x2="55" y2="55" />
+                                                     <line x1="100" y1="40" x2="85" y2="55" />
+                                                     <line x1="40" y1="100" x2="55" y2="85" />
+                                                   </g>
+                                                   
+                                                   <!-- Hand -->
+                                                   <g transform="translate(10, 0)">
+                                                     <!-- Sleeve -->
+                                                     <path d="M90 145 L160 120 L185 180 L115 205 Z" fill="#3B82F6" />
+                                                     <path d="M85 145 L160 120 L165 140 L90 165 Z" fill="#1D4ED8" />
+                                                     
+                                                     <!-- Hand Body -->
+                                                     <path d="M75 105 L115 145 L155 125 C 165 115, 170 100, 155 85 C 140 70, 120 70, 105 85 L90 100 Z" fill="#FDBA74" />
+                                                     <path d="M75 105 L115 145 L155 125 C 165 115, 170 100, 155 85 C 140 70, 120 70, 105 85 L90 100 Z" fill="#FCD34D" opacity="0.3" />
+                                                     
+                                                     <!-- Index Finger -->
+                                                     <path d="M75 105 C 50 80, 50 50, 65 45 C 80 40, 90 60, 105 85 Z" fill="#FDBA74" />
+                                                     <path d="M75 105 C 50 80, 50 50, 65 45 C 80 40, 90 60, 105 85 Z" fill="#FCD34D" opacity="0.3" />
+                                                     
+                                                     <!-- Folded Fingers -->
+                                                     <path d="M100 95 C 110 80, 130 75, 140 85 C 150 95, 140 110, 125 115 Z" fill="#FDBA74" />
+                                                     <path d="M115 85 C 125 70, 145 65, 155 75 C 165 85, 155 100, 140 105 Z" fill="#FDBA74" />
+                                                     
+                                                     <!-- Thumb -->
+                                                     <path d="M70 125 C 55 115, 60 95, 75 85 L100 115 Z" fill="#FDBA74" />
+                                                     <path d="M70 125 C 55 115, 60 95, 75 85 L100 115 Z" fill="#FCD34D" opacity="0.3" />
+                                                   </g>
+                                                 </svg>
+                                             </div>
+                                             <!-- Text -->
+                                             <div class="text-center sm:text-left">
+                                                 <h3 class="text-2xl font-black text-white mb-2 leading-tight">Seleccionar<br class="hidden sm:block"> botones rápidos</h3>
+                                                 <p class="text-gray-400 text-xs leading-relaxed">Elige una categoría y genera tu ticket en segundos con opciones predefinidas.</p>
+                                             </div>
+                                         </div>
+                                         
+                                         <div class="bg-blue-500/10 rounded-lg p-3.5 mb-8 flex items-start gap-3 mx-auto sm:mx-0">
+                                             <i class="fa-solid fa-bolt text-blue-400 text-base mt-0.5"></i>
+                                             <p class="text-[11px] text-blue-200/80 font-medium leading-snug">Ideal para solicitudes comunes y procesos rápidos.</p>
+                                         </div>
+
+                                         <button @click="mode = 'intuitive'" class="w-full py-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold text-sm tracking-wide text-center transition-colors flex items-center justify-center gap-2 mt-auto">
+                                             Seleccionar botones rápidos <i class="fa-solid fa-arrow-right"></i>
+                                         </button>
+                                     </div>
+                                 </div>
+
+                                 <!-- Features Bar -->
+                                 <div class="bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 flex flex-wrap justify-center md:justify-between items-center gap-6 md:gap-4 mb-8">
+                                     <div class="flex items-center gap-3">
+                                         <i class="fa-solid fa-shield-halved text-indigo-400 text-2xl"></i>
+                                         <div class="text-left">
+                                             <h4 class="text-white text-xs font-bold">Seguridad</h4>
+                                             <p class="text-gray-400 text-[10px]">Tu información está protegida</p>
+                                         </div>
+                                     </div>
+                                     <div class="w-px h-8 bg-white/10 hidden md:block"></div>
+                                     <div class="flex items-center gap-3">
+                                         <i class="fa-regular fa-clock text-purple-400 text-2xl"></i>
+                                         <div class="text-left">
+                                             <h4 class="text-white text-xs font-bold">Respuesta rápida</h4>
+                                             <p class="text-gray-400 text-[10px]">Nos comprometemos a ayudarte</p>
+                                         </div>
+                                     </div>
+                                     <div class="w-px h-8 bg-white/10 hidden md:block"></div>
+                                     <div class="flex items-center gap-3">
+                                         <i class="fa-solid fa-users text-indigo-400 text-2xl"></i>
+                                         <div class="text-left">
+                                             <h4 class="text-white text-xs font-bold">Soporte experto</h4>
+                                             <p class="text-gray-400 text-[10px]">Nuestro equipo está para apoyarte</p>
+                                         </div>
+                                     </div>
+                                     <div class="w-px h-8 bg-white/10 hidden md:block"></div>
+                                     <div class="flex items-center gap-3">
+                                         <i class="fa-solid fa-chart-line text-purple-400 text-2xl"></i>
+                                         <div class="text-left">
+                                             <h4 class="text-white text-xs font-bold">Seguimiento</h4>
+                                             <p class="text-gray-400 text-[10px]">Rastrea el estado de tu ticket</p>
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <!-- Footer link -->
+                                 <div class="text-center">
+                                     <p class="text-gray-400 text-xs font-medium flex items-center justify-center gap-2">
+                                         <i class="fa-regular fa-circle-question text-indigo-500 text-lg"></i>
+                                         ¿Necesitas ayuda? Consulta nuestra <a href="#" class="text-indigo-400 hover:text-indigo-300 hover:underline">Guía de Uso <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-0.5"></i></a>
+                                     </p>
+                                 </div>
                              </div>
-                             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-16 flex items-center justify-center gap-2"><i class="fa-solid fa-shield-halved text-blue-500"></i> Tu información y reportes están resguardados por el equipo de TI corporativo</p>
                          </div>
                           <div x-show="mode === 'manual'" class="w-full max-w-xl mx-auto animate-in fade-in duration-300" style="display:none;">
                               <button @click="mode = 'selection'" class="mb-3 flex items-center text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i> Volver</button>
@@ -1024,9 +1169,149 @@
                                       
                                       <div class="w-full">
                                           {{-- Step Header --}}
-                                          <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-8 tracking-tight"
-                                              x-text="step === 1 ? 'Seleccione un sector...' : (step === 2 ? 'Seleccione un área de servicios...' : (step === 3 ? 'Seleccione un servicio...' : (step === 4 ? 'Seleccione el problema...' : 'Detalles de la solicitud...')))">
-                                          </h2>
+                                          <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 mb-8 relative z-10 bg-[#101026]/80 backdrop-blur-md rounded-[2rem] border border-white/5 p-6 sm:p-8 shadow-[0_0_50px_rgba(37,99,235,0.15)] overflow-hidden">
+                                              <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+                                              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-blue-500/50 z-10 relative">
+                                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="white">
+                                                      <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                                                      <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                                                      <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                                                      <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                                                  </svg>
+                                              </div>
+                                              <div class="z-10 relative">
+                                                  <h2 class="text-white text-xl sm:text-2xl font-bold tracking-wide" x-text="step === 1 ? 'Seleccione un sector...' : (step === 2 ? 'Seleccione un área de servicios...' : (step === 3 ? 'Seleccione un servicio...' : (step === 4 ? 'Seleccione el problema...' : 'Detalles de la solicitud...')))"></h2>
+                                                  <p class="text-gray-400 text-xs sm:text-sm mt-1" x-text="step === 1 ? 'Elige el sector que mejor se adapte a tu requerimiento técnico' : (step === 2 ? 'Elige el área que mejor se adapte a tu necesidad' : (step === 3 ? 'Selecciona el servicio específico' : (step === 4 ? 'Describe o selecciona el problema' : 'Completa la información final')))">
+                                                  </p>
+                                              </div>
+                                          </div>
+
+                                          <script>
+                                              window.getAreaSVG = function(name) {
+                                                  const n = name.toLowerCase();
+                                                  let svg = '';
+                                                  const s = 'xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+
+                                                  if (n.includes('software')) {
+                                                      svg = `<svg ${s}>
+                                                               <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                                               <rect x="9" y="9" width="6" height="6"></rect>
+                                                               <line x1="9" y1="1" x2="9" y2="4"></line>
+                                                               <line x1="15" y1="1" x2="15" y2="4"></line>
+                                                               <line x1="9" y1="20" x2="9" y2="23"></line>
+                                                               <line x1="15" y1="20" x2="15" y2="23"></line>
+                                                               <line x1="20" y1="9" x2="23" y2="9"></line>
+                                                               <line x1="20" y1="14" x2="23" y2="14"></line>
+                                                               <line x1="1" y1="9" x2="4" y2="9"></line>
+                                                               <line x1="1" y1="14" x2="4" y2="14"></line>
+                                                             </svg>`;
+                                                  } else if (n.includes('impres')) {
+                                                      svg = `<svg ${s}>
+                                                               <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                                               <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                                               <rect x="6" y="14" width="12" height="8"></rect>
+                                                             </svg>`;
+                                                  } else if (n.includes('equipo')) {
+                                                      svg = `<svg ${s}>
+                                                               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                                               <line x1="8" y1="21" x2="16" y2="21"></line>
+                                                               <line x1="12" y1="17" x2="12" y2="21"></line>
+                                                             </svg>`;
+                                                  } else if (n.includes('seguridad')) {
+                                                      svg = `<svg ${s}>
+                                                               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                                             </svg>`;
+                                                  } else if (n.includes('redes') || n.includes('wifi')) {
+                                                      svg = `<svg ${s}>
+                                                               <circle cx="12" cy="12" r="10"></circle>
+                                                               <line x1="2" y1="12" x2="22" y2="12"></line>
+                                                               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                                             </svg>`;
+                                                  } else if (n.includes('archivo')) {
+                                                      svg = `<svg ${s}>
+                                                               <rect x="2" y="2" width="20" height="6" rx="2" ry="2"></rect>
+                                                               <rect x="2" y="9" width="20" height="6" rx="2" ry="2"></rect>
+                                                               <rect x="2" y="16" width="20" height="6" rx="2" ry="2"></rect>
+                                                               <line x1="6" y1="5" x2="6.01" y2="5"></line>
+                                                               <line x1="6" y1="12" x2="6.01" y2="12"></line>
+                                                               <line x1="6" y1="19" x2="6.01" y2="19"></line>
+                                                             </svg>`;
+                                                  } else if (n.includes('abas')) {
+                                                      svg = `<svg ${s}>
+                                                               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                               <polyline points="14 2 14 8 20 8"></polyline>
+                                                               <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                               <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                               <polyline points="10 9 9 9 8 9"></polyline>
+                                                             </svg>`;
+                                                  } else {
+                                                      svg = `<svg ${s}><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
+                                                  }
+                                                  return svg;
+                                              };
+
+                                              window.getAreaColorStyles = function(name) {
+                                                  const n = name.toLowerCase();
+                                                  if (n.includes('software')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-[0_0_20px_rgba(6,182,212,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-cyan-500 shadow-[0_8px_20px_-10px_rgba(6,182,212,0.5)]',
+                                                          subText: 'text-cyan-400',
+                                                          hoverText: 'group-hover:text-cyan-300'
+                                                      };
+                                                  } else if (n.includes('impres')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-pink-400 to-pink-600 shadow-[0_0_20px_rgba(236,72,153,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-pink-500 shadow-[0_8px_20px_-10px_rgba(236,72,153,0.5)]',
+                                                          subText: 'text-pink-400',
+                                                          hoverText: 'group-hover:text-pink-300'
+                                                      };
+                                                  } else if (n.includes('equipo')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-[0_0_20px_rgba(99,102,241,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-indigo-500 shadow-[0_8px_20px_-10px_rgba(99,102,241,0.5)]',
+                                                          subText: 'text-indigo-400',
+                                                          hoverText: 'group-hover:text-indigo-300'
+                                                      };
+                                                  } else if (n.includes('seguridad')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-emerald-500 shadow-[0_8px_20px_-10px_rgba(16,185,129,0.5)]',
+                                                          subText: 'text-emerald-400',
+                                                          hoverText: 'group-hover:text-emerald-300'
+                                                      };
+                                                  } else if (n.includes('redes') || n.includes('wifi')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-purple-500 to-purple-700 shadow-[0_0_20px_rgba(147,51,234,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-purple-600 shadow-[0_8px_20px_-10px_rgba(147,51,234,0.5)]',
+                                                          subText: 'text-purple-400',
+                                                          hoverText: 'group-hover:text-purple-300'
+                                                      };
+                                                  } else if (n.includes('archivo')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-orange-400 to-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-orange-500 shadow-[0_8px_20px_-10px_rgba(249,115,22,0.5)]',
+                                                          subText: 'text-orange-400',
+                                                          hoverText: 'group-hover:text-orange-300'
+                                                      };
+                                                  } else if (n.includes('abas')) {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_0_20px_rgba(37,99,235,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-blue-600 shadow-[0_8px_20px_-10px_rgba(37,99,235,0.5)]',
+                                                          subText: 'text-blue-400',
+                                                          hoverText: 'group-hover:text-blue-300'
+                                                      };
+                                                  } else {
+                                                      return {
+                                                          iconBg: 'bg-gradient-to-br from-blue-400 to-blue-600 shadow-[0_0_20px_rgba(59,130,246,0.6)]',
+                                                          cardStyles: 'border-b-[3px] border-b-blue-500 shadow-[0_8px_20px_-10px_rgba(59,130,246,0.5)]',
+                                                          subText: 'text-blue-400',
+                                                          hoverText: 'group-hover:text-blue-300'
+                                                      };
+                                                  }
+                                              }
+                                          </script>
+
 
                                           {{-- STEP 1: SECTORS --}}
                                           <div x-show="step === 1" class="animate-in fade-in duration-300">
@@ -1042,24 +1327,28 @@
                                                       }
                                                   "
                                                   class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
-                                                      <div class="w-14 h-14 bg-blue-600/10 text-blue-400 group-hover:bg-blue-600 group-hover:text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 shrink-0">
-                                                          💼
+                                                      <div class="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-700/20 border border-blue-500/30 text-blue-400 group-hover:from-blue-500 group-hover:to-blue-600 group-hover:text-white rounded-[1.25rem] flex items-center justify-center transition-all duration-300 shrink-0 shadow-[0_0_15px_rgba(37,99,235,0.15)] group-hover:shadow-[0_0_25px_rgba(37,99,235,0.5)]">
+                                                          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                          </svg>
                                                       </div>
                                                       <div>
-                                                          <span class="font-extrabold text-white text-lg block group-hover:text-blue-400 transition-colors">Administración</span>
-                                                          <span class="text-gray-400 text-xs mt-1 block font-medium">Oficinas y departamentos administrativos</span>
+                                                          <span class="font-extrabold text-white text-xl block group-hover:text-blue-400 transition-colors">Administración</span>
+                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">Oficinas y departamentos administrativos</span>
                                                       </div>
                                                   </button>
 
                                                   <!-- Button 2: Producción -->
                                                   <button @click="showProduccionSub = true"
                                                   class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
-                                                      <div class="w-14 h-14 bg-purple-600/10 text-purple-400 group-hover:bg-purple-600 group-hover:text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 shrink-0">
-                                                          🏭
+                                                      <div class="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-700/20 border border-purple-500/30 text-purple-400 group-hover:from-purple-500 group-hover:to-purple-600 group-hover:text-white rounded-[1.25rem] flex items-center justify-center transition-all duration-300 shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.15)] group-hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]">
+                                                          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                          </svg>
                                                       </div>
                                                       <div>
-                                                          <span class="font-extrabold text-white text-lg block group-hover:text-purple-400 transition-colors">Producción</span>
-                                                          <span class="text-gray-400 text-xs mt-1 block font-medium">Áreas operativas y maquinaria industrial</span>
+                                                          <span class="font-extrabold text-white text-xl block group-hover:text-purple-400 transition-colors">Producción</span>
+                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">Áreas operativas y maquinaria industrial</span>
                                                       </div>
                                                   </button>
 
@@ -1074,12 +1363,14 @@
                                                       }
                                                   "
                                                   class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-amber-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
-                                                      <div class="w-14 h-14 bg-amber-600/10 text-amber-400 group-hover:bg-amber-600 group-hover:text-white rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 shrink-0">
-                                                          📹
+                                                      <div class="w-16 h-16 bg-gradient-to-br from-amber-500/20 to-amber-700/20 border border-amber-500/30 text-amber-400 group-hover:from-amber-500 group-hover:to-amber-600 group-hover:text-white rounded-[1.25rem] flex items-center justify-center transition-all duration-300 shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.15)] group-hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]">
+                                                          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                          </svg>
                                                       </div>
                                                       <div>
-                                                          <span class="font-extrabold text-white text-lg block group-hover:text-amber-400 transition-colors">Vigilancia</span>
-                                                          <span class="text-gray-400 text-xs mt-1 block font-medium">Cámaras, red de video y equipos de seguridad</span>
+                                                          <span class="font-extrabold text-white text-xl block group-hover:text-amber-400 transition-colors">Vigilancia</span>
+                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">Cámaras, red de video y equipos de seguridad</span>
                                                       </div>
                                                   </button>
                                               </div>
@@ -1111,31 +1402,41 @@
                                           </div>
 
                                           {{-- STEP 2: AREAS --}}
-                                          <div x-show="step === 2" class="animate-in fade-in duration-300">
-                                              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                                                  <template x-for="area in (selectedSectorName === 'Vigilancia' ? vigilanciaAreas : areas)" :key="area.id">
-                                                      <button @click="
-                                                           selectedArea = area.id;
-                                                           selectedAreaName = area.name;
-                                                           category = area.name;
-                                                           let services = servicesByArea[area.id] || [];
-                                                           if (services.length === 1) {
-                                                               selectedService = services[0].id;
-                                                               selectedServiceName = services[0].name;
-                                                               step = 4;
-                                                           } else {
-                                                               step = 3;
-                                                           }
-                                                       "
-                                                              class="group p-8 rounded-2xl bg-[#14142b]/40 border border-white/5 hover:border-blue-500/30 hover:bg-[#1a1a36]/50 transition-all duration-300 hover:scale-[1.02] flex flex-col items-center text-center justify-center min-h-[190px] outline-none">
-                                                          <div class="w-14 h-14 rounded-2xl bg-blue-600/10 text-blue-500 group-hover:text-blue-400 flex items-center justify-center text-3xl mb-5 transition-all duration-300 border border-blue-500/10">
-                                                              <i :class="getIconClass(area.icon)"></i>
-                                                          </div>
-                                                          <span class="font-bold text-white text-sm block tracking-wide group-hover:text-blue-400 transition-colors" x-text="area.name"></span>
-                                                          <span class="text-gray-500 text-[10px] mt-2 block font-normal" x-text="area.services + ' Servicios'"></span>
-                                                      </button>
-                                                  </template>
-                                              </div>
+                                          <div x-show="step === 2" class="animate-in fade-in duration-300 w-full">
+                                              
+                                              <!-- 3-Column Grid -->
+                                              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10 mt-4">
+                                                      <template x-for="area in (selectedSectorName === 'Vigilancia' ? vigilanciaAreas : areas)" :key="area.id">
+                                                          <button @click="
+                                                               selectedArea = area.id;
+                                                               selectedAreaName = area.name;
+                                                               category = area.name;
+                                                               let services = servicesByArea[area.id] || [];
+                                                               if (services.length === 1) {
+                                                                   selectedService = services[0].id;
+                                                                   selectedServiceName = services[0].name;
+                                                                   step = 4;
+                                                               } else {
+                                                                   step = 3;
+                                                               }
+                                                           "
+                                                                  class="group p-5 rounded-[1.25rem] bg-[#12142e] border border-white/5 transition-all duration-300 flex items-center text-left gap-5 outline-none hover:-translate-y-1 hover:bg-[#1a1d3f]"
+                                                                  :class="window.getAreaColorStyles(area.name).cardStyles">
+                                                              <div class="w-[4.5rem] h-[4.5rem] rounded-full flex-shrink-0 flex items-center justify-center transition-all duration-300 relative"
+                                                                   :class="window.getAreaColorStyles(area.name).iconBg">
+                                                                  <div x-html="window.getAreaSVG(area.name)" class="z-10 scale-95 drop-shadow-md"></div>
+                                                              </div>
+                                                              <div class="flex flex-col">
+                                                                  <span class="font-bold text-white text-[15px] tracking-wide transition-colors"
+                                                                        :class="window.getAreaColorStyles(area.name).hoverText" 
+                                                                        x-text="area.name"></span>
+                                                                  <span class="text-[12px] font-medium mt-1 transition-colors" 
+                                                                        :class="window.getAreaColorStyles(area.name).subText" 
+                                                                        x-text="area.services + ' Servicios'"></span>
+                                                              </div>
+                                                          </button>
+                                                      </template>
+                                                  </div>
                                           </div>
 
                                           {{-- STEP 3: SERVICES --}}
@@ -1350,7 +1651,13 @@
                                 <p class="text-[9px] font-black tracking-[0.2em] text-gray-500 uppercase">Apertura</p>
                                 <p class="text-sm font-bold text-gray-300 mt-0.5">{{ $ticket->created_at->format('d/m/Y') }}</p>
                             </div>
-                            <svg class="relative z-10 w-6 h-6 text-gray-600 group-hover:text-white transition-all shrink-0 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            
+                            <div class="relative z-10 flex items-center gap-3 shrink-0">
+                                <button wire:click.stop="deleteTicket({{ $ticket->id }})" wire:confirm="¿Estás seguro que deseas eliminar permanentemente este ticket? Esta acción no se puede deshacer y desaparecerá de todas las bandejas." class="w-9 h-9 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] flex items-center justify-center transition-all focus:outline-none opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0" title="Eliminar ticket">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                                <svg class="w-6 h-6 text-gray-600 group-hover:text-white transition-all shrink-0 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </div>
                         </div>
                         @empty
                         <div class="text-center py-24 bg-white/5 rounded-[3rem] border border-white/5 border-dashed">
@@ -2764,23 +3071,77 @@
          </div>
      </div>
 
-     {{-- SUCCESS SCREEN OVERLAY --}}
-     <div wire:ignore x-show="showSuccessScreen" class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md p-6" x-transition.opacity style="display: none;">
-         <div class="bg-[#0b0b1e]/95 border border-white/10 rounded-[2.5rem] p-8 max-w-md w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
-             <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 blur-[50px] rounded-full"></div>
+     {{-- SUCCESS ANIMATION OVERLAY --}}
+     <style>
+         .anim-overlay {
+             position: fixed; inset: 0; z-index: 2000;
+             background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+             display: flex; justify-content: center; align-items: center;
+         }
+         .anim-container {
+             width: 420px; height: 340px;
+             background: linear-gradient(135deg, #1e3a8a, #0f172a); border: 1px solid rgba(255,255,255,0.1);
+             border-radius: 25px; position: relative; overflow: hidden; text-align: center; color: white;
+             box-shadow: 0 20px 60px rgba(0,0,0,.6);
+         }
+         .anim-path { position: absolute; left: 40px; top: 40px; }
+         .anim-plane {
+             position: absolute; left: 25px; top: 145px; font-size: 55px;
+             offset-path: path("M40 130 Q150 10 280 70"); offset-distance: 0%; transform: rotate(-15deg);
+         }
+         .anim-fly { animation: flyAnim 2s ease-in-out forwards; }
+         @keyframes flyAnim {
+             0% { offset-distance: 0%; opacity: 1; }
+             85% { opacity: 1; }
+             100% { offset-distance: 100%; opacity: 0; }
+         }
+         .anim-check {
+             position: absolute; left: 50%; top: 95px; transform: translateX(-50%) scale(0);
+             width: 90px; height: 90px; border-radius: 50%; background: #10b981;
+             font-size: 55px; display: flex; justify-content: center; align-items: center;
+             box-shadow: 0 10px 30px rgba(16,185,129,0.4);
+         }
+         .anim-showCheck { animation: checkAnim .6s cubic-bezier(.17,.89,.32,1.49) forwards; }
+         @keyframes checkAnim {
+             from { transform: translateX(-50%) scale(0); }
+             to { transform: translateX(-50%) scale(1); }
+         }
+         .anim-text { position: absolute; width: 100%; opacity: 0; }
+         .anim-title { bottom: 80px; font-size: 24px; font-weight: 900; letter-spacing: -0.02em; }
+         .anim-subtitle { bottom: 45px; font-size: 13px; color: #94a3b8; font-weight: 500; }
+         .anim-showText { animation: textAnim .5s forwards; }
+         @keyframes textAnim {
+             from { opacity: 0; transform: translateY(15px); }
+             to { opacity: 1; transform: translateY(0); }
+         }
+     </style>
+
+     <div wire:ignore 
+          x-show="showSuccessScreen" 
+          x-transition.opacity 
+          class="anim-overlay" 
+          style="display: none;"
+          x-data="{ step: 0 }"
+          @ticket-created.window="
+              step = 1;
+              setTimeout(() => step = 2, 2000);
+              setTimeout(() => {
+                  showSuccessScreen = false;
+                  window.dispatchEvent(new CustomEvent('clear-ticket-form'));
+                  if ('{{ auth()->user()->role }}' === 'user') { $wire.set('activeTab', 'mis_tickets'); }
+                  setTimeout(() => step = 0, 300);
+              }, 4500);
+          ">
+         <div class="anim-container">
+             <svg class="anim-path" width="320" height="180">
+                 <path d="M40 130 Q150 10 280 70" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="8 8" opacity="0.3"/>
+             </svg>
+             <div class="anim-plane" :class="step >= 1 ? 'anim-fly' : ''">🛩️</div>
              
-             <div class="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-4xl mx-auto border border-emerald-500/20" style="animation: scale-in 0.5s ease-out;">
-                 <i class="fa-solid fa-circle-check"></i>
-             </div>
+             <div class="anim-check" :class="step >= 2 ? 'anim-showCheck' : ''">✔</div>
              
-             <div class="space-y-2">
-                 <h3 class="text-2xl font-black text-white uppercase tracking-tight">¡Ticket Generado!</h3>
-                 <p class="text-xs text-gray-400 font-bold uppercase tracking-wider leading-relaxed">Tu solicitud ha sido registrada exitosamente en la plataforma de soporte técnico.</p>
-             </div>
-             
-             <button @click="showSuccessScreen = false; window.dispatchEvent(new CustomEvent('clear-ticket-form')); if ('{{ auth()->user()->role }}' === 'user') { $wire.set('activeTab', 'mis_tickets'); }" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all focus:outline-none">
-                 Entendido
-             </button>
+             <h2 class="anim-text anim-title" :class="step >= 2 ? 'anim-showText' : ''">¡Ticket enviado con éxito!</h2>
+             <p class="anim-text anim-subtitle" :class="step >= 2 ? 'anim-showText' : ''">Tu solicitud fue enviada correctamente.</p>
          </div>
      </div>
 
