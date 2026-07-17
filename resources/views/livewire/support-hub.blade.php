@@ -71,7 +71,7 @@
             @if(auth()->user()->role === 'user')
                 {{-- Rutas de usuario normal --}}
                 <button @click="activeTab = 'inicio'"
-                    :class="activeTab === 'inicio' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'inicio' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -80,7 +80,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inicio</span>
                 </button>
                 <button @click="activeTab = 'generar_ticket'"
-                    :class="activeTab === 'generar_ticket' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'generar_ticket' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -89,7 +89,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Generar Ticket</span>
                 </button>
                 <button @click="activeTab = 'mis_tickets'"
-                    :class="activeTab === 'mis_tickets' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'mis_tickets' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -98,7 +98,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Mis Tickets</span>
                 </button>
                 <button @click="activeTab = 'gestion_archivos'"
-                    :class="activeTab === 'gestion_archivos' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'gestion_archivos' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -109,7 +109,7 @@
             @else
                 {{-- Rutas de Admin/Agente --}}
                 <button @click="activeTab = 'inicio'"
-                    :class="activeTab === 'inicio' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'inicio' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -118,7 +118,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inicio</span>
                 </button>
                 <button @click="activeTab = 'statistics'"
-                    :class="activeTab === 'statistics' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'statistics' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -127,7 +127,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Métricas</span>
                 </button>
                 <button @click="activeTab = 'tickets'"
-                    :class="activeTab === 'tickets' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'tickets' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -136,7 +136,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Panel Tickets</span>
                 </button>
                 <button @click="activeTab = 'historial'"
-                    :class="activeTab === 'historial' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'historial' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -145,7 +145,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Historial</span>
                 </button>
                 <button @click="activeTab = 'inventory'"
-                    :class="activeTab === 'inventory' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'inventory' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -154,7 +154,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inventario</span>
                 </button>
                 <button @click="activeTab = 'gestion_archivos'"
-                    :class="activeTab === 'gestion_archivos' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'gestion_archivos' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -163,7 +163,7 @@
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
                 </button>
                 <button @click="activeTab = 'map'"
-                    :class="activeTab === 'map' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    :class="activeTab === 'map' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -174,7 +174,7 @@
             @endif
             @if(auth()->user()->role !== 'user')
             <button @click="activeTab = 'users'"
-                :class="activeTab === 'users' ? 'bg-blue-600/90 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                :class="activeTab === 'users' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                 class="w-full flex items-center rounded-xl transition-all duration-200 group"
                 :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                 <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
@@ -636,11 +636,11 @@
 
                         <!-- Cabecera -->
                         <div class="relative z-10 w-full mb-6">
-                            <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white select-none uppercase">
-                                    BIENVENIDO, {{ auth()->user()->nombre_completo ?? 'USUARIO' }}!
+                            <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 flex-wrap">
+                                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight select-none uppercase drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] pr-4 pb-2 text-white">
+                                    BIENVENIDO, <span class="text-blue-400">{{ auth()->user()->nombre_completo ?? auth()->user()->name ?? 'USUARIO' }}</span>!
                                 </h2>
-                                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase font-mono">CGR International • México</span>
+                                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase font-mono whitespace-nowrap">CGR International • México</span>
                             </div>
                             
                             <div class="relative flex items-center mt-3 w-full max-w-2xl">
@@ -656,7 +656,7 @@
                             <div class="lg:col-span-5 flex flex-col justify-between gap-6">
                                 
                                 <!-- Reloj Digital 3D + AM/PM Integrado -->
-                                <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col justify-center items-center shadow-lg relative overflow-hidden group hover:border-blue-400/30 hover:bg-white/10 transition-all duration-300">
+                                <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col justify-center items-center shadow-[0_4px_30px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:border-blue-500/40 hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(59,130,246,0.2)] transition-all duration-500">
                                     <div class="absolute -right-10 -bottom-10 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/30 transition"></div>
                                     
                                     <span class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-3 self-start flex items-center gap-2">
@@ -687,7 +687,7 @@
                                 </div>
 
                                 <!-- WIDGET 2: Clima -->
-                                <div class="bg-white/5 backdrop-blur-md p-5 rounded-2xl border border-white/10 flex items-center justify-between shadow-lg hover:border-cyan-400/40 hover:bg-white/10 transition-all duration-300">
+                                <div class="bg-white/5 backdrop-blur-md p-5 rounded-2xl border border-white/10 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:border-cyan-400/40 hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(34,211,238,0.15)] transition-all duration-500 group">
                                     <div class="flex flex-col">
                                         <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1 flex items-center gap-1.5">
                                             <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
@@ -709,7 +709,7 @@
                             </div>
 
                             <!-- COLUMNA CENTRAL-DERECHA: Calendario y Marca -->
-                            <div class="lg:col-span-7 bg-white/5 backdrop-blur-md p-5 rounded-3xl border border-white/10 flex flex-col md:flex-row gap-5 items-stretch shadow-xl">
+                            <div class="lg:col-span-7 bg-white/5 backdrop-blur-md p-5 rounded-3xl border border-white/10 flex flex-col md:flex-row gap-5 items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.2)] hover:border-white/20 transition-all duration-500">
                                 
                                 <!-- Calendario Dinámico -->
                                 <div class="bg-[#050510]/80 border border-white/10 text-white rounded-2xl p-4 shadow-2xl flex-grow w-full md:w-1/2 transition-all duration-300">
@@ -763,7 +763,7 @@
                         <!-- Tarjeta Inspiradora -->
                         <div class="relative z-10 w-full mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                             
-                            <div class="md:col-span-8 relative rounded-2xl overflow-hidden h-36 border border-white/10 shadow-xl group">
+                            <div class="md:col-span-8 relative rounded-2xl overflow-hidden h-36 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_40px_rgba(59,130,246,0.2)] hover:border-blue-500/30 transition-all duration-500 group hover:-translate-y-1">
                                 <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" 
                                      alt="Manufactura CGR" 
                                      class="absolute inset-0 w-full h-full object-cover filter brightness-[0.25] group-hover:scale-105 group-hover:brightness-[0.35] transition duration-700">
@@ -779,7 +779,7 @@
                                 </div>
                             </div>
 
-                            <div class="md:col-span-4 bg-white/5 border border-white/10 rounded-2xl p-4 h-36 flex flex-col justify-center backdrop-blur-md">
+                            <div class="md:col-span-4 bg-white/5 border border-white/10 rounded-2xl p-4 h-36 flex flex-col justify-center backdrop-blur-md hover:bg-white/10 hover:border-blue-500/30 hover:shadow-[0_8px_30px_rgba(59,130,246,0.15)] transition-all duration-500 group hover:-translate-y-1">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-ping"></span>
                                     <p class="text-blue-400 text-xs font-bold uppercase tracking-wider">Estado Operativo</p>

@@ -192,11 +192,7 @@ class SupportHub extends Component
         }
 
         if (!request()->has('activeTab')) {
-            if (Auth::check() && in_array(Auth::user()->role, ['admin', 'agente'])) {
-                $this->activeTab = 'statistics';
-            } else {
-                $this->activeTab = 'generar_ticket';
-            }
+            $this->activeTab = 'inicio';
         }
 
         if (Auth::check()) {
