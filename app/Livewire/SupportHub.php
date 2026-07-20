@@ -251,6 +251,11 @@ class SupportHub extends Component
         $this->activeTab = $tab;
     }
 
+    public function refreshMetrics()
+    {
+        $this->dispatch('notify', 'Métricas actualizadas desde la base de datos');
+    }
+
     public function openEquipmentDetail($id)
     {
         $this->selectedEquipmentId = $id;
@@ -613,14 +618,7 @@ class SupportHub extends Component
             'ticketPlanta.required' => 'Por favor selecciona una planta'
         ]);
 
-        if (!empty($this->ticketFiles)) {
-            $isAdminOrAgent = Auth::check() && in_array(Auth::user()->role, ['admin', 'agente']);
-            if (!$isAdminOrAgent) {
-                $this->validate([
-                    'ticketFiles.*' => 'max:10240', // max 10MB
-                ]);
-            }
-        }
+        // Archivos sin límite de peso ni formato (gestionado por php.ini y livewire global config)
 
         $fullTitle = '[' . mb_strtoupper($this->ticketCategory) . '] ' . mb_strtoupper($this->ticketSubcategory);
         
@@ -664,19 +662,26 @@ class SupportHub extends Component
 
         // Notify Admins and Agents via WhatsApp (Node.js microservice)
         try {
-            $adminsAndAgents = User::whereHas('rol', function ($q) {
+            $adminsAndAgents = \App\Models\User::whereHas('rol', function ($q) {
                 $q->whereIn('nombre', ['Admin', 'Agente TI']);
             })->whereNotNull('telefono')->get();
-            
+
+            \Illuminate\Support\Facades\Log::info('--- PRUEBA WHATSAPP ---');
+            \Illuminate\Support\Facades\Log::info('Usuarios encontrados con teléfono: ' . $adminsAndAgents->count());
+
             $msgForStaff = "NUEVO TICKET REQUERIDO 🚨\n\nTicket ID: #{$ticket->id}\nDe: " . (Auth::user()->nombre_completo ?? 'Usuario') . "\nCategoría: {$ticket->titulo}\n\nIngresa al sistema para revisar los detalles.";
-            
+
             foreach ($adminsAndAgents as $notifyUser) {
                 if (!empty($notifyUser->telefono)) {
-                    \Illuminate\Support\Facades\Http::post('http://localhost:3000/api/send', [
+                    \Illuminate\Support\Facades\Log::info('Enviando a: ' . $notifyUser->telefono);
+
+                    $response = \Illuminate\Support\Facades\Http::post('http://127.0.0.1:3000/api/send-notification', [
                         'token' => 'OMEGA123456',
                         'phone' => $notifyUser->telefono,
                         'message' => $msgForStaff
                     ]);
+
+                    \Illuminate\Support\Facades\Log::info('Respuesta Node: ' . $response->body());
                 }
             }
         } catch (\Exception $e) {

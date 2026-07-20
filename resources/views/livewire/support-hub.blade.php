@@ -626,7 +626,7 @@
 
             {{-- Tabs for Normal User --}}
             <template x-if="activeTab === 'inicio'">
-                <div class="animate-in fade-in duration-500 p-4 sm:p-6 lg:p-8 flex-grow flex flex-col justify-center max-w-7xl mx-auto w-full relative z-10" x-init="initInicioWidgets()">
+                <div class="animate-in fade-in duration-500 px-4 sm:px-6 lg:px-8 pt-6 pb-8 flex-grow flex flex-col justify-start max-w-7xl mx-auto w-full relative z-10" x-init="initInicioWidgets()">
                     <!-- Contenedor Principal Glassmorphism -->
                     <div wire:ignore class="relative w-full rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 p-6 sm:p-8 lg:p-10 shadow-[0_0_50px_rgba(37,99,235,0.15)] flex flex-col justify-between overflow-hidden min-h-[580px]">
                         
@@ -1235,6 +1235,24 @@
                                                   <span>Seleccionar archivos...</span>
                                               </div>
                                           </div>
+                                          {{-- Listado de archivos --}}
+                                          @if(!empty($ticketFiles))
+                                              <div class="mt-2 space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                                                  @foreach($ticketFiles as $index => $file)
+                                                      @if($file)
+                                                      <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-3 py-2 text-xs text-gray-300">
+                                                          <div class="flex items-center gap-2 truncate">
+                                                              <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                              <span class="truncate text-[10px]">{{ $file->getClientOriginalName() }}</span>
+                                                          </div>
+                                                          <button type="button" wire:click.prevent="removeTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 ml-2 shrink-0">
+                                                              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                          </button>
+                                                      </div>
+                                                      @endif
+                                                  @endforeach
+                                              </div>
+                                          @endif
                                       </div>
                                       {{-- Botón Enviar --}}
                                       <button @click="submitManualTicket"
@@ -1743,6 +1761,24 @@
                                                                   <span>Adjuntar archivos...</span>
                                                               </div>
                                                           </div>
+                                                          {{-- Listado de archivos --}}
+                                                          @if(!empty($ticketFiles))
+                                                              <div class="mt-2 space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                                                                  @foreach($ticketFiles as $index => $file)
+                                                                      @if($file)
+                                                                      <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-3 py-2 text-xs text-gray-300">
+                                                                          <div class="flex items-center gap-2 truncate">
+                                                                              <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                                              <span class="truncate text-[10px]">{{ $file->getClientOriginalName() }}</span>
+                                                                          </div>
+                                                                          <button type="button" wire:click.prevent="removeTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 ml-2 shrink-0">
+                                                                              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                          </button>
+                                                                      </div>
+                                                                      @endif
+                                                                  @endforeach
+                                                              </div>
+                                                          @endif
                                                       </div>
                                                       <div class="pt-2">
                                                           <button @click="submitIntuitiveTicket" :disabled="!isIntuitiveReady"
@@ -2357,7 +2393,7 @@
                     <span style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 8px #34d399;"></span>
                     <span style="font-size:10px;font-weight:800;color:#34d399;text-transform:uppercase;letter-spacing:0.15em;">Sistema en línea</span>
                 </div>
-                <button wire:click="$refresh" style="display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;">
+                <button wire:click="refreshMetrics" style="display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;">
                     <i class="fa-solid fa-arrows-rotate" style="color:#818cf8;"></i> Actualizar
                 </button>
             </div>
