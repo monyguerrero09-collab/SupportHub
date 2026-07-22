@@ -14,6 +14,7 @@ use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Url;
 use DB;
+use Illuminate\Support\Facades\Storage;
 
 #[Layout('layouts.blank')]
 class SupportHub extends Component
@@ -42,6 +43,17 @@ class SupportHub extends Component
     public $showingNewTicket = false;
     public $showingUserModal = false;
 
+    // Modales de Finalización y Cancelación
+    public $mostrarModalFinalizar = false;
+    public $mostrarModalCancelar = false;
+    public $causasSolucion = [];
+    public $motivosCancelacion = [];
+    public $causaSolucionId = null;
+    public $motivoCancelacionId = null;
+    public $detallesResolucion = '';
+    public $archivoResolucion = null;
+    public $visibleAlUsuario = false;
+
     // Form fields for New Ticket
     public $ticketCategory = null;
     public $ticketSubcategory = null;
@@ -56,8 +68,15 @@ class SupportHub extends Component
     public $userComment = '';
     public $selectedTicketId = null;
 
+    // Form fields para las pestañas Causas y Motivos
+    public $tabSelectedTicketId = null;
+    public $tabTicketModel = null;
+    
     // Admin Ticket Modal properties
     public $showingAdminTicket = false;
+    
+
+
     public $aTicketId = null;
     public $aTicketPriority = null;
     public $aTicketStatus = null;
@@ -208,6 +227,9 @@ class SupportHub extends Component
                 $this->notifCount = Ticket::whereNotIn('id', $dismissedIds)->count();
             }
         }
+
+        $this->causasSolucion = \App\Models\CausaSolucion::orderBy('nombre')->get();
+        $this->motivosCancelacion = \App\Models\MotivoCancelacion::orderBy('nombre')->get();
     }
 
     // Form fields for Add Equipment (Match image "Alta de Hardware")
@@ -292,6 +314,7 @@ class SupportHub extends Component
         }
     }
 
+
     public function viewNotificationTicket($id)
     {
         if (Auth::check() && in_array(Auth::user()->role, ['admin', 'agente'])) {
@@ -320,6 +343,102 @@ class SupportHub extends Component
         \Illuminate\Support\Facades\Cache::forever('dismissed_notifications_' . Auth::id(), array_unique($dismissed));
         $this->notificationsList = [];
         $this->notifCount = 0;
+    }
+
+    public function updatedTabSelectedTicketId($value)
+    {
+        if ($value) {
+            $this->tabTicketModel = Ticket::with(['creador', 'estado', 'prioridad', 'sector'])->find($value);
+        } else {
+            $this->tabTicketModel = null;
+        }
+    }
+
+    public function updatedActiveTab($value)
+    {
+        if ($value === 'causas') {
+            $this->causasSolucion = \App\Models\CausaSolucion::orderBy('nombre')->get();
+            $this->tabSelectedTicketId = null;
+            $this->tabTicketModel = null;
+            $this->reset(['causaSolucionId', 'detallesResolucion', 'archivoResolucion']);
+        } elseif ($value === 'motivos') {
+            $this->motivosCancelacion = \App\Models\MotivoCancelacion::orderBy('nombre')->get();
+            $this->tabSelectedTicketId = null;
+            $this->tabTicketModel = null;
+            $this->reset(['motivoCancelacionId', 'detallesResolucion', 'archivoResolucion', 'visibleAlUsuario']);
+        }
+    }
+
+    public function guardarFinalizacionDesdeTab()
+    {
+        $this->validate([
+            'tabSelectedTicketId' => 'required',
+            'causaSolucionId' => 'required',
+            'detallesResolucion' => 'required'
+        ]);
+
+        $ticket = Ticket::find($this->tabSelectedTicketId);
+        if (!$ticket) return;
+
+        $path = null;
+        if ($this->archivoResolucion) {
+            $path = $this->archivoResolucion->store('resoluciones', 'public');
+        }
+
+        $estadoId = \App\Models\EstadoTicket::where('nombre', 'Completado')->value('id') ?? 3;
+        $ticket->update(['estado_id' => $estadoId]);
+
+        \App\Models\HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => \Auth::id(),
+            'accion' => 'Ticket Finalizado',
+            'causa_solucion_id' => $this->causaSolucionId,
+            'detalles' => $this->detallesResolucion,
+            'adjunto_path' => $path,
+            'visible_para_usuario' => true,
+        ]);
+
+        $this->dispatch('ticket-updated');
+        $this->dispatch('notify', 'Ticket Finalizado Exitosamente');
+        $this->tabSelectedTicketId = null;
+        $this->tabTicketModel = null;
+        $this->reset(['causaSolucionId', 'detallesResolucion', 'archivoResolucion']);
+    }
+
+    public function guardarCancelacionDesdeTab()
+    {
+        $this->validate([
+            'tabSelectedTicketId' => 'required',
+            'motivoCancelacionId' => 'required',
+            'detallesResolucion' => 'required'
+        ]);
+
+        $ticket = Ticket::find($this->tabSelectedTicketId);
+        if (!$ticket) return;
+
+        $path = null;
+        if ($this->archivoResolucion) {
+            $path = $this->archivoResolucion->store('resoluciones', 'public');
+        }
+
+        $estadoId = \App\Models\EstadoTicket::where('nombre', 'Cancelado')->value('id') ?? 4;
+        $ticket->update(['estado_id' => $estadoId]);
+
+        \App\Models\HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => \Auth::id(),
+            'accion' => 'Ticket Cancelado',
+            'motivo_cancelacion_id' => $this->motivoCancelacionId,
+            'detalles' => $this->detallesResolucion,
+            'adjunto_path' => $path,
+            'visible_para_usuario' => $this->visibleAlUsuario,
+        ]);
+
+        $this->dispatch('ticket-updated');
+        $this->dispatch('notify', 'Ticket Cancelado Exitosamente');
+        $this->tabSelectedTicketId = null;
+        $this->tabTicketModel = null;
+        $this->reset(['motivoCancelacionId', 'detallesResolucion', 'archivoResolucion', 'visibleAlUsuario']);
     }
 
     public function updateAdminTicket()
@@ -375,6 +494,113 @@ class SupportHub extends Component
         }
     }
     
+    public function abrirModalFinalizar($id)
+    {
+        $this->aTicketId = $id;
+        $this->mostrarModalFinalizar = true;
+        $this->mostrarModalCancelar = false;
+        $this->causasSolucion = \App\Models\CausaSolucion::orderBy('nombre')->get();
+        $this->reset(['causaSolucionId', 'detallesResolucion', 'archivoResolucion']);
+    }
+
+    public function abrirModalCancelar($id)
+    {
+        $this->aTicketId = $id;
+        $this->mostrarModalCancelar = true;
+        $this->mostrarModalFinalizar = false;
+        $this->visibleAlUsuario = false;
+        $this->motivosCancelacion = \App\Models\MotivoCancelacion::orderBy('nombre')->get();
+        $this->reset(['motivoCancelacionId', 'detallesResolucion', 'archivoResolucion']);
+    }
+
+    public function cerrarModalResolucion()
+    {
+        $this->mostrarModalFinalizar = false;
+        $this->mostrarModalCancelar = false;
+    }
+
+    public function guardarFinalizacion()
+    {
+        $this->validate([
+            'causaSolucionId' => 'required',
+            'detallesResolucion' => 'required'
+        ]);
+
+        $ticket = Ticket::find($this->aTicketId);
+        if (!$ticket) return;
+
+        $path = null;
+        if ($this->archivoResolucion) {
+            $path = $this->archivoResolucion->store('resoluciones', 'public');
+        }
+
+        $estadoId = \App\Models\EstadoTicket::where('nombre', 'Completado')->value('id') ?? 3;
+        $ticket->update(['estado_id' => $estadoId]);
+
+        \App\Models\HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => Auth::id(),
+            'accion' => 'Ticket Finalizado',
+            'causa_solucion_id' => $this->causaSolucionId,
+            'detalles' => $this->detallesResolucion,
+            'adjunto_path' => $path,
+            'visible_para_usuario' => true,
+        ]);
+
+        $this->dispatch('ticket-updated');
+        $this->dispatch('notify', 'Ticket Finalizado Exitosamente');
+        $this->cerrarModalResolucion();
+        $this->showingAdminTicket = false;
+        
+        // Refrescar lista
+        if (in_array(auth()->user()->role, ['admin', 'agente'])) {
+            // Recargar datos si es necesario
+        }
+    }
+
+    public function guardarCancelacion()
+    {
+        $this->validate([
+            'motivoCancelacionId' => 'required',
+            'detallesResolucion' => 'required'
+        ]);
+
+        $ticket = Ticket::find($this->aTicketId);
+        if (!$ticket) return;
+
+        $path = null;
+        if ($this->archivoResolucion) {
+            $path = $this->archivoResolucion->store('resoluciones', 'public');
+        }
+
+        $estadoId = \App\Models\EstadoTicket::where('nombre', 'Cancelado')->value('id') ?? 4;
+        $ticket->update(['estado_id' => $estadoId]);
+
+        \App\Models\HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => Auth::id(),
+            'accion' => 'Ticket Cancelado',
+            'motivo_cancelacion_id' => $this->motivoCancelacionId,
+            'detalles' => $this->detallesResolucion,
+            'adjunto_path' => $path,
+            'visible_para_usuario' => $this->visibleAlUsuario,
+        ]);
+
+        $this->dispatch('ticket-updated');
+        $this->dispatch('notify', 'Ticket Cancelado Exitosamente');
+        $this->cerrarModalResolucion();
+        $this->showingAdminTicket = false;
+    }
+
+    public function downloadAttachmentPath($path)
+    {
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->download($path);
+        }
+        $this->dispatch('notify', 'Archivo no encontrado');
+    }
+
+
     public function updatePosition($id, $x, $y)
     {
         if (in_array(auth()->user()->role, ['admin', 'agente'])) {
@@ -882,7 +1108,7 @@ class SupportHub extends Component
         $historialTickets = [];
         if (Auth::check() && in_array(Auth::user()->role, ['admin', 'agente'])) {
             $historialQuery = Ticket::with(['estado', 'prioridad', 'creador', 'agente'])
-                ->whereIn('estado_id', [3, 4])
+                ->whereIn('estado_id', [3, 4, 5])
                 ->latest();
             
             if ($this->dateFilter) {
@@ -923,6 +1149,9 @@ class SupportHub extends Component
             'open'        => $filteredTickets->where('estado_id', 1)->count(),
             'hold'        => $filteredTickets->where('estado_id', 2)->count(),
             'unassigned'  => $filteredTickets->whereNull('agente_asignado_id')->count(),
+            'assigned'    => $filteredTickets->whereNotNull('agente_asignado_id')->count(),
+            'canceled'    => $filteredTickets->where('estado_id', 5)->count(), // Suponiendo 5 como Cancelado
+            'inv_total'   => Equipment::count(),
         ];
 
         // Priority counts (IDs: 1=Baja, 2=Media, 3=Alta)
@@ -938,6 +1167,7 @@ class SupportHub extends Component
         $months = collect();
         $trendData = [];
         $trendClosedData = [];
+        $trendCanceledData = [];
         for ($i = 6; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $months->push($month->format('M'));
@@ -948,12 +1178,15 @@ class SupportHub extends Component
                                         ->whereMonth('updated_at', $month->month)
                                         ->whereIn('estado_id', [3, 4])
                                         ->count();
+            $trendCanceledData[] = Ticket::whereYear('updated_at', $month->year)
+                                          ->whereMonth('updated_at', $month->month)
+                                          ->where('estado_id', 5)
+                                          ->count();
         }
 
-        // Category breakdown from ticket titles (format: [AREA] ...)
+        // Category breakdown from department relationship (Areas)
         $categoryData = $filteredTickets->map(function($t) {
-            preg_match('/\[([^\]]+)\]/', $t->titulo, $m);
-            return $m[1] ?? 'Otro';
+            return $t->departamento ? $t->departamento->nombre : 'Sin Área';
         })->countBy()->sortDesc()->take(6);
 
         // Planta counts (1 vs 2)
@@ -989,7 +1222,7 @@ class SupportHub extends Component
             'agentes'          => User::whereHas('rol', function ($q) {
                                       $q->whereIn('nombre', ['Admin', 'Agente TI']);
                                   })->get(),
-            'estadosLocales'   => \App\Models\EstadoTicket::all(),
+            'estadosLocales'   => \App\Models\EstadoTicket::whereIn('id', [1, 2])->get(),
             'stockCount'       => $stockCount,
             'deployedCount'    => $deployedCount,
             'stats'            => $stats,
@@ -999,6 +1232,7 @@ class SupportHub extends Component
             'trendMonths'      => $months,
             'trendData'        => $trendData,
             'trendClosedData'  => $trendClosedData,
+            'trendCanceledData'=> $trendCanceledData,
             'last30DaysTotal'  => $last30DaysTotal,
             'last30DaysClosed' => $last30DaysClosed,
             'last30DaysRate'   => $last30DaysRate,
@@ -1008,6 +1242,8 @@ class SupportHub extends Component
             'slaPercent'       => $slaPercent,
             'maquinas'         => Maquina::all(),
             'prioridades'      => Prioridad::all(),
+            'causasSolucion'   => \App\Models\CausaSolucion::all(),
+            'motivosCancelacion'=> \App\Models\MotivoCancelacion::all(),
             'selectedEquipment'=> $this->selectedEquipmentId ? Equipment::find($this->selectedEquipmentId) : null
         ]);
     }

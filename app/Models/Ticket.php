@@ -65,4 +65,9 @@ class Ticket extends Model
     {
         return $this->hasMany(Comentario::class);
     }
+
+    public function historial(): HasMany
+    {
+        return $this->hasMany(HistorialTicket::class);
+    }
 }

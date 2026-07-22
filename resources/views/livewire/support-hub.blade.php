@@ -75,7 +75,7 @@
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        <i class="fa-solid fa-house group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inicio</span>
                 </button>
@@ -84,7 +84,7 @@
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        <i class="fa-solid fa-plus group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Generar Ticket</span>
                 </button>
@@ -93,7 +93,7 @@
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        <i class="fa-solid fa-ticket group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Mis Tickets</span>
                 </button>
@@ -102,54 +102,94 @@
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" /></svg>
+                        <i class="fa-solid fa-folder-open group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
                 </button>
             @else
                 {{-- Rutas de Admin/Agente --}}
+                <div x-show="sidebarOpen" class="px-4 py-2 mt-2">
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Menu</p>
+                </div>
                 <button @click="activeTab = 'inicio'"
                     :class="activeTab === 'inicio' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        <i class="fa-solid fa-gauge-high group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
-                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inicio</span>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Dashboard</span>
                 </button>
+                <button @click="activeTab = 'generar_ticket'"
+                    :class="activeTab === 'generar_ticket' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <i class="fa-solid fa-plus group-hover:scale-110 transition-transform text-lg"></i>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Crear Ticket</span>
+                </button>
+                
+                {{-- Dropdown TICKETS --}}
+                <div x-data="{ ticketsOpen: false }">
+                    <button @click="ticketsOpen = !ticketsOpen; if(!sidebarOpen) sidebarOpen = true;"
+                        :class="['tickets', 'causas', 'motivos', 'historial'].includes(activeTab) ? 'bg-white/5 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                        class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                        :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                        <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                            <i class="fa-solid fa-ticket group-hover:scale-110 transition-transform text-lg"></i>
+                        </div>
+                        <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap flex-1 text-left">TICKETS</span>
+                        <svg x-show="sidebarOpen" :class="{'rotate-180': ticketsOpen}" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div x-show="sidebarOpen && ticketsOpen" x-collapse.duration.200ms class="pl-11 pr-4 py-1 space-y-1">
+                        <button @click="activeTab = 'tickets'" :class="activeTab === 'tickets' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="w-full text-left text-[10px] font-bold uppercase tracking-wider py-2 transition-colors flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'tickets' ? 'bg-blue-400' : 'bg-gray-600'"></span> Panel General
+                        </button>
+                        <button @click="activeTab = 'historial'" :class="activeTab === 'historial' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="w-full text-left text-[10px] font-bold uppercase tracking-wider py-2 transition-colors flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'historial' ? 'bg-blue-400' : 'bg-gray-600'"></span> Historial
+                        </button>
+                        <button @click="activeTab = 'causas'" :class="activeTab === 'causas' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="w-full text-left text-[10px] font-bold uppercase tracking-wider py-2 transition-colors flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'causas' ? 'bg-blue-400' : 'bg-gray-600'"></span> Causas de Solución
+                        </button>
+                        <button @click="activeTab = 'motivos'" :class="activeTab === 'motivos' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="w-full text-left text-[10px] font-bold uppercase tracking-wider py-2 transition-colors flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'motivos' ? 'bg-blue-400' : 'bg-gray-600'"></span> Motivos de Cancelación
+                        </button>
+                    </div>
+                </div>
+
                 <button @click="activeTab = 'statistics'"
                     :class="activeTab === 'statistics' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
+                        <i class="fa-solid fa-chart-pie group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
-                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Métricas</span>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Reporte tickets</span>
                 </button>
-                <button @click="activeTab = 'tickets'"
-                    :class="activeTab === 'tickets' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                
+            @endif
+            @if(auth()->user()->role !== 'user')
+                <button @click="activeTab = 'users'"
+                    :class="activeTab === 'users' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
+                        <i class="fa-solid fa-users group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
-                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Panel Tickets</span>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Usuarios</span>
                 </button>
-                <button @click="activeTab = 'historial'"
-                    :class="activeTab === 'historial' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
-                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
-                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
-                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Historial</span>
-                </button>
+                
+                {{-- Legacy Tools (Kept as requested) --}}
+                <div x-show="sidebarOpen" class="px-4 py-2 mt-2 border-t border-white/5 pt-4">
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Herramientas</p>
+                </div>
                 <button @click="activeTab = 'inventory'"
                     :class="activeTab === 'inventory' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                        <i class="fa-solid fa-boxes-stacked group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inventario</span>
                 </button>
@@ -158,7 +198,7 @@
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" /></svg>
+                        <i class="fa-solid fa-folder-open group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
                 </button>
@@ -167,21 +207,10 @@
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
                     :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                        <i class="fa-solid fa-map-location-dot group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Infra Map</span>
                 </button>
-            @endif
-            @if(auth()->user()->role !== 'user')
-            <button @click="activeTab = 'users'"
-                :class="activeTab === 'users' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
-                class="w-full flex items-center rounded-xl transition-all duration-200 group"
-                :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
-                <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                    <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                </div>
-                <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Usuarios</span>
-            </button>
             @endif
         </nav>
 
@@ -313,20 +342,7 @@
 
         <div class="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 lg:p-10 space-y-6 md:space-y-10">
             
-            {{-- Welcome Greeting Banner --}}
-            <div x-show="activeTab !== 'inicio'" class="animate-in fade-in slide-in-from-top-5 duration-700 shrink-0">
-                <div class="bg-gradient-to-r from-blue-600/10 via-indigo-600/5 to-transparent border border-white/5 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-blue-500/[0.02] rounded-2xl blur-lg pointer-events-none"></div>
-                    <div class="relative z-10">
-                        <h1 class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
-                            ¡Hola, {{ strtoupper(Auth::user()->name) }}! 👋
-                        </h1>
-                        <p class="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">
-                            Bienvenido a la plataforma • Rol: <span class="text-blue-400 font-black">{{ auth()->user()->role === 'user' ? 'Operativo' : (auth()->user()->role === 'admin' ? 'Administrador' : 'Agente TI') }}</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
+
 
             <template x-if="activeTab === 'tickets'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-6 md:space-y-10">
@@ -945,6 +961,7 @@
                                 });
                             } catch (e) {
                                 console.error(e);
+                                alert('Error de validación: por favor revisa que todos los campos y archivos estén correctos.');
                                 window.dispatchEvent(new CustomEvent('hide-sending-overlay'));
                             }
                         },
@@ -974,6 +991,7 @@
                                 });
                             } catch (e) {
                                 console.error('Error al generar ticket rápido:', e);
+                                alert('Error de validación: por favor revisa que todos los campos y archivos estén correctos.');
                                 window.dispatchEvent(new CustomEvent('hide-sending-overlay'));
                             }
                         }
@@ -1228,22 +1246,33 @@
                                       {{-- Adjuntar Archivos --}}
                                       <div class="space-y-1">
                                           <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">Adjuntar Archivos (PDF, Word, Imágenes)</label>
-                                          <div class="relative w-full h-12 border border-dashed border-white/10 hover:border-blue-500/50 rounded-lg bg-[#131b2f] flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
-                                              <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                          <label class="relative w-full h-12 border border-dashed border-white/10 hover:border-blue-500/50 rounded-lg bg-[#131b2f] flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                                              <input type="file" multiple wire:model="ticketFiles" class="hidden" />
                                               <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
                                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" /></svg>
                                                   <span>Seleccionar archivos...</span>
                                               </div>
-                                          </div>
+                                          </label>
                                           {{-- Listado de archivos --}}
                                           @if(!empty($ticketFiles))
                                               <div class="mt-2 space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
                                                   @foreach($ticketFiles as $index => $file)
                                                       @if($file)
+                                                      @php
+                                                          $ext = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+                                                          $iconClass = match($ext) {
+                                                              'pdf' => 'fa-solid fa-file-pdf text-red-400',
+                                                              'doc', 'docx' => 'fa-solid fa-file-word text-blue-400',
+                                                              'xls', 'xlsx' => 'fa-solid fa-file-excel text-green-400',
+                                                              'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp' => 'fa-solid fa-file-image text-purple-400',
+                                                              default => 'fa-solid fa-file text-gray-400',
+                                                          };
+                                                      @endphp
                                                       <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-3 py-2 text-xs text-gray-300">
                                                           <div class="flex items-center gap-2 truncate">
-                                                              <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                              <i class="{{ $iconClass }} text-[14px] shrink-0 w-3.5 h-3.5 flex items-center justify-center"></i>
                                                               <span class="truncate text-[10px]">{{ $file->getClientOriginalName() }}</span>
+                                                              <span class="text-[8px] font-bold uppercase bg-white/10 px-1.5 py-0.5 rounded ml-1">{{ $ext }}</span>
                                                           </div>
                                                           <button type="button" wire:click.prevent="removeTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 ml-2 shrink-0">
                                                               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -1752,24 +1781,35 @@
                                                       </div>
                                                       <div class="pt-1">
                                                           <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Adjuntar Evidencia (Opcional)</label>
-                                                          <div class="relative w-full h-14 border border-dashed border-white/10 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
-                                                              <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                                          <label class="relative w-full h-14 border border-dashed border-white/10 hover:border-blue-500/50 rounded-[0.75rem] bg-[#131b2f] flex flex-col items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                                                              <input type="file" multiple wire:model="ticketFiles" class="hidden" />
                                                               <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
                                                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                                                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-4-4m4 4l4-4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" />
                                                                   </svg>
                                                                   <span>Adjuntar archivos...</span>
                                                               </div>
-                                                          </div>
+                                                          </label>
                                                           {{-- Listado de archivos --}}
                                                           @if(!empty($ticketFiles))
                                                               <div class="mt-2 space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
                                                                   @foreach($ticketFiles as $index => $file)
                                                                       @if($file)
+                                                                      @php
+                                                                          $ext = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+                                                                          $iconClass = match($ext) {
+                                                                              'pdf' => 'fa-solid fa-file-pdf text-red-400',
+                                                                              'doc', 'docx' => 'fa-solid fa-file-word text-blue-400',
+                                                                              'xls', 'xlsx' => 'fa-solid fa-file-excel text-green-400',
+                                                                              'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp' => 'fa-solid fa-file-image text-purple-400',
+                                                                              default => 'fa-solid fa-file text-gray-400',
+                                                                          };
+                                                                      @endphp
                                                                       <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-3 py-2 text-xs text-gray-300">
                                                                           <div class="flex items-center gap-2 truncate">
-                                                                              <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                                              <i class="{{ $iconClass }} text-[14px] shrink-0 w-3.5 h-3.5 flex items-center justify-center"></i>
                                                                               <span class="truncate text-[10px]">{{ $file->getClientOriginalName() }}</span>
+                                                                              <span class="text-[8px] font-bold uppercase bg-white/10 px-1.5 py-0.5 rounded ml-1">{{ $ext }}</span>
                                                                           </div>
                                                                           <button type="button" wire:click.prevent="removeTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 ml-2 shrink-0">
                                                                               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -2021,6 +2061,37 @@
                                                 </div>
                                                 <span class="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-2 px-3">{{ $c->created_at->format('d/m/Y H:i') }}</span>
                                             </div>
+                                            @endforeach
+
+                                            @foreach($detTicket->historial ?? [] as $hist)
+                                                @if($hist->visible_para_usuario || in_array(auth()->user()->role, ['admin', 'agente']))
+                                                <div class="flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 my-4">
+                                                    <div class="w-full max-w-lg p-5 rounded-[2rem] text-xs leading-relaxed {{ $hist->accion == 'Ticket Cancelado' ? 'bg-red-900/20 border border-red-500/30' : 'bg-green-900/20 border border-green-500/30' }} text-center shadow-lg">
+                                                        <p class="font-black text-[11px] mb-2 uppercase tracking-[0.2em] {{ $hist->accion == 'Ticket Cancelado' ? 'text-red-400' : 'text-green-400' }}">
+                                                            <i class="fa-solid {{ $hist->accion == 'Ticket Cancelado' ? 'fa-ban' : 'fa-check-double' }}"></i> 
+                                                            {{ $hist->accion }}
+                                                        </p>
+                                                        @if($hist->causa_solucion_id)
+                                                            <p class="font-bold text-white uppercase text-[10px] tracking-widest mb-1">Causa de Solución: <span class="text-gray-300">{{ optional($hist->causaSolucion)->nombre }}</span></p>
+                                                        @endif
+                                                        @if($hist->motivo_cancelacion_id)
+                                                            <p class="font-bold text-white uppercase text-[10px] tracking-widest mb-1">Motivo de Cancelación: <span class="text-gray-300">{{ optional($hist->motivoCancelacion)->nombre }}</span></p>
+                                                        @endif
+                                                        @if($hist->detalles)
+                                                            <p class="text-gray-300 italic mt-2 px-4">"{{ $hist->detalles }}"</p>
+                                                        @endif
+                                                        @if($hist->adjunto_path)
+                                                            <div class="mt-3">
+                                                                <button type="button" wire:click="downloadAttachmentPath('{{ $hist->adjunto_path }}')" class="inline-flex items-center gap-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all">
+                                                                    <i class="fa-solid fa-paperclip"></i> Descargar Evidencia Adjunta
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-4">Registrado por: {{ optional($hist->usuario)->nombre_completo ?? 'Sistema' }}</p>
+                                                    </div>
+                                                    <span class="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-2 px-3">{{ $hist->created_at->format('d/m/Y H:i') }}</span>
+                                                </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </div>
@@ -2361,13 +2432,15 @@
          'months' => $trendMonths->values(),
          'created' => $trendData,
          'closed' => $trendClosedData,
+         'canceled' => $trendCanceledData,
          'pLabels' => array_keys($plantaCounts),
          'pValues' => array_values($plantaCounts),
          'cLabels' => $categoryData->keys()->values(),
          'cValues' => $categoryData->values()->values(),
          'sOpen' => $statusCounts[1] ?? 0,
          'sProc' => $statusCounts[2] ?? 0,
-         'sDone' => ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0)
+         'sDone' => ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0),
+         'sCanc' => $statusCounts[5] ?? 0
      ]) }}"
      x-init="$watch('activeTab', val => { if (val === 'statistics' && window.buildHubCharts) { setTimeout(window.buildHubCharts, 350); } })" 
      class="pb-10">
@@ -2393,62 +2466,86 @@
                     <span style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 8px #34d399;"></span>
                     <span style="font-size:10px;font-weight:800;color:#34d399;text-transform:uppercase;letter-spacing:0.15em;">Sistema en línea</span>
                 </div>
-                <button wire:click="refreshMetrics" style="display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;">
-                    <i class="fa-solid fa-arrows-rotate" style="color:#818cf8;"></i> Actualizar
-                </button>
+
             </div>
         </div>
     </div>
 
-    {{-- ── KPI CARDS ────────────────────────────────────────────── --}}
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;">
-        {{-- Total --}}
-        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(99,102,241,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                <div style="width:38px;height:38px;border-radius:12px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;">
-                    <i class="fa-solid fa-ticket" style="color:#818cf8;font-size:13px;"></i>
-                </div>
-                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#6366f1;background:rgba(99,102,241,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(99,102,241,0.25);">TOTAL</span>
+    {{-- ── KPI CARDS (Bento Grid Colorido) ───────────────────────── --}}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        
+        {{-- Registrados --}}
+        <div class="rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+            <div class="flex justify-between items-start mb-6">
+                <span class="text-white font-bold text-xs uppercase tracking-widest drop-shadow-sm">Registrados</span>
+                <i class="fa-solid fa-file-lines text-white/40 text-3xl"></i>
             </div>
-            <div style="font-size:3rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-0.05em;">{{ array_sum($statusCounts->toArray()) }}</div>
-            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">Tickets globales</p>
+            <div>
+                <div class="text-white font-black text-4xl sm:text-5xl drop-shadow-md leading-none">{{ array_sum($statusCounts->toArray()) }}</div>
+            </div>
         </div>
 
-        {{-- Abiertos --}}
-        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(59,130,246,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                <div style="width:38px;height:38px;border-radius:12px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);display:flex;align-items:center;justify-content:center;">
-                    <i class="fa-regular fa-clock" style="color:#60a5fa;font-size:13px;"></i>
-                </div>
-                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#60a5fa;background:rgba(59,130,246,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(59,130,246,0.25);">ABIERTOS</span>
+        {{-- Asignados --}}
+        <div class="rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+            <div class="flex justify-between items-start mb-6">
+                <span class="text-white font-bold text-xs uppercase tracking-widest drop-shadow-sm">Asignados</span>
+                <i class="fa-solid fa-user-check text-white/40 text-3xl"></i>
             </div>
-            <div style="font-size:3rem;font-weight:900;color:#60a5fa;line-height:1;letter-spacing:-0.05em;">{{ $statusCounts[1] ?? 0 }}</div>
-            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">Pendientes</p>
+            <div>
+                <div class="text-white font-black text-4xl sm:text-5xl drop-shadow-md leading-none">{{ $stats['assigned'] ?? 0 }}</div>
+            </div>
         </div>
 
         {{-- En Proceso --}}
-        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(245,158,11,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                <div style="width:38px;height:38px;border-radius:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;">
-                    <i class="fa-solid fa-gear" style="color:#fbbf24;font-size:13px;"></i>
-                </div>
-                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#fbbf24;background:rgba(245,158,11,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(245,158,11,0.25);">EN PROCESO</span>
+        <div class="rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+            <div class="flex justify-between items-start mb-6">
+                <span class="text-white font-bold text-xs uppercase tracking-widest drop-shadow-sm">En Proceso</span>
+                <i class="fa-solid fa-spinner text-white/40 text-3xl"></i>
             </div>
-            <div style="font-size:3rem;font-weight:900;color:#fbbf24;line-height:1;letter-spacing:-0.05em;">{{ $statusCounts[2] ?? 0 }}</div>
-            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">En atención</p>
+            <div>
+                <div class="text-white font-black text-4xl sm:text-5xl drop-shadow-md leading-none">{{ $statusCounts[2] ?? 0 }}</div>
+            </div>
         </div>
 
-        {{-- Resueltos --}}
-        <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(16,185,129,0.25);border-radius:1.25rem;padding:1.25rem;backdrop-filter:blur(20px);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                <div style="width:38px;height:38px;border-radius:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;">
-                    <i class="fa-solid fa-check" style="color:#34d399;font-size:13px;"></i>
-                </div>
-                <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#34d399;background:rgba(16,185,129,0.12);padding:3px 10px;border-radius:99px;border:1px solid rgba(16,185,129,0.25);">RESUELTOS</span>
+        {{-- Finalizados --}}
+        <div class="rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+            <div class="flex justify-between items-start mb-6">
+                <span class="text-white font-bold text-xs uppercase tracking-widest drop-shadow-sm">Finalizados</span>
+                <i class="fa-solid fa-check-double text-white/40 text-3xl"></i>
             </div>
-            <div style="font-size:3rem;font-weight:900;color:#34d399;line-height:1;letter-spacing:-0.05em;">{{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}</div>
-            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;">Finalizados</p>
+            <div>
+                <div class="text-white font-black text-4xl sm:text-5xl drop-shadow-md leading-none">{{ ($statusCounts[3] ?? 0) + ($statusCounts[4] ?? 0) }}</div>
+            </div>
         </div>
+        
+        {{-- Cancelados --}}
+        <div class="rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+            <div class="flex justify-between items-start mb-6">
+                <span class="text-white font-bold text-xs uppercase tracking-widest drop-shadow-sm">Cancelados</span>
+                <i class="fa-solid fa-ban text-white/40 text-3xl"></i>
+            </div>
+            <div>
+                <div class="text-white font-black text-4xl sm:text-5xl drop-shadow-md leading-none">{{ $stats['canceled'] ?? 0 }}</div>
+            </div>
+        </div>
+        
+        {{-- Inventario --}}
+        <div class="rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+            <div class="flex justify-between items-start mb-6">
+                <span class="text-white font-bold text-xs uppercase tracking-widest drop-shadow-sm">Inventario Global</span>
+                <i class="fa-solid fa-boxes-stacked text-white/40 text-3xl"></i>
+            </div>
+            <div>
+                <div class="text-white font-black text-4xl sm:text-5xl drop-shadow-md leading-none">{{ $stats['inv_total'] ?? 0 }}</div>
+            </div>
+        </div>
+
     </div>
 
     {{-- ── TENDENCIA (full width) ───────────────────────────────── --}}
@@ -2642,6 +2739,7 @@
                 c1._ch.data.labels = STAT_DATA.months;
                 c1._ch.data.datasets[0].data = STAT_DATA.created;
                 c1._ch.data.datasets[1].data = STAT_DATA.closed;
+                if(c1._ch.data.datasets[2]) c1._ch.data.datasets[2].data = STAT_DATA.canceled;
                 c1._ch.update();
             } else {
                 c1._ch = new Chart(c1, {
@@ -2666,6 +2764,13 @@
                                 backgroundColor: 'transparent',
                                 borderWidth: 2, borderDash: [6, 4], tension: 0.45,
                                 pointBackgroundColor: '#10b981', pointBorderColor: '#0f172a',
+                                pointRadius: 4, pointHoverRadius: 7, pointBorderWidth: 2
+                            },
+                            {
+                                label: 'Cancelados', data: STAT_DATA.canceled, borderColor: '#ef4444',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2, borderDash: [3, 3], tension: 0.45,
+                                pointBackgroundColor: '#ef4444', pointBorderColor: '#0f172a',
                                 pointRadius: 4, pointHoverRadius: 7, pointBorderWidth: 2
                             }
                         ]
@@ -2721,12 +2826,12 @@
         var c4 = document.getElementById('ch-status');
         if (c4) {
             if (c4._ch) {
-                c4._ch.data.datasets[0].data = [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone];
+                c4._ch.data.datasets[0].data = [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone, STAT_DATA.sCanc];
                 c4._ch.update();
             } else {
                 c4._ch = new Chart(c4, {
                     type: 'doughnut',
-                    data: { labels: ['Abiertos','En Proceso','Resueltos'], datasets: [{ data: [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone], backgroundColor: ['#3b82f6','#f59e0b','#10b981'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }] },
+                    data: { labels: ['Abiertos','En Proceso','Resueltos','Cancelados'], datasets: [{ data: [STAT_DATA.sOpen, STAT_DATA.sProc, STAT_DATA.sDone, STAT_DATA.sCanc], backgroundColor: ['#3b82f6','#f59e0b','#10b981','#ef4444'], borderColor: '#080c1a', borderWidth: 4, hoverOffset: 8 }] },
                     options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } }, tooltip: TIP } }
                 });
             }
@@ -2748,6 +2853,130 @@
 @endonce
 
 
+
+            {{-- Causas Tab --}}
+            <template x-if="activeTab === 'causas'">
+                <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8 max-w-4xl mx-auto">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Causas de Solución</h3>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Cierre de Tickets</p>
+                    </div>
+                    
+                    <div class="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">1. Seleccionar Ticket a Finalizar</h4>
+                        <select wire:model.live="tabSelectedTicketId" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-4 text-xs font-bold text-white uppercase tracking-wider outline-none focus:border-green-500 transition-all mb-8">
+                            <option value="">-- ELIGE UN TICKET ABIERTO --</option>
+                            @php
+                                $openTicketsC = \App\Models\Ticket::whereIn('estado_id', [1, 2]);
+                                if(auth()->user()->role === 'agente') {
+                                    $openTicketsC->where('agente_asignado_id', auth()->id());
+                                }
+                            @endphp
+                            @foreach($openTicketsC->get() as $t)
+                                <option value="{{ $t->id }}">TICKET #{{ $t->id }} - {{ Str::limit($t->titulo, 50) }}</option>
+                            @endforeach
+                        </select>
+
+                        @if($tabSelectedTicketId && $tabTicketModel)
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">2. Información del Ticket</h4>
+                            <div class="bg-[#050510] p-6 rounded-2xl border border-white/5 mb-8">
+                                <p class="text-xs text-white font-bold mb-2 uppercase tracking-wide">Reportado por: <span class="text-gray-400">{{ $tabTicketModel->creador->name ?? 'N/A' }}</span></p>
+                                <p class="text-[10px] text-gray-300 italic">"{{ $tabTicketModel->descripcion }}"</p>
+                            </div>
+
+                            <form wire:submit.prevent="guardarFinalizacionDesdeTab" class="space-y-6">
+                                <div>
+                                    <label class="text-[9px] font-black text-green-500 uppercase tracking-widest ml-1 mb-2 block">Causa de Solución</label>
+                                    <select wire:model="causaSolucionId" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-green-500 transition-all">
+                                        <option value="">Seleccione una causa...</option>
+                                        @foreach($causasSolucion as $causa)
+                                            <option value="{{ $causa->id }}">{{ $causa->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('causaSolucionId') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-black text-green-500 uppercase tracking-widest ml-1 mb-2 block">Detalles de la Solución</label>
+                                    <textarea wire:model="detallesResolucion" rows="4" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-green-500 transition-all"></textarea>
+                                    @error('detallesResolucion') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 block">Adjuntar Evidencia (Opcional)</label>
+                                    <input type="file" wire:model="archivoResolucion" class="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer">
+                                </div>
+                                <button type="submit" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl text-[11px] font-black uppercase tracking-[.3em] shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all">
+                                    FINALIZAR TICKET AHORA
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </template>
+
+            {{-- Motivos Tab --}}
+            <template x-if="activeTab === 'motivos'">
+                <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8 max-w-4xl mx-auto">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Motivos de Cancelación</h3>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Cancelación de Tickets</p>
+                    </div>
+                    
+                    <div class="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">1. Seleccionar Ticket a Cancelar</h4>
+                        <select wire:model.live="tabSelectedTicketId" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-4 text-xs font-bold text-white uppercase tracking-wider outline-none focus:border-red-500 transition-all mb-8">
+                            <option value="">-- ELIGE UN TICKET ABIERTO --</option>
+                            @php
+                                $openTicketsM = \App\Models\Ticket::whereIn('estado_id', [1, 2]);
+                                if(auth()->user()->role === 'agente') {
+                                    $openTicketsM->where('agente_asignado_id', auth()->id());
+                                }
+                            @endphp
+                            @foreach($openTicketsM->get() as $t)
+                                <option value="{{ $t->id }}">TICKET #{{ $t->id }} - {{ Str::limit($t->titulo, 50) }}</option>
+                            @endforeach
+                        </select>
+
+                        @if($tabSelectedTicketId && $tabTicketModel)
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">2. Información del Ticket</h4>
+                            <div class="bg-[#050510] p-6 rounded-2xl border border-white/5 mb-8">
+                                <p class="text-xs text-white font-bold mb-2 uppercase tracking-wide">Reportado por: <span class="text-gray-400">{{ $tabTicketModel->creador->name ?? 'N/A' }}</span></p>
+                                <p class="text-[10px] text-gray-300 italic">"{{ $tabTicketModel->descripcion }}"</p>
+                            </div>
+
+                            <form wire:submit.prevent="guardarCancelacionDesdeTab" class="space-y-6">
+                                <div>
+                                    <label class="text-[9px] font-black text-red-500 uppercase tracking-widest ml-1 mb-2 block">Motivo de Cancelación</label>
+                                    <select wire:model="motivoCancelacionId" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-red-500 transition-all">
+                                        <option value="">Seleccione un motivo...</option>
+                                        @foreach($motivosCancelacion as $motivo)
+                                            <option value="{{ $motivo->id }}">{{ $motivo->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('motivoCancelacionId') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-black text-red-500 uppercase tracking-widest ml-1 mb-2 block">Detalles de Cancelación</label>
+                                    <textarea wire:model="detallesResolucion" rows="4" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-red-500 transition-all"></textarea>
+                                    @error('detallesResolucion') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div class="flex items-center gap-3 bg-[#07071c] p-4 rounded-xl border border-white/5">
+                                    <input type="checkbox" wire:model="visibleAlUsuario" id="visibleUsuarioTab" class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-500 focus:ring-red-500">
+                                    <label for="visibleUsuarioTab" class="text-xs font-bold text-gray-300 uppercase tracking-wider cursor-pointer">Mostrar cancelación al usuario</label>
+                                </div>
+
+                                <div>
+                                    <label class="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 block">Adjuntar Evidencia (Opcional)</label>
+                                    <input type="file" wire:model="archivoResolucion" class="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer">
+                                </div>
+                                <button type="submit" class="w-full py-4 bg-red-600 hover:bg-red-500 text-white rounded-xl text-[11px] font-black uppercase tracking-[.3em] shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all">
+                                    CANCELAR TICKET AHORA
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </template>
 
             {{-- Users Tab --}}
             <template x-if="activeTab === 'users'">
@@ -3056,10 +3285,21 @@
                             <div class="space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
                                 @foreach($ticketFiles as $index => $file)
                                     @if($file)
+                                    @php
+                                        $ext = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+                                        $iconClass = match($ext) {
+                                            'pdf' => 'fa-solid fa-file-pdf text-red-400',
+                                            'doc', 'docx' => 'fa-solid fa-file-word text-blue-400',
+                                            'xls', 'xlsx' => 'fa-solid fa-file-excel text-green-400',
+                                            'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp' => 'fa-solid fa-file-image text-purple-400',
+                                            default => 'fa-solid fa-file text-gray-400',
+                                        };
+                                    @endphp
                                     <div class="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-3 py-2.5 text-xs text-gray-300">
                                         <div class="flex items-center gap-2 truncate">
-                                            <svg class="w-3.5 h-3.5 text-teal-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            <i class="{{ $iconClass }} text-[14px] shrink-0 w-3.5 h-3.5 flex items-center justify-center"></i>
                                             <span class="truncate">{{ $file->getClientOriginalName() }}</span>
+                                            <span class="text-[8px] font-bold uppercase bg-white/10 px-1.5 py-0.5 rounded ml-1 text-teal-300">{{ $ext }}</span>
                                         </div>
                                         <button type="button" wire:click="removeTicketFile({{ $index }})" class="text-red-400 hover:text-red-300 ml-2 shrink-0">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -3238,8 +3478,20 @@
                         @if(!empty($aTicketFiles))
                             <div class="flex flex-wrap gap-2 mt-2">
                                 @foreach($aTicketFiles as $index => $file)
+                                    @php
+                                        $ext = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+                                        $iconClass = match($ext) {
+                                            'pdf' => 'fa-solid fa-file-pdf text-red-400',
+                                            'doc', 'docx' => 'fa-solid fa-file-word text-blue-400',
+                                            'xls', 'xlsx' => 'fa-solid fa-file-excel text-green-400',
+                                            'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp' => 'fa-solid fa-file-image text-purple-400',
+                                            default => 'fa-solid fa-file text-blue-400',
+                                        };
+                                    @endphp
                                     <div class="inline-flex items-center gap-1.5 bg-blue-600/10 border border-blue-500/20 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase text-blue-400">
+                                        <i class="{{ $iconClass }} text-[12px]"></i>
                                         <span>{{ Str::limit($file->getClientOriginalName(), 15) }}</span>
+                                        <span class="text-[7px] font-black uppercase bg-white/10 px-1 py-0.5 rounded text-blue-300">{{ $ext }}</span>
                                         <button type="button" wire:click="removeAdminTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 font-bold ml-1 text-[11px] focus:outline-none">✕</button>
                                     </div>
                                 @endforeach
@@ -3252,10 +3504,11 @@
                         <textarea wire:model="aTicketKoment" rows="3" placeholder="Mensaje opcional. Se notificará al usuario de los cambios de estado." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all"></textarea>
                     </div>
                     
-                    <div class="pt-2">
-                        <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-black uppercase tracking-[.3em] shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-2">
+
+                    <div class="pt-3 border-t border-white/5">
+                        <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-black uppercase tracking-[.3em] shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-2 border border-blue-500/50">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                            GUARDAR Y NOTIFICAR
+                            GUARDAR CAMBIOS GENERALES
                         </button>
                     </div>
                 </form>
@@ -3385,6 +3638,128 @@
          </div>
      </div>
 
+    {{-- MODAL: FINALIZAR TICKET --}}
+    @if($mostrarModalFinalizar)
+        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+             x-data="{ 
+                fecha: new Date().toISOString().split('T')[0], 
+                hora: new Date().toTimeString().slice(0,5) 
+             }">
+            <div class="bg-gray-900 border border-green-500/50 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col" @click.stop>
+                <div class="bg-green-600 px-6 py-4 flex items-center justify-between">
+                    <h2 class="text-white font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-check-double"></i> Finalizar Ticket
+                    </h2>
+                    <button wire:click="cerrarModalResolucion" class="text-white/70 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div class="p-6 flex-1 overflow-y-auto space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Causa de Solución</label>
+                        <select wire:model="causaSolucionId" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach($causasSolucion as $causa)
+                                <option value="{{ $causa->id }}">{{ $causa->nombre }}</option>
+                            @endforeach
+                        </select>
+                        @error('causaSolucionId') <span class="text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Fecha</label>
+                            <input type="date" x-model="fecha" disabled class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-gray-400 text-sm cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Hora</label>
+                            <input type="time" x-model="hora" disabled class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-gray-400 text-sm cursor-not-allowed">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Solución</label>
+                        <textarea wire:model="detallesResolucion" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none" placeholder="Describe cómo se solucionó..."></textarea>
+                        @error('detallesResolucion') <span class="text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Adjunto</label>
+                        <input type="file" wire:model="archivoResolucion" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-500/10 file:text-green-500 hover:file:bg-green-500/20">
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 px-6 py-4 border-t border-gray-700 flex justify-end gap-3">
+                    <button wire:click="cerrarModalResolucion" class="px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors bg-gray-800 hover:bg-gray-700 border border-gray-700">Regresar</button>
+                    <button wire:click="guardarFinalizacion" class="px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-green-600 hover:bg-green-500 shadow-lg shadow-green-500/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-check" wire:loading.remove wire:target="guardarFinalizacion, archivoResolucion"></i>
+                        <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="guardarFinalizacion, archivoResolucion"></i>
+                        Finalizar Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- MODAL: CANCELAR TICKET --}}
+    @if($mostrarModalCancelar)
+        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+             x-data="{ 
+                fecha: new Date().toISOString().split('T')[0], 
+                hora: new Date().toTimeString().slice(0,5) 
+             }">
+            <div class="bg-gray-900 border border-red-500/50 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col" @click.stop>
+                <div class="bg-red-600 px-6 py-4 flex items-center justify-between">
+                    <h2 class="text-white font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-ban"></i> Cancelar Ticket
+                    </h2>
+                    <button wire:click="cerrarModalResolucion" class="text-white/70 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div class="p-6 flex-1 overflow-y-auto space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Motivo de Cancelación</label>
+                        <select wire:model="motivoCancelacionId" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach($motivosCancelacion as $motivo)
+                                <option value="{{ $motivo->id }}">{{ $motivo->nombre }}</option>
+                            @endforeach
+                        </select>
+                        @error('motivoCancelacionId') <span class="text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Fecha</label>
+                            <input type="date" x-model="fecha" disabled class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-gray-400 text-sm cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Hora</label>
+                            <input type="time" x-model="hora" disabled class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-gray-400 text-sm cursor-not-allowed">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detalles / Motivo</label>
+                        <textarea wire:model="detallesResolucion" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none" placeholder="Explica el motivo de cancelación..."></textarea>
+                        @error('detallesResolucion') <span class="text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Adjunto</label>
+                        <input type="file" wire:model="archivoResolucion" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-red-500/10 file:text-red-500 hover:file:bg-red-500/20">
+                    </div>
+                    <div class="flex items-center gap-2 mt-2 bg-gray-800 p-3 rounded-lg border border-gray-700">
+                        <input type="checkbox" wire:model="visibleAlUsuario" id="visible_user" class="w-4 h-4 text-red-600 bg-gray-900 border-gray-600 rounded focus:ring-red-500 focus:ring-2">
+                        <label for="visible_user" class="text-xs text-gray-300 font-bold uppercase tracking-wider">Mostrar cancelación al usuario</label>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 px-6 py-4 border-t border-gray-700 flex justify-end gap-3">
+                    <button wire:click="cerrarModalResolucion" class="px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors bg-gray-800 hover:bg-gray-700 border border-gray-700">Regresar</button>
+                    <button wire:click="guardarCancelacion" class="px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-red-600 hover:bg-red-500 shadow-lg shadow-red-500/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-ban" wire:loading.remove wire:target="guardarCancelacion, archivoResolucion"></i>
+                        <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="guardarCancelacion, archivoResolucion"></i>
+                        Cancelar Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Script de Notificaciones y Partículas --}}
     <script>
         function playChime() {
@@ -3488,29 +3863,48 @@
         const ctxTrend = document.getElementById('trendChart');
         if (ctxTrend) {
             ctxTrend.__chartInstance = new Chart(ctxTrend, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: Object.values(data.trendMonths),
                     datasets: [
                         {
-                            label: 'Incidencias Totales',
+                            label: 'Creados',
                             data: Object.values(data.trendData),
-                            backgroundColor: 'rgba(99, 102, 241, 0.4)',
-                            borderColor: '#6366f1',
+                            type: 'line',
+                            borderColor: '#818cf8', // Indigo/purple
+                            backgroundColor: 'rgba(129, 140, 248, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#818cf8',
+                            pointHoverRadius: 7,
+                            order: 3
+                        },
+                        {
+                            label: 'Cerrados',
+                            data: Object.values(data.trendClosedData || data.trendData),
+                            type: 'line',
+                            borderColor: '#10b981', // Emerald green
+                            backgroundColor: 'transparent',
                             borderWidth: 2,
-                            borderRadius: 6,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointHoverRadius: 7,
                             order: 2
                         },
                         {
-                            label: 'Incidentes Resueltos',
-                            data: Object.values(data.trendClosedData || data.trendData),
+                            label: 'Cancelados',
+                            data: Object.values(data.trendCanceledData || []),
                             type: 'line',
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.3,
-                            pointBackgroundColor: '#10b981',
+                            borderColor: '#ef4444', // Red
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [3, 3],
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ef4444',
                             pointHoverRadius: 7,
                             order: 1
                         }
@@ -3599,10 +3993,10 @@
             ctxState.__chartInstance = new Chart(ctxState, {
                 type: 'polarArea',
                 data: {
-                    labels: ['Abiertos', 'En Proceso', 'Resueltos'],
+                    labels: ['Abiertos', 'En Proceso', 'Resueltos', 'Cancelados'],
                     datasets: [{
-                        data: [data.statusCounts[1] || 0, data.statusCounts[2] || 0, (data.statusCounts[3] || 0) + (data.statusCounts[4] || 0)],
-                        backgroundColor: ['rgba(59, 130, 246, 0.55)', 'rgba(245, 158, 11, 0.55)', 'rgba(16, 185, 129, 0.55)'],
+                        data: [data.statusCounts[1] || 0, data.statusCounts[2] || 0, (data.statusCounts[3] || 0) + (data.statusCounts[4] || 0), data.statusCounts[5] || 0],
+                        backgroundColor: ['rgba(59, 130, 246, 0.55)', 'rgba(245, 158, 11, 0.55)', 'rgba(16, 185, 129, 0.55)', 'rgba(239, 68, 68, 0.55)'],
                         borderColor: '#0f172a',
                         borderWidth: 2
                     }]
