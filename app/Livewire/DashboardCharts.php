@@ -30,15 +30,18 @@ class DashboardCharts extends Component
         
         $tickets = $query->get();
 
-        // 1. Incidentes más frecuentes (Por Tipo)
-        $frecuentes = $tickets->groupBy(function($t) {
+        // 1. Incidentes más frecuentes (Por Categoría extraída del Título)
+        $extraerCategoria = function($t) {
+            if (preg_match('/\[(.*?)\]/', $t->titulo, $matches)) {
+                return ucfirst(strtolower($matches[1]));
+            }
             return $t->tipoTicket->nombre ?? 'Sin Tipo';
-        })->map->count()->sortDesc()->take(5);
+        };
 
-        // Incidentes MENOS frecuentes (Por Tipo)
-        $menosFrecuentes = $tickets->groupBy(function($t) {
-            return $t->tipoTicket->nombre ?? 'Sin Tipo';
-        })->map->count()->sort()->take(5);
+        $frecuentes = $tickets->groupBy($extraerCategoria)->map->count()->sortDesc()->take(5);
+
+        // Incidentes MENOS frecuentes (Por Categoría)
+        $menosFrecuentes = $tickets->groupBy($extraerCategoria)->map->count()->sort()->take(5);
 
         // 2. Tickets resueltos (General)
         $resueltos = $tickets->filter(function($t) {

@@ -72,16 +72,30 @@ class SupportHub extends Component
     public $tabSelectedTicketId = null;
     public $tabTicketModel = null;
     
+    // Global Chat Widget
+    public $chatWidgetTicketId = null;
+    public $chatWidgetTicketModel = null;
+    public $chatWidgetMessage = '';
+    public $isChatWidgetMinimized = false;
+    
     // Admin Ticket Modal properties
     public $showingAdminTicket = false;
-    
-
-
     public $aTicketId = null;
     public $aTicketPriority = null;
     public $aTicketStatus = null;
+    
+    // Notifications
     public $notificationsList = [];
     public $notifCount = 0;
+    
+    // Chat Notifications
+    public $chatNotificationsList = [];
+    public $chatSearch = '';
+
+    // Mi Perfil
+    public $newProfilePhoto;
+    public $newProfileName = '';
+    
     public $adminTicketModel = null;
     public $aTicketAgent = null;
     public $aTicketKoment = '';
@@ -216,6 +230,7 @@ class SupportHub extends Component
 
         if (Auth::check()) {
             $this->userProfileEmail = Auth::user()->email;
+            $this->newProfileName = Auth::user()->nombre_completo;
             
             $userRole = Auth::user()->role;
             $dismissedIds = \Illuminate\Support\Facades\Cache::get('dismissed_notifications_' . Auth::id(), []);
@@ -625,6 +640,57 @@ class SupportHub extends Component
         }
     }
 
+    public function openChatWidget($ticketId)
+    {
+        $this->chatWidgetTicketId = $ticketId;
+        $this->chatWidgetTicketModel = Ticket::with(['agente', 'creador', 'comentarios.usuario'])->find($ticketId);
+    }
+
+    public function closeChatWidget()
+    {
+        $this->chatWidgetTicketId = null;
+        $this->chatWidgetTicketModel = null;
+        $this->chatWidgetMessage = '';
+        $this->isChatWidgetMinimized = false;
+    }
+
+    public function toggleMinimizeChat()
+    {
+        $this->isChatWidgetMinimized = !$this->isChatWidgetMinimized;
+    }
+
+    public function sendWidgetMessage()
+    {
+        $this->validate(['chatWidgetMessage' => 'required|string']);
+        if ($this->chatWidgetTicketModel) {
+            $this->chatWidgetTicketModel->comentarios()->create([
+                'mensaje' => $this->chatWidgetMessage,
+                'usuario_id' => Auth::id(),
+                'es_cliente' => Auth::user()->role === 'user',
+            ]);
+            $this->chatWidgetMessage = '';
+            // Refresh model
+            $this->chatWidgetTicketModel = Ticket::with(['agente', 'creador', 'comentarios.usuario'])->find($this->chatWidgetTicketId);
+        }
+    }
+
+    public function sendAgentChat()
+    {
+        $this->validate(['aTicketKoment' => 'required|string']);
+        $ticket = Ticket::find($this->aTicketId);
+        if ($ticket) {
+            $ticket->comentarios()->create([
+                'mensaje' => $this->aTicketKoment,
+                'usuario_id' => Auth::id(),
+                'es_cliente' => false,
+            ]);
+            $this->aTicketKoment = '';
+            
+            // Reload the admin ticket model to show the new comment
+            $this->adminTicketModel = Ticket::with(['creador', 'sector', 'archivosAdjuntos', 'comentarios.usuario'])->find($this->aTicketId);
+        }
+    }
+
     public function reopenTicket($id)
     {
         $ticket = Ticket::find($id);
@@ -705,6 +771,26 @@ class SupportHub extends Component
             $this->userCodigoAcceso = $user->codigo_acceso;
         }
         $this->showingUserModal = true;
+    }
+
+    public function updateMyProfile()
+    {
+        $this->validate([
+            'newProfileName' => 'required|string|max:255',
+            'newProfilePhoto' => 'nullable|image|max:2048', // 2MB Max
+        ]);
+
+        $user = Auth::user();
+        $user->nombre_completo = $this->newProfileName;
+
+        if ($this->newProfilePhoto) {
+            $path = $this->newProfilePhoto->store('avatars', 'public');
+            $user->profile_photo_path = $path;
+        }
+
+        $user->save();
+        $this->dispatch('notify', 'Perfil actualizado exitosamente');
+        $this->reset('newProfilePhoto');
     }
 
     public function saveUser()
@@ -1071,6 +1157,49 @@ class SupportHub extends Component
                     'read' => false
                 ])->toArray();
             }
+
+            // Load Chat Notifications
+            if ($userRole === 'user') {
+                $chatTickets = \App\Models\Ticket::where('usuario_creador_id', Auth::id())
+                    ->whereHas('comentarios')
+                    ->with(['comentarios' => function($q) { $q->latest(); }, 'agente', 'creador'])
+                    ->get()
+                    ->sortByDesc(fn($t) => $t->comentarios->first()->created_at);
+            } elseif ($userRole === 'agente') {
+                $chatTickets = \App\Models\Ticket::where('agente_id', Auth::id())
+                    ->whereHas('comentarios')
+                    ->with(['comentarios' => function($q) { $q->latest(); }, 'agente', 'creador'])
+                    ->get()
+                    ->sortByDesc(fn($t) => $t->comentarios->first()->created_at);
+            } else {
+                $chatTickets = \App\Models\Ticket::whereHas('comentarios')
+                    ->with(['comentarios' => function($q) { $q->latest(); }, 'agente', 'creador'])
+                    ->get()
+                    ->sortByDesc(fn($t) => $t->comentarios->first()->created_at);
+            }
+
+            if (!empty($this->chatSearch)) {
+                $chatTickets = $chatTickets->filter(function($t) use ($userRole) {
+                    $otherUser = ($userRole === 'user') ? $t->agente : $t->creador;
+                    $name = $otherUser ? $otherUser->nombre_completo : 'Soporte TI';
+                    return stripos($name, $this->chatSearch) !== false;
+                });
+            }
+
+            $this->chatNotificationsList = $chatTickets->take(15)->map(function($t) use ($userRole) {
+                $otherUser = ($userRole === 'user') ? $t->agente : $t->creador;
+                $isOnline = $otherUser ? $otherUser->isOnline() : false;
+                return [
+                    'id' => $t->id,
+                    'title' => 'Ticket #' . $t->id,
+                    'name' => $otherUser ? $otherUser->nombre_completo : 'Soporte TI',
+                    'avatar' => $otherUser ? $otherUser->profile_photo_url : 'https://ui-avatars.com/api/?name=Soporte+TI&color=7F9CF5&background=EBF4FF',
+                    'is_online' => $isOnline,
+                    'msg' => \Illuminate\Support\Str::limit($t->comentarios->first()->mensaje, 50),
+                    'time' => $t->comentarios->first()->created_at->format('d/m/y'),
+                    'time_full' => $t->comentarios->first()->created_at->diffForHumans()
+                ];
+            })->values()->toArray();
             $currentCount = count($this->notificationsList);
             if ($currentCount > $this->notifCount) {
                 $this->dispatch('play-notification-sound');
@@ -1220,7 +1349,11 @@ class SupportHub extends Component
             'historialTickets' => $historialTickets,
             'users'            => $users,
             'agentes'          => User::whereHas('rol', function ($q) {
-                                      $q->whereIn('nombre', ['Admin', 'Agente TI']);
+                                      if (auth()->user()->role === 'admin') {
+                                          $q->whereIn('nombre', ['Admin', 'Agente TI']);
+                                      } else {
+                                          $q->whereIn('nombre', ['Agente TI']);
+                                      }
                                   })->get(),
             'estadosLocales'   => \App\Models\EstadoTicket::whereIn('id', [1, 2])->get(),
             'stockCount'       => $stockCount,

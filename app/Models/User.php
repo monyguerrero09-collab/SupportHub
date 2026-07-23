@@ -42,6 +42,8 @@ class User extends Authenticatable
         'password',
         'grupo',
         'departamento_id',
+        'profile_photo_path',
+        'last_seen_at',
     ];
 
     /**
@@ -66,6 +68,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'activo' => 'boolean',
             'fecha_creacion' => 'datetime',
+            'last_seen_at' => 'datetime',
         ];
     }
 
@@ -113,6 +116,25 @@ class User extends Authenticatable
             'Usuario' => 'user',
             default => 'user'
         };
+    }
+
+    /**
+     * Get profile photo URL
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo_path) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nombre_completo ?? 'U') . '&color=7F9CF5&background=EBF4FF';
+    }
+
+    /**
+     * Check if user is currently online (last seen within 3 minutes)
+     */
+    public function isOnline(): bool
+    {
+        return $this->last_seen_at && $this->last_seen_at->diffInMinutes(now()) <= 3;
     }
 
     /**

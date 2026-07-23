@@ -4,7 +4,8 @@
         sidebarOpen: false, 
         activeTab: @entangle('activeTab'),
         sendingTicket: false,
-        showSuccessScreen: false
+        showSuccessScreen: false,
+        chatListSidebarOpen: false
      }"
      @resize.window="if(window.innerWidth < 768) sidebarOpen = false;"
      wire:poll.5s
@@ -169,7 +170,7 @@
                 </button>
                 
             @endif
-            @if(auth()->user()->role !== 'user')
+            @if(auth()->user()->role === 'admin')
                 <button @click="activeTab = 'users'"
                     :class="activeTab === 'users' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -179,6 +180,8 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Usuarios</span>
                 </button>
+            @endif
+            @if(auth()->user()->role !== 'user')
                 
                 {{-- Legacy Tools (Kept as requested) --}}
                 <div x-show="sidebarOpen" class="px-4 py-2 mt-2 border-t border-white/5 pt-4">
@@ -274,6 +277,18 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3 shrink-0" x-data="{ notifOpen: false }">
+                
+                {{-- CHAT NOTIFICATION --}}
+                <div class="relative">
+                    <button @click="$wire.closeChatWidget(); chatListSidebarOpen = !chatListSidebarOpen"
+                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center hover:bg-purple-600/20 active:scale-95 transition-all relative">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        @if(count($chatNotificationsList) > 0)
+                            <span class="absolute top-1.5 right-1.5 w-4 h-4 bg-purple-500 text-white flex items-center justify-center text-[8px] font-bold rounded-full ring-2 ring-[#050510] animate-pulse">{{ count($chatNotificationsList) }}</span>
+                        @endif
+                    </button>
+                </div>
+
                 {{-- NOTIFICATION BELL --}}
                 <div class="relative">
                     <button @click="notifOpen = !notifOpen" @click.outside="notifOpen = false"
@@ -474,6 +489,10 @@
                                         <div class="flex items-center justify-end gap-3">
                                             @if(in_array(auth()->user()->role, ['admin', 'agente']))
                                                 <div class="flex gap-2">
+                                                    <button wire:click.stop="openChatWidget({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-purple-600/20 text-purple-400 border border-purple-500/20 hover:bg-purple-600/40 transition-all flex items-center gap-1.5" title="Abrir Chat">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                                        Chat
+                                                    </button>
                                                     <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                         Gestionar
@@ -618,6 +637,10 @@
                                     </td>
                                     <td class="px-4 md:px-5 py-4 text-right">
                                         <div class="flex items-center justify-end gap-3">
+                                            <button wire:click.stop="openChatWidget({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-purple-600/20 text-purple-400 border border-purple-500/20 hover:bg-purple-600/40 transition-all flex items-center gap-1.5" title="Abrir Chat">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                                Chat
+                                            </button>
                                             <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                 Gestionar
@@ -1924,6 +1947,7 @@
                             </div>
                             
                             <div class="relative z-10 flex items-center gap-3 shrink-0">
+
                                 <button wire:click.stop="deleteTicket({{ $ticket->id }})" wire:confirm="¿Estás seguro que deseas eliminar permanentemente este ticket? Esta acción no se puede deshacer y desaparecerá de todas las bandejas." class="w-9 h-9 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] flex items-center justify-center transition-all focus:outline-none opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0" title="Eliminar ticket">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
@@ -2050,18 +2074,9 @@
                                     <div class="space-y-6">
                                         <h5 class="font-black text-white uppercase tracking-tighter text-xl flex items-center gap-3">
                                             <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                            Track de Seguimiento
+                                            Historial de Actividad
                                         </h5>
                                         <div class="space-y-6">
-                                            @foreach($detTicket->comentarios ?? [] as $c)
-                                            <div class="flex flex-col {{ $c->es_cliente ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2">
-                                                <div class="max-w-[85%] p-5 rounded-[2rem] text-xs leading-relaxed {{ $c->es_cliente ? 'bg-blue-600 text-white rounded-tr-sm shadow-[0_10px_20px_rgba(37,99,235,0.2)]' : 'bg-white/10 text-gray-300 border border-white/10 shadow-lg rounded-tl-sm' }}">
-                                                    <p class="font-black text-[9px] mb-2 uppercase tracking-[0.2em] {{ $c->es_cliente ? 'text-blue-200' : 'text-gray-500' }}">{{ $c->es_cliente ? 'Tú (Autor)' : 'Ingeniero de Soporte' }}</p>
-                                                    <p class="font-medium">{{ $c->mensaje }}</p>
-                                                </div>
-                                                <span class="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-2 px-3">{{ $c->created_at->format('d/m/Y H:i') }}</span>
-                                            </div>
-                                            @endforeach
 
                                             @foreach($detTicket->historial ?? [] as $hist)
                                                 @if($hist->visible_para_usuario || in_array(auth()->user()->role, ['admin', 'agente']))
@@ -2096,19 +2111,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="p-8 border-t border-white/10 bg-[#050510] relative z-10 shrink-0">
-                                    <form wire:submit.prevent="addCommentToUserTicket" class="flex gap-4">
-                                        <input 
-                                            wire:model="userComment" 
-                                            type="text" 
-                                            placeholder="Ingresar nueva evidencia o respuesta..." 
-                                            class="flex-1 px-6 py-4 bg-[#1a1a2e] border border-white/10 rounded-[1.5rem] outline-none focus:border-blue-500 text-xs text-white font-bold transition-all shadow-inner placeholder:text-gray-600"
-                                        />
-                                        <button type="submit" class="px-6 py-4 bg-blue-600 text-white rounded-[1.5rem] hover:bg-blue-500 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center border border-blue-400">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                                        </button>
-                                    </form>
-                                </div>
+                                {{-- Chat input moved to floating widget --}}
                                 
                                 {{-- Permite al usuario reabrir si se cerró/completó --}}
                                 @if(in_array($detTicket->estado->nombre, ['Completado', 'Cerrado', 'Resuelto']))
@@ -2124,6 +2127,8 @@
                                 
                                 @endif
                             </div>
+                            
+                            {{-- ZENDESK-STYLE FLOATING CHAT WIDGET ELIMINADO AQUÍ (MUDADO A WIDGET GLOBAL) --}}
                         </div>
                         @endif
 
@@ -2150,78 +2155,98 @@
                     {{-- Profile Card --}}
                     <div class="bg-[#0d0d20]/80 backdrop-blur-2xl border border-white/8 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
                         
-                        {{-- Avatar / Hero Section --}}
-                        <div class="relative px-8 pt-10 pb-8 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent border-b border-white/5">
-                            <div class="absolute inset-0 pointer-events-none">
-                                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl"></div>
-                                <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl"></div>
-                            </div>
-                            <div class="relative z-10 flex items-center gap-6">
-                                {{-- Avatar Circle --}}
-                                <div class="w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 flex items-center justify-center text-white font-black text-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                        <form wire:submit.prevent="updateMyProfile">
+                            {{-- Avatar / Hero Section --}}
+                            <div class="relative px-8 pt-10 pb-8 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent border-b border-white/5">
+                                <div class="absolute inset-0 pointer-events-none">
+                                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl"></div>
+                                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl"></div>
                                 </div>
-                                <div>
-                                    <h2 class="text-2xl font-black text-white tracking-tight uppercase leading-tight">
-                                        {{ Auth::user()->name }}
-                                    </h2>
-                                    @php
-                                        $roleLabel = match(auth()->user()->role) {
-                                            'admin' => 'Administrador',
-                                            'agente' => 'Agente TI',
-                                            default => 'Usuario',
-                                        };
-                                        $roleColor = match(auth()->user()->role) {
-                                            'admin' => 'text-emerald-400',
-                                            'agente' => 'text-purple-400',
-                                            default => 'text-blue-400',
-                                        };
-                                    @endphp
-                                    <p class="text-sm font-bold uppercase tracking-widest mt-1 {{ $roleColor }}">{{ $roleLabel }}</p>
-                                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">
-                                        Cuenta activa desde {{ Auth::user()->created_at ? Auth::user()->created_at->format('M Y') : 'N/A' }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Fields --}}
-                        <div class="p-8 space-y-5">
-
-                            {{-- Nombre --}}
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    Nombre Completo
-                                </label>
-                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
-                                    <span class="text-sm font-bold text-white flex-1">{{ Auth::user()->name }}</span>
-                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">Solo lectura</span>
-                                </div>
-                            </div>
-
-                            {{-- Email --}}
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                    Correo Electrónico
-                                </label>
-                                <div class="flex gap-3">
-                                    <div class="relative flex-1">
-                                        <input type="email" wire:model="userProfileEmail" required
-                                            class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all">
+                                <div class="relative z-10 flex items-center gap-6">
+                                    {{-- Editable Avatar Circle --}}
+                                    <div class="relative group cursor-pointer" onclick="document.getElementById('profilePhotoInput').click()">
+                                        <div class="w-20 h-20 rounded-[1.5rem] bg-[#0b0c16] border border-white/10 flex items-center justify-center text-white font-black text-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0 overflow-hidden relative">
+                                            @if ($newProfilePhoto)
+                                                <img src="{{ $newProfilePhoto->temporaryUrl() }}" class="w-full h-full object-cover">
+                                            @else
+                                                <img src="{{ Auth::user()->profile_photo_url }}" class="w-full h-full object-cover">
+                                            @endif
+                                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="profilePhotoInput" wire:model="newProfilePhoto" class="hidden" accept="image/*">
                                     </div>
-                                    <button type="button" wire:click="updateProfileEmail"
-                                        class="px-5 py-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 shrink-0">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                        Guardar
+                                    <div>
+                                        <h2 class="text-2xl font-black text-white tracking-tight uppercase leading-tight">
+                                            {{ Auth::user()->nombre_completo }}
+                                        </h2>
+                                        @php
+                                            $roleLabel = match(auth()->user()->role) {
+                                                'admin' => 'Administrador',
+                                                'agente' => 'Agente TI',
+                                                default => 'Usuario',
+                                            };
+                                            $roleColor = match(auth()->user()->role) {
+                                                'admin' => 'text-emerald-400',
+                                                'agente' => 'text-purple-400',
+                                                default => 'text-blue-400',
+                                            };
+                                        @endphp
+                                        <p class="text-sm font-bold uppercase tracking-widest mt-1 {{ $roleColor }}">{{ $roleLabel }}</p>
+                                        <p class="text-[10px] text-gray-500 font-medium mt-0.5">
+                                            Cuenta activa desde {{ Auth::user()->created_at ? Auth::user()->created_at->format('M Y') : 'N/A' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Fields --}}
+                            <div class="p-8 space-y-6">
+
+                                {{-- Nombre --}}
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        Nombre Completo
+                                    </label>
+                                    <input type="text" wire:model="newProfileName" required
+                                        class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder-gray-500">
+                                    @error('newProfileName') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
+                                </div>
+
+                                {{-- Botón de Guardar General (Foto y Nombre) --}}
+                                <div class="pt-2">
+                                    <button type="submit"
+                                        class="px-6 py-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[11px] font-black uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        Guardar Cambios del Perfil
                                     </button>
                                 </div>
-                                @error('userProfileEmail') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
-                                @if(session()->has('profile_success'))
-                                    <span class="text-xs text-emerald-400 font-bold block mt-1 pl-1 animate-pulse">{{ session('profile_success') }}</span>
-                                @endif
-                            </div>
+                                
+                                <div class="w-full h-px bg-white/5 my-4"></div>
+
+                                {{-- Email --}}
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                        Correo Electrónico
+                                    </label>
+                                    <div class="flex gap-3">
+                                        <div class="relative flex-1">
+                                            <input type="email" wire:model="userProfileEmail" required
+                                                class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all">
+                                        </div>
+                                        <button type="button" wire:click="updateProfileEmail"
+                                            class="px-5 py-3 bg-white/10 hover:bg-white/15 border border-white/10 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 shrink-0">
+                                            Actualizar Correo
+                                        </button>
+                                    </div>
+                                    @error('userProfileEmail') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
+                                    @if(session()->has('profile_success'))
+                                        <span class="text-xs text-emerald-400 font-bold block mt-1 pl-1 animate-pulse">{{ session('profile_success') }}</span>
+                                    @endif
+                                </div>
 
                             {{-- Credencial / Código de acceso --}}
                             <div class="space-y-2">
@@ -3405,9 +3430,11 @@
                             <span class="text-gray-400 font-bold uppercase tracking-wider block">Archivos del Usuario:</span>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($adminTicketModel->archivosAdjuntos as $adj)
-                                    <button type="button" wire:click="downloadAttachment({{ $adj->id }})" class="inline-flex items-center gap-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase transition-all">
+                                    <div class="inline-flex items-center gap-1 bg-blue-600/10 border border-blue-500/20 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase text-blue-400">
                                         📎 {{ Str::limit($adj->nombre_archivo, 20) }}
-                                    </button>
+                                        <button type="button" wire:click="viewAttachment({{ $adj->id }})" class="ml-2 hover:text-white px-1 py-0.5 rounded bg-teal-500/20 text-teal-300 transition-colors cursor-pointer">Ver</button>
+                                        <button type="button" wire:click="downloadAttachment({{ $adj->id }})" class="ml-1 hover:text-white px-1 py-0.5 rounded bg-blue-500/20 text-blue-300 transition-colors cursor-pointer">Bajar</button>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -3499,10 +3526,7 @@
                         @endif
                     </div>
 
-                    <div class="space-y-3">
-                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Anotación / Notificar Usuario</label>
-                        <textarea wire:model="aTicketKoment" rows="3" placeholder="Mensaje opcional. Se notificará al usuario de los cambios de estado." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all"></textarea>
-                    </div>
+
                     
 
                     <div class="pt-3 border-t border-white/5">
@@ -4162,4 +4186,246 @@
         });
     });
 </script>
+
+{{-- GLOBAL CHAT BUBBLE WIDGET (DARK THEME) --}}
+@if($chatWidgetTicketModel && $isChatWidgetMinimized)
+    {{-- BUBBLE MODE (Facebook Chat Head style) --}}
+    <div x-data="{
+            x: 0,
+            y: 0,
+            dragging: false,
+            isDragAction: false,
+            startX: 0,
+            startY: 0,
+            startDrag(e) {
+                if (e.target.closest('.no-drag')) return;
+                this.dragging = true;
+                this.isDragAction = false;
+                this.startX = (e.type === 'touchstart' ? e.touches[0].clientX : e.clientX) - this.x;
+                this.startY = (e.type === 'touchstart' ? e.touches[0].clientY : e.clientY) - this.y;
+                
+                const moveHandler = (e) => this.drag(e);
+                const upHandler = (e) => {
+                    this.dragging = false;
+                    window.removeEventListener('mousemove', moveHandler);
+                    window.removeEventListener('mouseup', upHandler);
+                    window.removeEventListener('touchmove', moveHandler);
+                    window.removeEventListener('touchend', upHandler);
+                };
+                window.addEventListener('mousemove', moveHandler);
+                window.addEventListener('mouseup', upHandler);
+                window.addEventListener('touchmove', moveHandler, { passive: false });
+                window.addEventListener('touchend', upHandler);
+            },
+            drag(e) {
+                if (!this.dragging) return;
+                const currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                
+                if (Math.abs(currentX - this.startX - this.x) > 5 || Math.abs(currentY - this.startY - this.y) > 5) {
+                    this.isDragAction = true;
+                }
+                if (e.type === 'touchmove' && this.isDragAction) e.preventDefault();
+                this.x = currentX - this.startX;
+                this.y = currentY - this.startY;
+            }
+         }"
+         :style="`transform: translate(${x}px, ${y}px);`"
+         class="fixed bottom-4 right-4 z-[9999] transition-opacity duration-300 flex flex-col items-end"
+         style="will-change: transform;">
+         
+        <div @mousedown="startDrag" @touchstart="startDrag" @click="if(!isDragAction) $wire.toggleMinimizeChat()"
+             class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-[0_10px_25px_rgba(37,99,235,0.5)] flex items-center justify-center cursor-move hover:scale-105 transition-transform border-4 border-[#0b0c16] relative group animate-in zoom-in">
+            
+            <div class="text-white font-black text-xl uppercase pointer-events-none">
+                @if(auth()->user()->role === 'user')
+                    {{ substr(optional($chatWidgetTicketModel->agente)->nombre ?? 'S', 0, 1) }}
+                @else
+                    {{ substr(optional($chatWidgetTicketModel->creador)->name ?? 'U', 0, 1) }}
+                @endif
+            </div>
+
+            {{-- Expand Button Overlay (Visual) --}}
+            <div class="absolute inset-0 w-full h-full rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center bg-black/40 transition-opacity pointer-events-none">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+            </div>
+            
+            {{-- Close Button --}}
+            <button wire:click.stop="closeChatWidget" class="absolute -top-1 -right-1 w-6 h-6 bg-rose-500 rounded-full text-white flex items-center justify-center hover:bg-rose-600 shadow-md no-drag border-2 border-[#0b0c16] focus:outline-none z-10" title="Cerrar Chat">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </div>
+@endif
+
+{{-- SINGLE RIGHT SIDEBAR (Chat List & Active Chat) --}}
+<aside x-show="chatListSidebarOpen || ($wire.chatWidgetTicketId && !$wire.isChatWidgetMinimized)" x-cloak style="display: none;"
+       class="w-[320px] sm:w-[360px] md:w-[400px] bg-[#0b0c16] flex flex-col h-full border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.4)] z-40 relative shrink-0 transition-transform duration-300 origin-right"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="translate-x-full"
+       x-transition:enter-end="translate-x-0"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-start="translate-x-0"
+       x-transition:leave-end="translate-x-full">
+       
+    @if($chatWidgetTicketModel && !$isChatWidgetMinimized)
+        
+        {{-- FULL CHAT MODE --}}
+        <div class="flex flex-col h-full w-full animate-in fade-in duration-200">
+            {{-- Header --}}
+            <div class="bg-[#0f101f] px-3 py-3 flex items-center text-white shrink-0 shadow-lg z-10 border-b border-white/10 relative">
+                
+                {{-- Back button --}}
+                <div class="flex items-center gap-1 no-drag" wire:ignore>
+                    <button wire:click.stop="closeChatWidget" @click="chatListSidebarOpen = true" class="hover:bg-white/10 p-2 rounded-xl transition-colors focus:outline-none text-blue-400 hover:text-blue-300" title="Volver">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                </div>
+
+                {{-- User Info --}}
+                @php
+                    $otherUser = (auth()->user()->role === 'user') ? $chatWidgetTicketModel->agente : $chatWidgetTicketModel->creador;
+                    $isOnline = $otherUser ? $otherUser->isOnline() : false;
+                @endphp
+                <div class="flex items-center gap-3 ml-2 pointer-events-none">
+                    <div class="relative">
+                        <img src="{{ $otherUser ? $otherUser->profile_photo_url : 'https://ui-avatars.com/api/?name=U' }}" class="w-10 h-10 rounded-full object-cover border border-white/10">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 {{ $isOnline ? 'bg-green-500' : 'bg-gray-500' }} border-2 border-[#0f101f] rounded-full"></div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm leading-tight text-white tracking-wide truncate max-w-[150px]">
+                            {{ $otherUser ? $otherUser->nombre_completo : 'Soporte TI' }}
+                        </h4>
+                        <p class="text-[10px] {{ $isOnline ? 'text-green-400' : 'text-gray-500' }} font-bold tracking-widest mt-0.5">
+                            {{ $isOnline ? 'En línea' : 'Fuera de línea' }}
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Options / Minimize --}}
+                <div class="flex items-center ml-auto gap-1 no-drag" wire:ignore>
+                    <button wire:click.stop="toggleMinimizeChat" class="hover:bg-white/10 p-1.5 rounded-lg transition-colors focus:outline-none text-gray-400 hover:text-white" title="Minimizar">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Chat Body --}}
+            <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#101026]/80 flex flex-col custom-scrollbar relative" id="chat-messages-container" x-data x-init="$nextTick(() => { $el.scrollTop = $el.scrollHeight; })">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
+                <div class="text-center mb-2 relative z-10">
+                    <span class="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] bg-blue-900/30 border border-blue-500/20 px-3 py-1 rounded-full shadow-inner">Inicio de conversación</span>
+                </div>
+                @foreach($chatWidgetTicketModel->comentarios ?? [] as $c)
+                @php
+                    $isMine = (auth()->user()->role === 'user' && $c->es_cliente) || (auth()->user()->role !== 'user' && !$c->es_cliente);
+                @endphp
+                <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2 relative z-10">
+                    <div class="max-w-[90%] px-4 py-3 text-[12px] leading-relaxed shadow-lg {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_5px_15px_rgba(37,99,235,0.2)]' : 'bg-[#1a1a2e] text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-black/50' }} relative">
+                        <p class="font-medium">{{ $c->mensaje }}</p>
+                    </div>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mt-1.5 px-1">{{ $c->created_at->format('H:i') }}</span>
+                </div>
+                @endforeach
+            </div>
+
+            {{-- Chat Footer (Input) --}}
+            <div class="p-3 bg-[#0b0c16] border-t border-white/10 shrink-0 relative z-10">
+                @php
+                    $hasAgentComment = $chatWidgetTicketModel->comentarios->where('es_cliente', false)->count() > 0;
+                    $canReply = (auth()->user()->role !== 'user') || $hasAgentComment;
+                @endphp
+                
+                @if($canReply)
+                <form wire:submit.prevent="sendWidgetMessage" class="relative flex items-center bg-[#1a1a2e] border-2 border-white/10 rounded-[1.25rem] focus-within:border-blue-500 focus-within:bg-blue-900/10 transition-all shadow-inner">
+                    <textarea wire:model="chatWidgetMessage" wire:keydown.enter.prevent="sendWidgetMessage" rows="1" placeholder="Escribe tu mensaje..." class="flex-1 bg-transparent px-4 py-3.5 pr-12 text-xs text-white outline-none resize-none custom-scrollbar placeholder:text-gray-500" style="min-height: 44px;"></textarea>
+                    <div class="absolute right-1.5 flex items-center justify-center">
+                        <button type="submit" class="w-8 h-8 bg-blue-600 text-white hover:bg-blue-500 transition-colors rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group focus:outline-none">
+                            <svg class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform ml-0.5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                        </button>
+                    </div>
+                </form>
+                @else
+                <div class="text-center p-2 bg-[#1a1a2e] rounded-xl border border-white/5">
+                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                        Esperando respuesta del Agente de TI.
+                    </p>
+                </div>
+                @endif
+            </div>
+        </div>
+
+    @else
+        
+        {{-- CHAT LIST SIDEBAR --}}
+        <div class="flex flex-col h-full w-full animate-in fade-in duration-200 relative">
+            {{-- Loading Overlay --}}
+            <div wire:loading wire:target="openChatWidget" class="absolute inset-0 bg-[#0b0c16]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in">
+                <svg class="animate-spin w-8 h-8 text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Abriendo chat...</span>
+            </div>
+
+            {{-- Header --}}
+            <div class="px-5 py-4 flex items-center justify-between border-b border-white/5 shrink-0 bg-[#0f101f]">
+                <h3 class="text-xl font-black text-white tracking-tight">Chats</h3>
+                <button @click="chatListSidebarOpen = false" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            {{-- Search --}}
+            <div class="px-4 py-3 shrink-0">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input type="text" wire:model.live.debounce.300ms="chatSearch" placeholder="Búsqueda" class="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/10 transition-all">
+                </div>
+            </div>
+
+            {{-- Accordion Sections --}}
+            <div class="flex-1 overflow-y-auto custom-scrollbar pb-4" x-data="{ openPrivado: true }">
+                {{-- Privado Section Header --}}
+                <button @click="openPrivado = !openPrivado" class="w-full px-5 py-3 flex items-center justify-between text-gray-400 hover:text-white transition-colors bg-[#101026]/50">
+                    <span class="text-xs font-bold uppercase tracking-wider">Privado ({{ count($chatNotificationsList) }})</span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="openPrivado ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                
+                <div x-show="openPrivado" x-collapse>
+                    @forelse($chatNotificationsList as $chatNotif)
+                        <button wire:click="openChatWidget({{ $chatNotif['id'] }})" class="w-full text-left px-5 py-3.5 hover:bg-white/5 transition-all flex items-center gap-4 group relative border-b border-white/5 last:border-0">
+                            
+                            {{-- Avatar --}}
+                            <div class="relative shrink-0">
+                                <img src="{{ $chatNotif['avatar'] }}" alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-white/10 group-hover:border-blue-500/50 transition-colors">
+                                @if($chatNotif['is_online'])
+                                    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#0b0c16] rounded-full"></div>
+                                @endif
+                            </div>
+
+                            {{-- Chat Info --}}
+                            <div class="flex-1 min-w-0 pr-6">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-bold text-white truncate">{{ $chatNotif['name'] }}</p>
+                                    <span class="text-[10px] font-medium text-gray-500 shrink-0">{{ $chatNotif['time'] }}</span>
+                                </div>
+                                <p class="text-xs text-gray-400 truncate group-hover:text-gray-300 transition-colors">{{ $chatNotif['msg'] }}</p>
+                            </div>
+                        </button>
+                    @empty
+                        <div class="px-5 py-10 text-center">
+                            <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                            </div>
+                            <p class="text-xs font-bold text-gray-500">No hay chats activos</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+    @endif
+</aside>
+
+
 </div>
