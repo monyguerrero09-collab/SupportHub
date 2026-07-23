@@ -223,8 +223,8 @@
                 <div class="flex items-center cursor-pointer hover:bg-white/[0.04] transition-all p-3"
                      :class="sidebarOpen ? 'gap-3' : 'justify-center'"
                      @click="sidebarOpen && (profileMenuOpen = !profileMenuOpen)">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-black text-xs shrink-0 shadow-[0_0_12px_rgba(37,99,235,0.5)]">
-                        {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                    <div class="w-9 h-9 rounded-xl bg-[#0b0c16] border border-white/10 shrink-0 shadow-[0_0_12px_rgba(37,99,235,0.5)] overflow-hidden">
+                        <img src="{{ Auth::user()->profile_photo_url }}" class="w-full h-full object-cover">
                     </div>
                     <div x-show="sidebarOpen" class="min-w-0 flex-1">
                         <p class="text-xs font-bold truncate text-white tracking-tight">{{ Auth::user()->name }}</p>
