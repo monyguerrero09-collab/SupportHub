@@ -4,8 +4,7 @@
         sidebarOpen: false, 
         activeTab: @entangle('activeTab'),
         sendingTicket: false,
-        showSuccessScreen: false,
-        chatListSidebarOpen: false
+        showSuccessScreen: false
      }"
      @resize.window="if(window.innerWidth < 768) sidebarOpen = false;"
      wire:poll.5s
@@ -16,7 +15,7 @@
     
     {{-- Scripts for Charts --}}
 
-    {{-- Estilos Globales para Partículas --}}
+    {{-- Estilos Globales para Part├¡culas --}}
     <style>
         .transition-particle {
             position: absolute;
@@ -105,7 +104,7 @@
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
                         <i class="fa-solid fa-folder-open group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
-                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gesti├│n de Archivos</span>
                 </button>
             @else
                 {{-- Rutas de Admin/Agente --}}
@@ -151,10 +150,10 @@
                             <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'historial' ? 'bg-blue-400' : 'bg-gray-600'"></span> Historial
                         </button>
                         <button @click="activeTab = 'causas'" :class="activeTab === 'causas' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="w-full text-left text-[10px] font-bold uppercase tracking-wider py-2 transition-colors flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'causas' ? 'bg-blue-400' : 'bg-gray-600'"></span> Causas de Solución
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'causas' ? 'bg-blue-400' : 'bg-gray-600'"></span> Causas de Soluci├│n
                         </button>
                         <button @click="activeTab = 'motivos'" :class="activeTab === 'motivos' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="w-full text-left text-[10px] font-bold uppercase tracking-wider py-2 transition-colors flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'motivos' ? 'bg-blue-400' : 'bg-gray-600'"></span> Motivos de Cancelación
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeTab === 'motivos' ? 'bg-blue-400' : 'bg-gray-600'"></span> Motivos de Cancelaci├│n
                         </button>
                     </div>
                 </div>
@@ -170,7 +169,7 @@
                 </button>
                 
             @endif
-            @if(auth()->user()->role === 'admin')
+            @if(auth()->user()->role !== 'user')
                 <button @click="activeTab = 'users'"
                     :class="activeTab === 'users' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -180,8 +179,6 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Usuarios</span>
                 </button>
-            @endif
-            @if(auth()->user()->role !== 'user')
                 
                 {{-- Legacy Tools (Kept as requested) --}}
                 <div x-show="sidebarOpen" class="px-4 py-2 mt-2 border-t border-white/5 pt-4">
@@ -203,7 +200,7 @@
                     <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
                         <i class="fa-solid fa-folder-open group-hover:scale-110 transition-transform text-lg"></i>
                     </div>
-                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gesti├│n de Archivos</span>
                 </button>
                 <button @click="activeTab = 'map'"
                     :class="activeTab === 'map' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
@@ -239,7 +236,7 @@
                         @if(auth()->user()->role !== 'user')
                         <button @click="activeTab = 'settings'; profileMenuOpen = false" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-gray-400 hover:bg-white/5 hover:text-white transition-all">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            Configuración
+                            Configuraci├│n
                         </button>
                         @endif
                         <button @click="activeTab = 'mi_perfil'; profileMenuOpen = false" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-gray-400 hover:bg-white/5 hover:text-white transition-all w-full">
@@ -272,28 +269,11 @@
                 </button>
                 <div class="min-w-0">
                     <h2 class="text-base sm:text-xl md:text-2xl font-black text-white tracking-tighter uppercase leading-none truncate" x-text="activeTab.replace(/_/g, ' ').toUpperCase()"></h2>
-                    <p class="text-[10px] text-gray-500 font-medium mt-0.5 truncate" x-show="activeTab === 'generar_ticket'">Configura los detalles de tu requerimiento técnico</p>
+                    <p class="text-[10px] text-gray-500 font-medium mt-0.5 truncate" x-show="activeTab === 'generar_ticket'">Configura los detalles de tu requerimiento t├®cnico</p>
                     <p class="text-[10px] text-gray-500 font-medium mt-0.5 truncate" x-show="activeTab === 'inicio'">Bienvenido al panel general de CGR Connect</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3 shrink-0" x-data="{ notifOpen: false }">
-                
-                {{-- CHAT NOTIFICATION --}}
-                <div class="relative">
-                    @if(auth()->user()->role === 'user')
-                    <button wire:click="openAiChat" @click="chatListSidebarOpen = !chatListSidebarOpen"
-                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center hover:bg-purple-600/20 active:scale-95 transition-all relative">
-                    @else
-                    <button @click="$wire.closeChatWidget(); chatListSidebarOpen = !chatListSidebarOpen"
-                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center hover:bg-purple-600/20 active:scale-95 transition-all relative">
-                    @endif
-                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                        @if(count($chatNotificationsList) > 0 && auth()->user()->role !== 'user')
-                            <span class="absolute top-1.5 right-1.5 w-4 h-4 bg-purple-500 text-white flex items-center justify-center text-[8px] font-bold rounded-full ring-2 ring-[#050510] animate-pulse">{{ count($chatNotificationsList) }}</span>
-                        @endif
-                    </button>
-                </div>
-
                 {{-- NOTIFICATION BELL --}}
                 <div class="relative">
                     <button @click="notifOpen = !notifOpen" @click.outside="notifOpen = false"
@@ -345,7 +325,7 @@
                                     {{-- Delete/dismiss button --}}
                                     <button wire:click.stop="dismissNotification({{ $notif['id'] }})"
                                             class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors focus:outline-none shrink-0"
-                                            title="Eliminar notificación">
+                                            title="Eliminar notificaci├│n">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </button>
                                 </div>
@@ -360,7 +340,7 @@
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto overflow-x-auto p-3 sm:p-5 md:p-8 lg:p-10 space-y-6 md:space-y-10">
+        <div class="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 lg:p-10 space-y-6 md:space-y-10">
             
 
 
@@ -374,7 +354,7 @@
                     </div>
 
                     {{-- Filters control bar --}}
-                    <div :class="chatListSidebarOpen || ($wire.chatWidgetTicketId && !$wire.isChatWidgetMinimized) ? 'flex-col items-stretch' : 'flex-col xl:flex-row items-stretch xl:items-center'" class="flex gap-5 justify-between bg-[#101026]/60 backdrop-blur-2xl rounded-2xl p-5 border border-white/5">
+                    <div class="flex flex-col xl:flex-row gap-5 items-stretch xl:items-center justify-between bg-[#101026]/60 backdrop-blur-2xl rounded-2xl p-5 border border-white/5">
                         {{-- Status buttons --}}
                         <div class="flex flex-wrap items-center gap-2">
                             <button wire:click="$set('statusFilter', 'Todos')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border {{ $statusFilter === 'Todos' ? 'bg-blue-600 border-blue-500/20 text-white shadow-lg' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }} focus:outline-none">
@@ -391,7 +371,7 @@
                         {{-- Calendar Picker filter --}}
                         <div class="flex items-center gap-3">
                             <div class="flex items-center gap-2">
-                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Filtrar por Día:</label>
+                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Filtrar por D├¡a:</label>
                                 <div class="relative">
                                     <input type="date" wire:model.live="dateFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none" />
                                 </div>
@@ -438,14 +418,14 @@
                                         @if($ticket->hora_visita)
                                             <p class="mt-1.5">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-                                                    🕒 Visita: {{ $ticket->hora_visita }}
+                                                    ­ƒòÆ Visita: {{ $ticket->hora_visita }}
                                                 </span>
                                             </p>
                                         @endif
                                         @if($ticket->tiempo_resolucion)
                                             <p class="mt-1.5">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-teal-500/10 text-teal-400 border border-teal-500/20 uppercase tracking-wider">
-                                                    ⏱️ Resol: {{ $ticket->tiempo_resolucion }} min
+                                                    ÔÅ▒´©Å Resol: {{ $ticket->tiempo_resolucion }} min
                                                 </span>
                                             </p>
                                         @endif
@@ -494,22 +474,18 @@
                                         <div class="flex items-center justify-end gap-3">
                                             @if(in_array(auth()->user()->role, ['admin', 'agente']))
                                                 <div class="flex gap-2">
-                                                    <button wire:click.stop="openChatWidget({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-purple-600/20 text-purple-400 border border-purple-500/20 hover:bg-purple-600/40 transition-all flex items-center gap-1.5" title="Abrir Chat">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                                        Chat
-                                                    </button>
                                                     <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                         Gestionar
                                                     </button>
-                                                    <button wire:click="deleteTicket({{ $ticket->id }})" wire:confirm="¿Estás seguro de eliminar este ticket? Se enviará a la papelera." class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-red-600/20 text-red-400 border border-red-500/20 hover:bg-red-600/40 transition-all flex items-center gap-1.5" title="Eliminar duplicado">
+                                                    <button wire:click="deleteTicket({{ $ticket->id }})" wire:confirm="┬┐Est├ís seguro de eliminar este ticket? Se enviar├í a la papelera." class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-red-600/20 text-red-400 border border-red-500/20 hover:bg-red-600/40 transition-all flex items-center gap-1.5" title="Eliminar duplicado">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                     </button>
                                                 </div>
-                                                {{-- Mostrar Reabrir rápido en tabla si está finalizado --}}
+                                                {{-- Mostrar Reabrir r├ípido en tabla si est├í finalizado --}}
                                                 @if(in_array($ticket->estado->nombre, ['Completado', 'Cerrado', 'Resuelto']))
                                                     <button wire:click="reopenTicket('{{ $ticket->id }}')"
-                                                            wire:confirm="¿Estás seguro de reabrir este ticket?"
+                                                            wire:confirm="┬┐Est├ís seguro de reabrir este ticket?"
                                                             class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                                         Reabrir
@@ -543,7 +519,7 @@
                         {{-- Calendar Picker filter --}}
                         <div class="flex items-center gap-3">
                             <div class="flex items-center gap-2">
-                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Filtrar por Día:</label>
+                                <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">Filtrar por D├¡a:</label>
                                 <input type="date" wire:model.live="dateFilter" class="bg-[#0b0b1e]/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-bold select-none" />
                             </div>
                             <div class="flex items-center gap-2 ml-2">
@@ -588,14 +564,14 @@
                                         @if($ticket->hora_visita)
                                             <p class="mt-1.5">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-                                                    🕒 Visita: {{ $ticket->hora_visita }}
+                                                    ­ƒòÆ Visita: {{ $ticket->hora_visita }}
                                                 </span>
                                             </p>
                                         @endif
                                         @if($ticket->tiempo_resolucion)
                                             <p class="mt-1.5">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-teal-500/10 text-teal-400 border border-teal-500/20 uppercase tracking-wider">
-                                                    ⏱️ Resol: {{ $ticket->tiempo_resolucion }} min
+                                                    ÔÅ▒´©Å Resol: {{ $ticket->tiempo_resolucion }} min
                                                 </span>
                                             </p>
                                         @endif
@@ -642,16 +618,12 @@
                                     </td>
                                     <td class="px-4 md:px-5 py-4 text-right">
                                         <div class="flex items-center justify-end gap-3">
-                                            <button wire:click.stop="openChatWidget({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-purple-600/20 text-purple-400 border border-purple-500/20 hover:bg-purple-600/40 transition-all flex items-center gap-1.5" title="Abrir Chat">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                                Chat
-                                            </button>
                                             <button wire:click="viewAdminTicket({{ $ticket->id }})" class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20 hover:bg-blue-600/40 transition-all flex items-center gap-1.5" title="Gestionar Ticket">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                 Gestionar
                                             </button>
                                             <button wire:click="reopenTicket('{{ $ticket->id }}')"
-                                                    wire:confirm="¿Estás seguro de reabrir este ticket?"
+                                                    wire:confirm="┬┐Est├ís seguro de reabrir este ticket?"
                                                     class="px-2.5 py-1.5 rounded-lg text-[8.5px] font-black uppercase bg-amber-600/20 text-amber-400 border border-amber-500/20 hover:bg-amber-600/40 transition-all flex items-center gap-1.5">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                                 Reabrir
@@ -674,7 +646,7 @@
                     <!-- Contenedor Principal Glassmorphism -->
                     <div wire:ignore class="relative w-full rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 p-6 sm:p-8 lg:p-10 shadow-[0_0_50px_rgba(37,99,235,0.15)] flex flex-col justify-between overflow-hidden min-h-[580px]">
                         
-                        <!-- Destellos Galácticos en esquinas -->
+                        <!-- Destellos Gal├ícticos en esquinas -->
                         <div class="absolute top-0 right-0 w-[450px] h-[450px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
                         <div class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -684,7 +656,7 @@
                                 <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight select-none uppercase drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] pr-4 pb-2 text-white">
                                     BIENVENIDO, <span class="text-blue-400">{{ auth()->user()->nombre_completo ?? auth()->user()->name ?? 'USUARIO' }}</span>!
                                 </h2>
-                                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase font-mono whitespace-nowrap">CGR International • México</span>
+                                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase font-mono whitespace-nowrap">CGR International ÔÇó M├®xico</span>
                             </div>
                             
                             <div class="relative flex items-center mt-3 w-full max-w-2xl">
@@ -694,7 +666,7 @@
                         </div>
 
                         <!-- WIDGETS (Hora, Clima, Calendario, Info) -->
-                        <div :class="chatListSidebarOpen || ($wire.chatWidgetTicketId && !$wire.isChatWidgetMinimized) ? 'flex flex-col' : 'grid grid-cols-1 lg:grid-cols-12'" class="gap-6 relative z-10 my-auto items-stretch">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10 my-auto items-stretch">
                             
                             <!-- COLUMNA IZQUIERDA: Hora y Clima -->
                             <div class="lg:col-span-5 flex flex-col justify-between gap-6">
@@ -709,11 +681,11 @@
                                     </span>
 
                                     <div class="flex items-center gap-3">
-                                        <!-- Dígitos del Reloj 3D -->
+                                        <!-- D├¡gitos del Reloj 3D -->
                                         <div class="flex items-center text-white font-black text-4xl sm:text-5xl tracking-tighter tabular-nums">
                                             <span id="clock-hours" class="bg-white/10 text-white px-3 py-1.5 rounded-xl mx-0.5 border-b-4 border-blue-500/50 shadow-[0_4px_15px_rgba(0,0,0,0.5)] inline-block min-w-[3rem] text-center">{{ now()->format('h') }}</span>
                                             
-                                            <!-- Indicadores Neón -->
+                                            <!-- Indicadores Ne├│n -->
                                             <div class="flex flex-col gap-2 mx-2">
                                                 <div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(96,165,250,0.8)] animate-pulse"></div>
                                                 <div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(96,165,250,0.8)] animate-pulse"></div>
@@ -735,9 +707,9 @@
                                     <div class="flex flex-col">
                                         <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1 flex items-center gap-1.5">
                                             <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-                                            Clima en Querétaro
+                                            Clima en Quer├®taro
                                         </span>
-                                        <span class="text-xl font-extrabold text-white" id="weather-temp">--°C</span>
+                                        <span class="text-xl font-extrabold text-white" id="weather-temp">--┬░C</span>
                                         <span class="text-[11px] text-gray-400 font-medium" id="weather-desc">Cargando...</span>
                                         <span class="text-[9px] text-gray-500 mt-1">Planta El Pueblito, Qro.</span>
                                     </div>
@@ -755,7 +727,7 @@
                             <!-- COLUMNA CENTRAL-DERECHA: Calendario y Marca -->
                             <div class="lg:col-span-7 bg-white/5 backdrop-blur-md p-5 rounded-3xl border border-white/10 flex flex-col md:flex-row gap-5 items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.2)] hover:border-white/20 transition-all duration-500">
                                 
-                                <!-- Calendario Dinámico -->
+                                <!-- Calendario Din├ímico -->
                                 <div class="bg-[#050510]/80 border border-white/10 text-white rounded-2xl p-4 shadow-2xl flex-grow w-full md:w-1/2 transition-all duration-300">
                                     <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-white/10">
                                         <span class="bg-blue-500/20 text-blue-400 font-extrabold px-2.5 py-0.5 rounded-lg text-xs" id="cal-year">----</span>
@@ -797,15 +769,15 @@
                                     </div>
 
                                     <div class="mt-4 pt-3 border-t border-white/10 text-[10px] text-gray-400">
-                                        <p class="font-bold text-gray-200">CGR Querétaro Plant</p>
-                                        <p>Manufactura de alta precisión para autopartes y herramentales.</p>
+                                        <p class="font-bold text-gray-200">CGR Quer├®taro Plant</p>
+                                        <p>Manufactura de alta precisi├│n para autopartes y herramentales.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Tarjeta Inspiradora -->
-                        <div :class="chatListSidebarOpen || ($wire.chatWidgetTicketId && !$wire.isChatWidgetMinimized) ? 'flex flex-col' : 'grid grid-cols-1 md:grid-cols-12'" class="relative z-10 w-full mt-6 gap-6 items-center">
+                        <div class="relative z-10 w-full mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                             
                             <div class="md:col-span-8 relative rounded-2xl overflow-hidden h-36 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_40px_rgba(59,130,246,0.2)] hover:border-blue-500/30 transition-all duration-500 group hover:-translate-y-1">
                                 <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" 
@@ -815,11 +787,11 @@
                                 <div class="absolute inset-0 bg-gradient-to-r from-[#020205]/90 via-[#020205]/60 to-transparent"></div>
 
                                 <div class="absolute inset-0 p-5 flex flex-col justify-center">
-                                    <span class="text-[8px] sm:text-[9px] uppercase tracking-widest font-extrabold text-blue-400 mb-1">CGR Motivación Diario</span>
+                                    <span class="text-[8px] sm:text-[9px] uppercase tracking-widest font-extrabold text-blue-400 mb-1">CGR Motivaci├│n Diario</span>
                                     <blockquote class="text-xs sm:text-sm font-semibold text-gray-200 italic leading-relaxed max-w-xl">
-                                        "La precisión en nuestro trabajo moldea el estándar del mañana. Con esfuerzo y seguridad, en CGR Querétaro formamos nuestro mundo."
+                                        "La precisi├│n en nuestro trabajo moldea el est├índar del ma├▒ana. Con esfuerzo y seguridad, en CGR Quer├®taro formamos nuestro mundo."
                                     </blockquote>
-                                    <p class="text-[9px] text-gray-400 mt-2 font-bold">— Equipo de Calidad y Procesos, CGR México.</p>
+                                    <p class="text-[9px] text-gray-400 mt-2 font-bold">ÔÇö Equipo de Calidad y Procesos, CGR M├®xico.</p>
                                 </div>
                             </div>
 
@@ -829,7 +801,7 @@
                                     <p class="text-blue-400 text-xs font-bold uppercase tracking-wider">Estado Operativo</p>
                                 </div>
                                 <p class="text-xs text-gray-300 leading-relaxed">
-                                    Turno de producción: <span class="text-white font-bold" id="current-shift">
+                                    Turno de producci├│n: <span class="text-white font-bold" id="current-shift">
                                         @php
                                             $hour = now()->hour;
                                             if($hour >= 6 && $hour < 14) echo 'Matutino (Turno A)';
@@ -837,7 +809,7 @@
                                             else echo 'Nocturno (Turno C)';
                                         @endphp
                                     </span>.<br>
-                                    Para reportar fallas críticas o paros de línea, use la pestaña de <span class="text-blue-400 font-extrabold">Generar Ticket</span>.
+                                    Para reportar fallas cr├¡ticas o paros de l├¡nea, use la pesta├▒a de <span class="text-blue-400 font-extrabold">Generar Ticket</span>.
                                 </p>
                             </div>
                         </div>
@@ -862,7 +834,7 @@
                         sectors: {{ json_encode($SECTORS) }},
                         areas: {{ json_encode($AREAS) }},
                         vigilanciaAreas: [
-                            { id: 'vig_camara', name: 'Cámara', services: 1, icon: 'Video' },
+                            { id: 'vig_camara', name: 'C├ímara', services: 1, icon: 'Video' },
                             { id: 'vig_equipo', name: 'Equipo', services: 1, icon: 'Monitor' },
                             { id: 'vig_wifi', name: 'Red de WiFi', services: 1, icon: 'Globe' }
                         ],
@@ -983,13 +955,13 @@
                                 await $wire.createManualTicket({
                                     sectorId: this.manualSector,
                                     subcategory: this.manualProblem,
-                                    description: this.manualDescription + '\n\n[Estación/Área Ingresada]: ' + this.manualStation,
+                                    description: this.manualDescription + '\n\n[Estaci├│n/├ürea Ingresada]: ' + this.manualStation,
                                     planta: this.manualPlanta,
                                     location: mId
                                 });
                             } catch (e) {
                                 console.error(e);
-                                alert('Error de validación: por favor revisa que todos los campos y archivos estén correctos.');
+                                alert('Error de validaci├│n: por favor revisa que todos los campos y archivos est├®n correctos.');
                                 window.dispatchEvent(new CustomEvent('hide-sending-overlay'));
                             }
                         },
@@ -999,12 +971,12 @@
                             $wire.set('ticketSectorId', this.selectedSector);
                             $wire.set('ticketCategory', this.category);
                             $wire.set('ticketSubcategory', this.subcategory);
-                            let desc = 'Generado automáticamente por Botón rápido de TI.';
+                            let desc = 'Generado autom├íticamente por Bot├│n r├ípido de TI.';
                             if (this.intComment.trim()) desc += '\n\nComentario extra: ' + this.intComment;
-                            desc += '\n\n[Estación/Área Ingresada]: ' + this.intStation;
+                            desc += '\n\n[Estaci├│n/├ürea Ingresada]: ' + this.intStation;
                             let pri = 2;
                             if (this.category === 'Seguridad TI' || this.category === 'Redes/Wifi') pri = 3;
-                            else if (this.category === 'Impresión') pri = 1;
+                            else if (this.category === 'Impresi├│n') pri = 1;
                             let mId = this.findMachineId(this.intStation);
                             
                             try {
@@ -1018,8 +990,8 @@
                                     location: mId
                                 });
                             } catch (e) {
-                                console.error('Error al generar ticket rápido:', e);
-                                alert('Error de validación: por favor revisa que todos los campos y archivos estén correctos.');
+                                console.error('Error al generar ticket r├ípido:', e);
+                                alert('Error de validaci├│n: por favor revisa que todos los campos y archivos est├®n correctos.');
                                 window.dispatchEvent(new CustomEvent('hide-sending-overlay'));
                             }
                         }
@@ -1042,14 +1014,14 @@
                                  </div>
                                  
                                  <h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-2 tracking-tight">
-                                     ¿CÓMO DESEAS <span class="text-indigo-500">GENERAR TU TICKET?</span>
+                                     ┬┐C├ôMO DESEAS <span class="text-indigo-500">GENERAR TU TICKET?</span>
                                  </h2>
                                  <p class="text-gray-400 text-center mb-12 text-sm">
-                                     Elige la opción que mejor se adapte a tu necesidad. Estamos <span class="text-indigo-400 font-bold">aquí para ayudarte</span>.
+                                     Elige la opci├│n que mejor se adapte a tu necesidad. Estamos <span class="text-indigo-400 font-bold">aqu├¡ para ayudarte</span>.
                                  </p>
 
                                  <!-- Cards Container -->
-                                 <div :class="chatListSidebarOpen || ($wire.chatWidgetTicketId && !$wire.isChatWidgetMinimized) ? 'flex flex-col' : 'grid md:grid-cols-2'" class="gap-8 mb-12">
+                                 <div class="grid md:grid-cols-2 gap-8 mb-12">
                                      
                                      <!-- Card 1 -->
                                      <div class="bg-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col relative transition-transform hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/30">
@@ -1096,7 +1068,7 @@
                                          
                                          <div class="bg-indigo-500/10 rounded-lg p-3.5 mb-8 flex items-start gap-3 mx-auto sm:mx-0">
                                              <i class="fa-regular fa-lightbulb text-indigo-400 text-base mt-0.5"></i>
-                                             <p class="text-[11px] text-indigo-200/80 font-medium leading-snug">Ideal para situaciones nuevas o que requieren explicación.</p>
+                                             <p class="text-[11px] text-indigo-200/80 font-medium leading-snug">Ideal para situaciones nuevas o que requieren explicaci├│n.</p>
                                          </div>
 
                                          <button @click="mode = 'manual'" class="w-full py-4 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-xl font-bold text-sm tracking-wide text-center transition-colors flex items-center justify-center gap-2 mt-auto">
@@ -1147,18 +1119,18 @@
                                              </div>
                                              <!-- Text -->
                                              <div class="text-center sm:text-left">
-                                                 <h3 class="text-2xl font-black text-white mb-2 leading-tight">Seleccionar<br class="hidden sm:block"> botones rápidos</h3>
-                                                 <p class="text-gray-400 text-xs leading-relaxed">Elige una categoría y genera tu ticket en segundos con opciones predefinidas.</p>
+                                                 <h3 class="text-2xl font-black text-white mb-2 leading-tight">Seleccionar<br class="hidden sm:block"> botones r├ípidos</h3>
+                                                 <p class="text-gray-400 text-xs leading-relaxed">Elige una categor├¡a y genera tu ticket en segundos con opciones predefinidas.</p>
                                              </div>
                                          </div>
                                          
                                          <div class="bg-blue-500/10 rounded-lg p-3.5 mb-8 flex items-start gap-3 mx-auto sm:mx-0">
                                              <i class="fa-solid fa-bolt text-blue-400 text-base mt-0.5"></i>
-                                             <p class="text-[11px] text-blue-200/80 font-medium leading-snug">Ideal para solicitudes comunes y procesos rápidos.</p>
+                                             <p class="text-[11px] text-blue-200/80 font-medium leading-snug">Ideal para solicitudes comunes y procesos r├ípidos.</p>
                                          </div>
 
                                          <button @click="mode = 'intuitive'" class="w-full py-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold text-sm tracking-wide text-center transition-colors flex items-center justify-center gap-2 mt-auto">
-                                             Seleccionar botones rápidos <i class="fa-solid fa-arrow-right"></i>
+                                             Seleccionar botones r├ípidos <i class="fa-solid fa-arrow-right"></i>
                                          </button>
                                      </div>
                                  </div>
@@ -1169,14 +1141,14 @@
                                          <i class="fa-solid fa-shield-halved text-indigo-400 text-2xl"></i>
                                          <div class="text-left">
                                              <h4 class="text-white text-xs font-bold">Seguridad</h4>
-                                             <p class="text-gray-400 text-[10px]">Tu información está protegida</p>
+                                             <p class="text-gray-400 text-[10px]">Tu informaci├│n est├í protegida</p>
                                          </div>
                                      </div>
                                      <div class="w-px h-8 bg-white/10 hidden md:block"></div>
                                      <div class="flex items-center gap-3">
                                          <i class="fa-regular fa-clock text-purple-400 text-2xl"></i>
                                          <div class="text-left">
-                                             <h4 class="text-white text-xs font-bold">Respuesta rápida</h4>
+                                             <h4 class="text-white text-xs font-bold">Respuesta r├ípida</h4>
                                              <p class="text-gray-400 text-[10px]">Nos comprometemos a ayudarte</p>
                                          </div>
                                      </div>
@@ -1185,7 +1157,7 @@
                                          <i class="fa-solid fa-users text-indigo-400 text-2xl"></i>
                                          <div class="text-left">
                                              <h4 class="text-white text-xs font-bold">Soporte experto</h4>
-                                             <p class="text-gray-400 text-[10px]">Nuestro equipo está para apoyarte</p>
+                                             <p class="text-gray-400 text-[10px]">Nuestro equipo est├í para apoyarte</p>
                                          </div>
                                      </div>
                                      <div class="w-px h-8 bg-white/10 hidden md:block"></div>
@@ -1202,7 +1174,7 @@
                                  <div class="text-center">
                                      <p class="text-gray-400 text-xs font-medium flex items-center justify-center gap-2">
                                          <i class="fa-regular fa-circle-question text-indigo-500 text-lg"></i>
-                                         ¿Necesitas ayuda? Consulta nuestra <a href="#" class="text-indigo-400 hover:text-indigo-300 hover:underline">Guía de Uso <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-0.5"></i></a>
+                                         ┬┐Necesitas ayuda? Consulta nuestra <a href="#" class="text-indigo-400 hover:text-indigo-300 hover:underline">Gu├¡a de Uso <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-0.5"></i></a>
                                      </p>
                                  </div>
                              </div>
@@ -1216,7 +1188,7 @@
                                           <span class="p-2 bg-white/10 rounded-xl text-lg"><i class="fa-solid fa-file-pen text-white"></i></span>
                                           <div>
                                               <h2 class="text-sm font-black uppercase tracking-tight">Generar Ticket Manual</h2>
-                                              <p class="text-[10px] text-blue-200 mt-0.5">Describe el problema para que un técnico sea asignado.</p>
+                                              <p class="text-[10px] text-blue-200 mt-0.5">Describe el problema para que un t├®cnico sea asignado.</p>
                                           </div>
                                       </div>
                                   </div>
@@ -1230,15 +1202,15 @@
                                           <input type="text" x-model="manualProblem" required placeholder="Ej. No puedo ingresar al correo corporativo"
                                               class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none font-medium">
                                       </div>
-                                      {{-- Descripción --}}
+                                      {{-- Descripci├│n --}}
                                       <div class="space-y-1">
                                           <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
-                                              <span class="flex items-center gap-1.5"><i class="fa-solid fa-align-left text-blue-400"></i> Descripción del problema *</span>
+                                              <span class="flex items-center gap-1.5"><i class="fa-solid fa-align-left text-blue-400"></i> Descripci├│n del problema *</span>
                                           </label>
                                           <textarea x-model="manualDescription" required rows="3" placeholder="Describe a detalle lo ocurrido..."
                                               class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none resize-none font-medium leading-relaxed"></textarea>
                                       </div>
-                                      {{-- Planta + Sector + Estación en grid --}}
+                                      {{-- Planta + Sector + Estaci├│n en grid --}}
                                       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                           <div class="space-y-1">
                                               <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
@@ -1265,15 +1237,15 @@
                                           </div>
                                           <div class="space-y-1">
                                               <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">
-                                                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-map-pin text-rose-500"></i> Área / Estación *</span>
+                                                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-map-pin text-rose-500"></i> ├ürea / Estaci├│n *</span>
                                               </label>
-                                              <input type="text" x-model="manualStation" required placeholder="Ej. Estación 45"
+                                              <input type="text" x-model="manualStation" required placeholder="Ej. Estaci├│n 45"
                                                   class="w-full px-3.5 py-2.5 rounded-lg border border-white/10 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 transition-all text-xs outline-none font-medium">
                                           </div>
                                       </div>
                                       {{-- Adjuntar Archivos --}}
                                       <div class="space-y-1">
-                                          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">Adjuntar Archivos (PDF, Word, Imágenes)</label>
+                                          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest px-0.5">Adjuntar Archivos (PDF, Word, Im├ígenes)</label>
                                           <label class="relative w-full h-12 border border-dashed border-white/10 hover:border-blue-500/50 rounded-lg bg-[#131b2f] flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
                                               <input type="file" multiple wire:model="ticketFiles" class="hidden" />
                                               <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 group-hover:text-blue-400 transition-colors">
@@ -1311,7 +1283,7 @@
                                               </div>
                                           @endif
                                       </div>
-                                      {{-- Botón Enviar --}}
+                                      {{-- Bot├│n Enviar --}}
                                       <button @click="submitManualTicket"
                                           :disabled="!isManualReady"
                                           :class="isManualReady ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_6px_20px_rgba(37,99,235,0.35)] hover:scale-[1.01] active:scale-95' : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'"
@@ -1349,7 +1321,7 @@
                                               </div>
                                           </div>
                                           
-                                          <!-- Step 2: ÁREA -->
+                                          <!-- Step 2: ├üREA -->
                                           <div class="flex items-center space-x-4 cursor-pointer group" @click="if(step > 2) { step = 2; clearStepsFrom(2); }">
                                               <div class="relative flex items-center justify-center">
                                                   <div class="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-white/5 -z-10"></div>
@@ -1365,7 +1337,7 @@
                                                   </div>
                                               </div>
                                               <div>
-                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 2 ? 'text-white' : 'text-gray-500'">ÁREA</p>
+                                                  <p class="text-xs font-black uppercase tracking-widest leading-none transition-colors" :class="step === 2 ? 'text-white' : 'text-gray-500'">├üREA</p>
                                                   <p x-show="step === 2" class="text-[9px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">Paso Actual</p>
                                               </div>
                                           </div>
@@ -1450,8 +1422,8 @@
                                                   </svg>
                                               </div>
                                               <div class="z-10 relative">
-                                                  <h2 class="text-white text-xl sm:text-2xl font-bold tracking-wide" x-text="step === 1 ? 'Seleccione un sector...' : (step === 2 ? 'Seleccione un área de servicios...' : (step === 3 ? 'Seleccione un servicio...' : (step === 4 ? 'Seleccione el problema...' : 'Detalles de la solicitud...')))"></h2>
-                                                  <p class="text-gray-400 text-xs sm:text-sm mt-1" x-text="step === 1 ? 'Elige el sector que mejor se adapte a tu requerimiento técnico' : (step === 2 ? 'Elige el área que mejor se adapte a tu necesidad' : (step === 3 ? 'Selecciona el servicio específico' : (step === 4 ? 'Describe o selecciona el problema' : 'Completa la información final')))">
+                                                  <h2 class="text-white text-xl sm:text-2xl font-bold tracking-wide" x-text="step === 1 ? 'Seleccione un sector...' : (step === 2 ? 'Seleccione un ├írea de servicios...' : (step === 3 ? 'Seleccione un servicio...' : (step === 4 ? 'Seleccione el problema...' : 'Detalles de la solicitud...')))"></h2>
+                                                  <p class="text-gray-400 text-xs sm:text-sm mt-1" x-text="step === 1 ? 'Elige el sector que mejor se adapte a tu requerimiento t├®cnico' : (step === 2 ? 'Elige el ├írea que mejor se adapte a tu necesidad' : (step === 3 ? 'Selecciona el servicio espec├¡fico' : (step === 4 ? 'Describe o selecciona el problema' : 'Completa la informaci├│n final')))">
                                                   </p>
                                               </div>
                                           </div>
@@ -1586,9 +1558,9 @@
                                           {{-- STEP 1: SECTORS --}}
                                           <div x-show="step === 1" class="animate-in fade-in duration-300">
                                               <div x-show="!showProduccionSub" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 py-4">
-                                                  <!-- Button 1: Administración -->
+                                                  <!-- Button 1: Administraci├│n -->
                                                   <button @click="
-                                                      let adminSector = sectors.find(s => s.name === 'Administración');
+                                                      let adminSector = sectors.find(s => s.name === 'Administraci├│n');
                                                       if (adminSector) {
                                                           selectedSector = adminSector.id;
                                                           selectedSectorName = adminSector.name;
@@ -1603,12 +1575,12 @@
                                                           </svg>
                                                       </div>
                                                       <div>
-                                                          <span class="font-extrabold text-white text-xl block group-hover:text-blue-400 transition-colors">Administración</span>
+                                                          <span class="font-extrabold text-white text-xl block group-hover:text-blue-400 transition-colors">Administraci├│n</span>
                                                           <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">Oficinas y departamentos administrativos</span>
                                                       </div>
                                                   </button>
 
-                                                  <!-- Button 2: Producción -->
+                                                  <!-- Button 2: Producci├│n -->
                                                   <button @click="showProduccionSub = true"
                                                   class="group p-8 rounded-3xl bg-[#14142b]/40 border-2 border-white/5 hover:border-blue-500/50 hover:bg-[#1c1c38]/40 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] flex flex-col justify-between h-48 outline-none">
                                                       <div class="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-700/20 border border-purple-500/30 text-purple-400 group-hover:from-purple-500 group-hover:to-purple-600 group-hover:text-white rounded-[1.25rem] flex items-center justify-center transition-all duration-300 shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.15)] group-hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]">
@@ -1617,8 +1589,8 @@
                                                           </svg>
                                                       </div>
                                                       <div>
-                                                          <span class="font-extrabold text-white text-xl block group-hover:text-purple-400 transition-colors">Producción</span>
-                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">Áreas operativas y maquinaria industrial</span>
+                                                          <span class="font-extrabold text-white text-xl block group-hover:text-purple-400 transition-colors">Producci├│n</span>
+                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">├üreas operativas y maquinaria industrial</span>
                                                       </div>
                                                   </button>
 
@@ -1640,20 +1612,20 @@
                                                       </div>
                                                       <div>
                                                           <span class="font-extrabold text-white text-xl block group-hover:text-amber-400 transition-colors">Vigilancia</span>
-                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">Cámaras, red de video y equipos de seguridad</span>
+                                                          <span class="text-gray-400 text-[13px] mt-1.5 block font-medium leading-tight">C├ímaras, red de video y equipos de seguridad</span>
                                                       </div>
                                                   </button>
                                               </div>
 
-                                              <!-- Sub-menu for Producción -->
+                                              <!-- Sub-menu for Producci├│n -->
                                               <div x-show="showProduccionSub" class="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-6">
                                                   <button @click="showProduccionSub = false" class="flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors mb-4 focus:outline-none">
                                                       <i class="fa-solid fa-chevron-left mr-2 text-sm"></i> Volver a sectores
                                                   </button>
                                                   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                                      <template x-for="prodSecName in ['Compresión', 'Tensión', 'Torsión', 'Plat', 'Wire Standing', 'Wipers', 'Mecatrónicos', 'Welding', 'Bending']">
+                                                      <template x-for="prodSecName in ['Compresi├│n', 'Tensi├│n', 'Torsi├│n', 'Plat', 'Wire Standing', 'Wipers', 'Mecatr├│nicos', 'Welding', 'Bending']">
                                                           <button @click="
-                                                              let fullName = 'Producción - ' + prodSecName;
+                                                              let fullName = 'Producci├│n - ' + prodSecName;
                                                               let dbSec = sectors.find(s => s.name === fullName);
                                                               if (dbSec) {
                                                                   selectedSector = dbSec.id;
@@ -1755,28 +1727,28 @@
                                                       <div class="relative z-10">
                                                           <div class="flex items-center space-x-2.5 mb-5">
                                                               <i class="fa-solid fa-receipt text-blue-400 text-lg"></i>
-                                                              <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Resumen del Ticket Rápido</span>
+                                                              <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Resumen del Ticket R├ípido</span>
                                                           </div>
                                                           
                                                           <div class="space-y-4">
                                                               <div>
                                                                   <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Sector seleccionado</span>
-                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedSectorName || '—'"></span>
+                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedSectorName || 'ÔÇö'"></span>
                                                               </div>
                                                               <div class="border-t border-dashed border-white/10 my-3"></div>
                                                               <div>
-                                                                  <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Área de servicio</span>
-                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedAreaName || '—'"></span>
+                                                                  <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">├ürea de servicio</span>
+                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedAreaName || 'ÔÇö'"></span>
                                                               </div>
                                                               <div class="border-t border-dashed border-white/10 my-3"></div>
                                                               <div>
                                                                   <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Servicio</span>
-                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedServiceName || '—'"></span>
+                                                                  <span class="font-black text-xs uppercase text-white tracking-tight" x-text="selectedServiceName || 'ÔÇö'"></span>
                                                               </div>
                                                               <div class="border-t border-dashed border-white/10 my-3"></div>
                                                               <div>
                                                                   <span class="text-[10px] text-gray-500 uppercase font-extrabold tracking-widest block mb-1">Incidencia / Sub-problema</span>
-                                                                  <span class="font-black text-xs uppercase text-blue-400 tracking-tight leading-relaxed block" x-text="selectedProblemText || '—'"></span>
+                                                                  <span class="font-black text-xs uppercase text-blue-400 tracking-tight leading-relaxed block" x-text="selectedProblemText || 'ÔÇö'"></span>
                                                               </div>
                                                           </div>
                                                       </div>
@@ -1800,8 +1772,8 @@
                                                           </div>
                                                       </div>
                                                       <div>
-                                                          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-map-pin text-rose-500 mr-1"></i> Área / Estación *</label>
-                                                          <input type="text" x-model="intStation" required placeholder="Piso / Cubículo o Nombre del área" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 text-sm outline-none transition-all font-medium">
+                                                          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-map-pin text-rose-500 mr-1"></i> ├ürea / Estaci├│n *</label>
+                                                          <input type="text" x-model="intStation" required placeholder="Piso / Cub├¡culo o Nombre del ├írea" class="w-full px-5 py-4 rounded-xl border border-white/10 focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 bg-[#131b2f] text-white placeholder:text-gray-600 text-sm outline-none transition-all font-medium">
                                                       </div>
                                                       <div>
                                                           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1"><i class="fa-solid fa-comment-dots text-gray-500 mr-1"></i> Detalles Extra (Opcional)</label>
@@ -1853,7 +1825,7 @@
                                                                   :class="isIntuitiveReady ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500 text-white shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] hover:scale-[1.01] active:scale-[0.99] border-blue-400/20' : 'bg-white/5 text-gray-600 cursor-not-allowed border-white/10'"
                                                                   class="w-full font-bold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm uppercase tracking-wider border outline-none">
                                                               <i class="fa-solid fa-circle-check"></i>
-                                                              <span>ENVIAR TICKET RÁPIDO</span>
+                                                              <span>ENVIAR TICKET R├üPIDO</span>
                                                           </button>
                                                       </div>
                                                   </div>
@@ -1900,7 +1872,7 @@
                         </div>
                         <div class="relative w-full sm:w-72">
                             <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            <input type="text" placeholder="Búsqueda por palabra clave..." class="w-full pl-12 pr-4 py-3 bg-[#1a1a2e]/60 border border-white/10 rounded-2xl text-xs font-bold text-white outline-none focus:border-blue-500 focus:bg-blue-600/5 transition-all shadow-inner placeholder:text-gray-600 uppercase tracking-widest" />
+                            <input type="text" placeholder="B├║squeda por palabra clave..." class="w-full pl-12 pr-4 py-3 bg-[#1a1a2e]/60 border border-white/10 rounded-2xl text-xs font-bold text-white outline-none focus:border-blue-500 focus:bg-blue-600/5 transition-all shadow-inner placeholder:text-gray-600 uppercase tracking-widest" />
                         </div>
                     </div>
                     
@@ -1934,15 +1906,15 @@
                                 <div class="flex flex-wrap items-center gap-2 mt-2">
                                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
                                          @if($ticket->agente) bg-blue-500/10 text-blue-400 border border-blue-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                         👤 Soporte: {{ $ticket->agente ? $ticket->agente->nombre_completo : 'Por asignar' }}
+                                         ­ƒæñ Soporte: {{ $ticket->agente ? $ticket->agente->nombre_completo : 'Por asignar' }}
                                      </span>
                                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
                                          @if($ticket->hora_visita) bg-amber-500/10 text-amber-400 border border-amber-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                         🕒 Visita: {{ $ticket->hora_visita ?? 'Pendiente' }}
+                                         ­ƒòÆ Visita: {{ $ticket->hora_visita ?? 'Pendiente' }}
                                      </span>
                                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[0.5rem] text-[9px] font-black uppercase tracking-wider
                                          @if($ticket->tiempo_resolucion) bg-teal-500/10 text-teal-400 border border-teal-500/20 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                         ⏱️ Resol: {{ $ticket->tiempo_resolucion ? $ticket->tiempo_resolucion . ' min' : 'Pendiente' }}
+                                         ÔÅ▒´©Å Resol: {{ $ticket->tiempo_resolucion ? $ticket->tiempo_resolucion . ' min' : 'Pendiente' }}
                                      </span>
                                 </div>
                             </div>
@@ -1952,8 +1924,7 @@
                             </div>
                             
                             <div class="relative z-10 flex items-center gap-3 shrink-0">
-
-                                <button wire:click.stop="deleteTicket({{ $ticket->id }})" wire:confirm="¿Estás seguro que deseas eliminar permanentemente este ticket? Esta acción no se puede deshacer y desaparecerá de todas las bandejas." class="w-9 h-9 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] flex items-center justify-center transition-all focus:outline-none opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0" title="Eliminar ticket">
+                                <button wire:click.stop="deleteTicket({{ $ticket->id }})" wire:confirm="┬┐Est├ís seguro que deseas eliminar permanentemente este ticket? Esta acci├│n no se puede deshacer y desaparecer├í de todas las bandejas." class="w-9 h-9 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] flex items-center justify-center transition-all focus:outline-none opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0" title="Eliminar ticket">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                                 <svg class="w-6 h-6 text-gray-600 group-hover:text-white transition-all shrink-0 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -1983,7 +1954,7 @@
                                 @if($detTicket)
                                 <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
                                     <div>
-                                        <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Radiografía del Ticket</h3>
+                                        <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Radiograf├¡a del Ticket</h3>
                                         <p class="text-[9px] text-gray-500 uppercase font-black tracking-[0.3em] mt-1 text-blue-400">UUID: {{ $detTicket->id }}</p>
                                     </div>
                                     <button wire:click="$set('showingDetail', false)" class="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5 hover:border-white/20">
@@ -2008,7 +1979,7 @@
                                             @if(auth()->user()->role === 'user')
                                                 <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Encargado de Soporte</h5>
                                                 <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest @if($detTicket->agente) bg-blue-600/20 text-blue-400 border border-blue-500/30 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                                    👤 {{ $detTicket->agente ? $detTicket->agente->nombre_completo : 'Sin Asignar' }}
+                                                    ­ƒæñ {{ $detTicket->agente ? $detTicket->agente->nombre_completo : 'Sin Asignar' }}
                                                 </span>
                                             @else
                                                 <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Importancia</h5>
@@ -2022,17 +1993,17 @@
                                         <div>
                                             <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Hora de Visita Agente TI</h5>
                                             <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest @if($detTicket->hora_visita) bg-amber-500/20 text-amber-400 border border-amber-500/30 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                                🕒 {{ $detTicket->hora_visita ?? 'Pendiente de programar' }}
+                                                ­ƒòÆ {{ $detTicket->hora_visita ?? 'Pendiente de programar' }}
                                             </span>
                                         </div>
                                         <div>
-                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Tiempo Estimado de Resolución</h5>
+                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Tiempo Estimado de Resoluci├│n</h5>
                                             <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest @if($detTicket->tiempo_resolucion) bg-teal-500/20 text-teal-400 border border-teal-500/30 @else bg-gray-500/10 text-gray-400 border border-gray-500/20 @endif">
-                                                ⏱️ {{ $detTicket->tiempo_resolucion ? $detTicket->tiempo_resolucion . ' minutos' : 'Pendiente de estimar' }}
+                                                ÔÅ▒´©Å {{ $detTicket->tiempo_resolucion ? $detTicket->tiempo_resolucion . ' minutos' : 'Pendiente de estimar' }}
                                             </span>
                                         </div>
                                         <div class="col-span-1 md:col-span-2 border-t border-white/10 pt-6 mt-2">
-                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Declaración Inicial</h5>
+                                            <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Declaraci├│n Inicial</h5>
                                             <div class="bg-black/40 p-6 rounded-2xl text-xs font-medium text-gray-400 border border-white/5 shadow-inner leading-relax italic mb-6">
                                                 "{{ $detTicket->descripcion }}"
                                             </div>
@@ -2047,13 +2018,13 @@
                                                     <div class="flex items-center gap-3 truncate min-w-0">
                                                         <div class="w-9 h-9 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
                                                             @if(Str::endsWith(strtolower($adjunto->nombre_archivo), ['.pdf']))
-                                                                📄
+                                                                ­ƒôä
                                                             @elseif(Str::endsWith(strtolower($adjunto->nombre_archivo), ['.jpg', '.jpeg', '.png', '.gif', '.svg']))
-                                                                🖼️
+                                                                ­ƒû╝´©Å
                                                             @elseif(Str::endsWith(strtolower($adjunto->nombre_archivo), ['.doc', '.docx']))
-                                                                📝
+                                                                ­ƒôØ
                                                             @else
-                                                                📁
+                                                                ­ƒôü
                                                             @endif
                                                         </div>
                                                         <div class="truncate">
@@ -2079,9 +2050,18 @@
                                     <div class="space-y-6">
                                         <h5 class="font-black text-white uppercase tracking-tighter text-xl flex items-center gap-3">
                                             <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                            Historial de Actividad
+                                            Track de Seguimiento
                                         </h5>
                                         <div class="space-y-6">
+                                            @foreach($detTicket->comentarios ?? [] as $c)
+                                            <div class="flex flex-col {{ $c->es_cliente ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2">
+                                                <div class="max-w-[85%] p-5 rounded-[2rem] text-xs leading-relaxed {{ $c->es_cliente ? 'bg-blue-600 text-white rounded-tr-sm shadow-[0_10px_20px_rgba(37,99,235,0.2)]' : 'bg-white/10 text-gray-300 border border-white/10 shadow-lg rounded-tl-sm' }}">
+                                                    <p class="font-black text-[9px] mb-2 uppercase tracking-[0.2em] {{ $c->es_cliente ? 'text-blue-200' : 'text-gray-500' }}">{{ $c->es_cliente ? 'T├║ (Autor)' : 'Ingeniero de Soporte' }}</p>
+                                                    <p class="font-medium">{{ $c->mensaje }}</p>
+                                                </div>
+                                                <span class="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-2 px-3">{{ $c->created_at->format('d/m/Y H:i') }}</span>
+                                            </div>
+                                            @endforeach
 
                                             @foreach($detTicket->historial ?? [] as $hist)
                                                 @if($hist->visible_para_usuario || in_array(auth()->user()->role, ['admin', 'agente']))
@@ -2092,10 +2072,10 @@
                                                             {{ $hist->accion }}
                                                         </p>
                                                         @if($hist->causa_solucion_id)
-                                                            <p class="font-bold text-white uppercase text-[10px] tracking-widest mb-1">Causa de Solución: <span class="text-gray-300">{{ optional($hist->causaSolucion)->nombre }}</span></p>
+                                                            <p class="font-bold text-white uppercase text-[10px] tracking-widest mb-1">Causa de Soluci├│n: <span class="text-gray-300">{{ optional($hist->causaSolucion)->nombre }}</span></p>
                                                         @endif
                                                         @if($hist->motivo_cancelacion_id)
-                                                            <p class="font-bold text-white uppercase text-[10px] tracking-widest mb-1">Motivo de Cancelación: <span class="text-gray-300">{{ optional($hist->motivoCancelacion)->nombre }}</span></p>
+                                                            <p class="font-bold text-white uppercase text-[10px] tracking-widest mb-1">Motivo de Cancelaci├│n: <span class="text-gray-300">{{ optional($hist->motivoCancelacion)->nombre }}</span></p>
                                                         @endif
                                                         @if($hist->detalles)
                                                             <p class="text-gray-300 italic mt-2 px-4">"{{ $hist->detalles }}"</p>
@@ -2116,13 +2096,25 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{-- Chat input moved to floating widget --}}
+                                <div class="p-8 border-t border-white/10 bg-[#050510] relative z-10 shrink-0">
+                                    <form wire:submit.prevent="addCommentToUserTicket" class="flex gap-4">
+                                        <input 
+                                            wire:model="userComment" 
+                                            type="text" 
+                                            placeholder="Ingresar nueva evidencia o respuesta..." 
+                                            class="flex-1 px-6 py-4 bg-[#1a1a2e] border border-white/10 rounded-[1.5rem] outline-none focus:border-blue-500 text-xs text-white font-bold transition-all shadow-inner placeholder:text-gray-600"
+                                        />
+                                        <button type="submit" class="px-6 py-4 bg-blue-600 text-white rounded-[1.5rem] hover:bg-blue-500 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center border border-blue-400">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
                                 
-                                {{-- Permite al usuario reabrir si se cerró/completó --}}
+                                {{-- Permite al usuario reabrir si se cerr├│/complet├│ --}}
                                 @if(in_array($detTicket->estado->nombre, ['Completado', 'Cerrado', 'Resuelto']))
                                     <div class="px-8 pb-8 bg-[#050510] flex justify-end">
                                         <button wire:click="reopenTicket('{{ $detTicket->id }}'); $set('showingDetail', false)"
-                                                wire:confirm="¿Estás seguro de reabrir este ticket?"
+                                                wire:confirm="┬┐Est├ís seguro de reabrir este ticket?"
                                                 class="px-6 py-3 rounded-xl text-xs font-black uppercase bg-amber-600/10 text-amber-500 border border-amber-500/30 hover:bg-amber-600/20 transition-all flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                             Reabrir Ticket
@@ -2132,8 +2124,6 @@
                                 
                                 @endif
                             </div>
-                            
-                            {{-- ZENDESK-STYLE FLOATING CHAT WIDGET ELIMINADO AQUÍ (MUDADO A WIDGET GLOBAL) --}}
                         </div>
                         @endif
 
@@ -2149,7 +2139,7 @@
                     <div class="mb-8 flex items-center justify-between">
                         <div>
                             <h3 class="text-3xl font-black text-white uppercase tracking-tighter">Mi Perfil</h3>
-                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Información de tu cuenta — solo lectura</p>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Informaci├│n de tu cuenta ÔÇö solo lectura</p>
                         </div>
                         <button @click="activeTab = 'generar_ticket'" class="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black text-gray-400 hover:text-white uppercase tracking-widest transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
@@ -2160,100 +2150,80 @@
                     {{-- Profile Card --}}
                     <div class="bg-[#0d0d20]/80 backdrop-blur-2xl border border-white/8 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
                         
-                        <form wire:submit.prevent="updateMyProfile">
-                            {{-- Avatar / Hero Section --}}
-                            <div class="relative px-8 pt-10 pb-8 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent border-b border-white/5">
-                                <div class="absolute inset-0 pointer-events-none">
-                                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl"></div>
-                                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl"></div>
+                        {{-- Avatar / Hero Section --}}
+                        <div class="relative px-8 pt-10 pb-8 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent border-b border-white/5">
+                            <div class="absolute inset-0 pointer-events-none">
+                                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl"></div>
+                                <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl"></div>
+                            </div>
+                            <div class="relative z-10 flex items-center gap-6">
+                                {{-- Avatar Circle --}}
+                                <div class="w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 flex items-center justify-center text-white font-black text-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                                 </div>
-                                <div class="relative z-10 flex items-center gap-6">
-                                    {{-- Editable Avatar Circle --}}
-                                    <div class="relative group cursor-pointer" onclick="document.getElementById('profilePhotoInput').click()">
-                                        <div class="w-20 h-20 rounded-[1.5rem] bg-[#0b0c16] border border-white/10 flex items-center justify-center text-white font-black text-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0 overflow-hidden relative">
-                                            @if ($newProfilePhoto)
-                                                <img src="{{ $newProfilePhoto->temporaryUrl() }}" class="w-full h-full object-cover">
-                                            @else
-                                                <img src="{{ Auth::user()->profile_photo_url }}" class="w-full h-full object-cover">
-                                            @endif
-                                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
-                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                            </div>
-                                        </div>
-                                        <input type="file" id="profilePhotoInput" wire:model="newProfilePhoto" class="hidden" accept="image/*">
-                                    </div>
-                                    <div>
-                                        <h2 class="text-2xl font-black text-white tracking-tight uppercase leading-tight">
-                                            {{ Auth::user()->nombre_completo }}
-                                        </h2>
-                                        @php
-                                            $roleLabel = match(auth()->user()->role) {
-                                                'admin' => 'Administrador',
-                                                'agente' => 'Agente TI',
-                                                default => 'Usuario',
-                                            };
-                                            $roleColor = match(auth()->user()->role) {
-                                                'admin' => 'text-emerald-400',
-                                                'agente' => 'text-purple-400',
-                                                default => 'text-blue-400',
-                                            };
-                                        @endphp
-                                        <p class="text-sm font-bold uppercase tracking-widest mt-1 {{ $roleColor }}">{{ $roleLabel }}</p>
-                                        <p class="text-[10px] text-gray-500 font-medium mt-0.5">
-                                            Cuenta activa desde {{ Auth::user()->created_at ? Auth::user()->created_at->format('M Y') : 'N/A' }}
-                                        </p>
-                                    </div>
+                                <div>
+                                    <h2 class="text-2xl font-black text-white tracking-tight uppercase leading-tight">
+                                        {{ Auth::user()->name }}
+                                    </h2>
+                                    @php
+                                        $roleLabel = match(auth()->user()->role) {
+                                            'admin' => 'Administrador',
+                                            'agente' => 'Agente TI',
+                                            default => 'Usuario',
+                                        };
+                                        $roleColor = match(auth()->user()->role) {
+                                            'admin' => 'text-emerald-400',
+                                            'agente' => 'text-purple-400',
+                                            default => 'text-blue-400',
+                                        };
+                                    @endphp
+                                    <p class="text-sm font-bold uppercase tracking-widest mt-1 {{ $roleColor }}">{{ $roleLabel }}</p>
+                                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">
+                                        Cuenta activa desde {{ Auth::user()->created_at ? Auth::user()->created_at->format('M Y') : 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Fields --}}
+                        <div class="p-8 space-y-5">
+
+                            {{-- Nombre --}}
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    Nombre Completo
+                                </label>
+                                <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
+                                    <span class="text-sm font-bold text-white flex-1">{{ Auth::user()->name }}</span>
+                                    <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">Solo lectura</span>
                                 </div>
                             </div>
 
-                            {{-- Fields --}}
-                            <div class="p-8 space-y-6">
-
-                                {{-- Nombre --}}
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                        Nombre Completo
-                                    </label>
-                                    <input type="text" wire:model="newProfileName" required
-                                        class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder-gray-500">
-                                    @error('newProfileName') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
-                                </div>
-
-                                {{-- Botón de Guardar General (Foto y Nombre) --}}
-                                <div class="pt-2">
-                                    <button type="submit"
-                                        class="px-6 py-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[11px] font-black uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                        Guardar Cambios del Perfil
+                            {{-- Email --}}
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    Correo Electr├│nico
+                                </label>
+                                <div class="flex gap-3">
+                                    <div class="relative flex-1">
+                                        <input type="email" wire:model="userProfileEmail" required
+                                            class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all">
+                                    </div>
+                                    <button type="button" wire:click="updateProfileEmail"
+                                        class="px-5 py-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 shrink-0">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        Guardar
                                     </button>
                                 </div>
-                                
-                                <div class="w-full h-px bg-white/5 my-4"></div>
+                                @error('userProfileEmail') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
+                                @if(session()->has('profile_success'))
+                                    <span class="text-xs text-emerald-400 font-bold block mt-1 pl-1 animate-pulse">{{ session('profile_success') }}</span>
+                                @endif
+                            </div>
 
-                                {{-- Email --}}
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                        Correo Electrónico
-                                    </label>
-                                    <div class="flex gap-3">
-                                        <div class="relative flex-1">
-                                            <input type="email" wire:model="userProfileEmail" required
-                                                class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all">
-                                        </div>
-                                        <button type="button" wire:click="updateProfileEmail"
-                                            class="px-5 py-3 bg-white/10 hover:bg-white/15 border border-white/10 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 shrink-0">
-                                            Actualizar Correo
-                                        </button>
-                                    </div>
-                                    @error('userProfileEmail') <span class="text-xs text-red-400 font-bold block mt-1 pl-1">{{ $message }}</span> @enderror
-                                    @if(session()->has('profile_success'))
-                                        <span class="text-xs text-emerald-400 font-bold block mt-1 pl-1 animate-pulse">{{ session('profile_success') }}</span>
-                                    @endif
-                                </div>
-
-                            {{-- Credencial / Código de acceso --}}
+                            {{-- Credencial / C├│digo de acceso --}}
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
@@ -2262,13 +2232,13 @@
                                 <div class="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3.5 flex items-center gap-3">
                                     <div class="flex items-center gap-3 flex-1">
                                         <span class="font-black text-sm tracking-widest {{ $roleColor }}">
-                                            {{ Auth::user()->codigo_acceso ?? '—' }}
+                                            {{ Auth::user()->codigo_acceso ?? 'ÔÇö' }}
                                         </span>
                                     </div>
                                     <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest border border-white/8 px-2 py-0.5 rounded">No editable</span>
                                 </div>
                                 <p class="text-[9px] text-gray-600 uppercase tracking-widest ml-1">
-                                    🔒 La credencial es administrada exclusivamente por el área de TI.
+                                    ­ƒöÆ La credencial es administrada exclusivamente por el ├írea de TI.
                                 </p>
                             </div>
 
@@ -2291,7 +2261,7 @@
                             <div class="bg-blue-600/5 border border-blue-500/10 rounded-xl p-4 flex items-start gap-3">
                                 <svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
-                                    Para actualizar tu información o credencial de acceso, contacta al <span class="text-blue-400 font-black">Administrador del Sistema</span> o al área de TI.
+                                    Para actualizar tu informaci├│n o credencial de acceso, contacta al <span class="text-blue-400 font-black">Administrador del Sistema</span> o al ├írea de TI.
                                 </p>
                             </div>
                         </div>
@@ -2304,7 +2274,7 @@
             <template x-if="activeTab === 'settings'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 max-w-6xl mx-auto space-y-12">
                     <div class="flex items-center justify-between border-b border-white/10 pb-8">
-                        <h3 class="text-4xl font-black text-white uppercase tracking-tighter">Administración</h3>
+                        <h3 class="text-4xl font-black text-white uppercase tracking-tighter">Administraci├│n</h3>
                         <div class="flex gap-4">
                             <button class="px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
                                 + Nuevo
@@ -2358,11 +2328,11 @@
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <a href="#" class="p-6 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all flex items-center gap-5">
                                     <div class="text-blue-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
-                                    <p class="text-sm font-bold text-gray-200 uppercase tracking-tight">Planes y Facturación</p>
+                                    <p class="text-sm font-bold text-gray-200 uppercase tracking-tight">Planes y Facturaci├│n</p>
                                 </a>
                                 <a href="#" class="p-6 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all flex items-center gap-5">
                                     <div class="text-blue-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
-                                    <p class="text-sm font-bold text-gray-200 uppercase tracking-tight">Configuración de Ayuda</p>
+                                    <p class="text-sm font-bold text-gray-200 uppercase tracking-tight">Configuraci├│n de Ayuda</p>
                                 </a>
                                 <a href="#" class="p-6 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all flex items-center gap-5">
                                     <div class="text-blue-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
@@ -2370,7 +2340,7 @@
                                 </a>
                                 <a href="#" class="p-6 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all flex items-center gap-5">
                                     <div class="text-blue-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-                                    <p class="text-sm font-bold text-gray-200 uppercase tracking-tight">Correo Electrónico</p>
+                                    <p class="text-sm font-bold text-gray-200 uppercase tracking-tight">Correo Electr├│nico</p>
                                 </a>
                             </div>
                         </div>
@@ -2418,7 +2388,7 @@
                                 <a href="#" class="p-6 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all group">
                                     <div class="flex items-center gap-3 mb-3">
                                         <div class="text-rose-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-                                        <h5 class="text-md font-bold text-white tracking-widest uppercase">Correo Electrónico</h5>
+                                        <h5 class="text-md font-bold text-white tracking-widest uppercase">Correo Electr├│nico</h5>
                                     </div>
                                     <p class="text-[10px] text-gray-500 tracking-wide">Integre buzones, configure respuestas y servidores personalizados.</p>
                                 </a>
@@ -2427,7 +2397,7 @@
                                         <div class="text-rose-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>
                                         <h5 class="text-md font-bold text-white tracking-widest uppercase">Widgets</h5>
                                     </div>
-                                    <p class="text-[10px] text-gray-500 tracking-wide">Inserte artículos de ayuda o un formulario de contacto en su página.</p>
+                                    <p class="text-[10px] text-gray-500 tracking-wide">Inserte art├¡culos de ayuda o un formulario de contacto en su p├ígina.</p>
                                 </a>
                             </div>
                         </div>
@@ -2451,10 +2421,10 @@
             @endif
 
                                                 
-{{-- ═══════════════════════════════════════════════════════
-     STATISTICS TAB — uses x-show so canvases always exist in DOM
+{{-- ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+     STATISTICS TAB ÔÇö uses x-show so canvases always exist in DOM
      Charts are initialised in the <script> block below.
-═══════════════════════════════════════════════════════════ --}}
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ --}}
 <div x-show="activeTab === 'statistics'"
      wire:poll.15s
      id="statistics-container"
@@ -2474,7 +2444,7 @@
      ]) }}"
      x-init="$watch('activeTab', val => { if (val === 'statistics' && window.buildHubCharts) { setTimeout(window.buildHubCharts, 350); } })" 
      class="pb-10">
-    {{-- ── HEADER BANNER ───────────────────────────────────────── --}}
+    {{-- ÔöÇÔöÇ HEADER BANNER ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ --}}
     <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(6,182,212,0.10),rgba(16,185,129,0.08));border:1px solid rgba(99,102,241,0.25);margin-bottom:2rem;">
         <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(99,102,241,0.3),transparent 70%);pointer-events:none;"></div>
         <div style="position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;padding:2rem 2.5rem;">
@@ -2484,24 +2454,24 @@
                         <i class="fa-solid fa-chart-mixed" style="color:#fff;font-size:14px;"></i>
                     </div>
                     <h2 style="font-size:1.5rem;font-weight:900;background:linear-gradient(to right,#fff,#c7d2fe,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:-0.03em;margin:0;">
-                        Centro de Mando Analítico
+                        Centro de Mando Anal├¡tico
                     </h2>
                 </div>
                 <p style="font-size:13px;color:rgba(147,197,253,0.7);font-weight:500;max-width:500px;margin:0;">
-                    Métricas en tiempo real desde tu base de datos operativa.
+                    M├®tricas en tiempo real desde tu base de datos operativa.
                 </p>
             </div>
             <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
                 <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);">
                     <span style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 8px #34d399;"></span>
-                    <span style="font-size:10px;font-weight:800;color:#34d399;text-transform:uppercase;letter-spacing:0.15em;">Sistema en línea</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;text-transform:uppercase;letter-spacing:0.15em;">Sistema en l├¡nea</span>
                 </div>
 
             </div>
         </div>
     </div>
 
-    {{-- ── KPI CARDS (Bento Grid Colorido) ───────────────────────── --}}
+    {{-- ÔöÇÔöÇ KPI CARDS (Bento Grid Colorido) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ --}}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;">
         
         {{-- Registrados --}}
@@ -2578,7 +2548,7 @@
 
     </div>
 
-    {{-- ── TENDENCIA (full width) ───────────────────────────────── --}}
+    {{-- ÔöÇÔöÇ TENDENCIA (full width) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ --}}
     <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);margin-bottom:1.5rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -2587,7 +2557,7 @@
                 </div>
                 <div>
                     <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.15em;margin:0;">Tendencia de Tickets</h3>
-                    <p style="font-size:9px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Últimos 7 meses · datos en vivo</p>
+                    <p style="font-size:9px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">├Ültimos 7 meses ┬À datos en vivo</p>
                 </div>
             </div>
             <div style="display:flex;align-items:center;gap:16px;">
@@ -2608,17 +2578,17 @@
         </div>
     </div>
 
-    {{-- ── 3 CHARTS ROW ─────────────────────────────────────────── --}}
+    {{-- ÔöÇÔöÇ 3 CHARTS ROW ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ --}}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-bottom:1.5rem;">
 
-        {{-- Distribución Planta --}}
+        {{-- Distribuci├│n Planta --}}
         <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);display:flex;flex-direction:column;">
             <div style="display:flex;align-items:center;gap:10px;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <div style="width:30px;height:30px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);display:flex;align-items:center;justify-content:center;">
                     <i class="fa-solid fa-building" style="color:#22d3ee;font-size:10px;"></i>
                 </div>
                 <div>
-                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Distribución Planta</h3>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Distribuci├│n Planta</h3>
                     <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Tickets por planta</p>
                 </div>
             </div>
@@ -2637,7 +2607,7 @@
                 </div>
                 <div>
                     <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Tipos de Problema</h3>
-                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Categorías de incidencia</p>
+                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Categor├¡as de incidencia</p>
                 </div>
             </div>
             <div style="padding:1rem 1.25rem 1.25rem;flex:1;">
@@ -2647,15 +2617,15 @@
             </div>
         </div>
 
-        {{-- Proporción de Estados --}}
+        {{-- Proporci├│n de Estados --}}
         <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);display:flex;flex-direction:column;">
             <div style="display:flex;align-items:center;gap:10px;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <div style="width:30px;height:30px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;">
                     <i class="fa-solid fa-chart-pie" style="color:#fbbf24;font-size:10px;"></i>
                 </div>
                 <div>
-                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Proporción de Estados</h3>
-                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Distribución de estados</p>
+                    <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.12em;margin:0;">Proporci├│n de Estados</h3>
+                    <p style="font-size:9px;color:#475569;font-weight:600;margin:1px 0 0;">Distribuci├│n de estados</p>
                 </div>
             </div>
             <div style="padding:1rem 1.25rem 1.25rem;flex:1;">
@@ -2666,7 +2636,7 @@
         </div>
     </div>
 
-    {{-- ── TABLA RECIENTE ──────────────────────────────────────────── --}}
+    {{-- ÔöÇÔöÇ TABLA RECIENTE ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ --}}
     <div style="background:rgba(10,15,30,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;backdrop-filter:blur(20px);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -2675,7 +2645,7 @@
                 </div>
                 <div>
                     <h3 style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.15em;margin:0;">Actividad Reciente</h3>
-                    <p style="font-size:9px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Últimos tickets registrados</p>
+                    <p style="font-size:9px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">├Ültimos tickets registrados</p>
                 </div>
             </div>
             <button wire:click="setTab('tickets')" style="font-size:10px;font-weight:800;color:#818cf8;text-transform:uppercase;letter-spacing:0.12em;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;">
@@ -2687,7 +2657,7 @@
                 <thead>
                     <tr>
                         <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">ID</th>
-                        <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Título</th>
+                        <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">T├¡tulo</th>
                         <th style="padding:11px 16px;text-align:left;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Planta</th>
                         <th style="padding:11px 16px;text-align:center;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Estado</th>
                         <th style="padding:11px 16px;text-align:right;font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.18em;">Fecha</th>
@@ -2700,7 +2670,7 @@
                             <span style="font-size:11px;font-weight:800;color:#475569;background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:6px;">#{{ str_pad($t->id,4,'0',STR_PAD_LEFT) }}</span>
                         </td>
                         <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#cbd5e1;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                            {{ Str::limit($t->titulo ?? 'Sin título', 42) }}
+                            {{ Str::limit($t->titulo ?? 'Sin t├¡tulo', 42) }}
                         </td>
                         <td style="padding:12px 16px;">
                             <span style="font-size:9px;font-weight:800;color:#c4b5fd;background:rgba(139,92,246,0.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(139,92,246,0.2);text-transform:uppercase;letter-spacing:0.1em;">Planta {{ $t->planta ?? 1 }}</span>
@@ -2815,7 +2785,7 @@
             }
         }
 
-        /* 2. DISTRIBUCIÓN PLANTA */
+        /* 2. DISTRIBUCI├ôN PLANTA */
         var c2 = document.getElementById('ch-planta');
         var pLabels = STAT_DATA.pLabels.length ? STAT_DATA.pLabels : ['Sin datos'];
         var pValues = STAT_DATA.pValues.length ? STAT_DATA.pValues : [0.001]; // Prevents crash
@@ -2852,7 +2822,7 @@
             }
         }
 
-        /* 4. PROPORCIÓN DE ESTADOS */
+        /* 4. PROPORCI├ôN DE ESTADOS */
         var c4 = document.getElementById('ch-status');
         if (c4) {
             if (c4._ch) {
@@ -2888,7 +2858,7 @@
             <template x-if="activeTab === 'causas'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8 max-w-4xl mx-auto">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Causas de Solución</h3>
+                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Causas de Soluci├│n</h3>
                         <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Cierre de Tickets</p>
                     </div>
                     
@@ -2908,7 +2878,7 @@
                         </select>
 
                         @if($tabSelectedTicketId && $tabTicketModel)
-                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">2. Información del Ticket</h4>
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">2. Informaci├│n del Ticket</h4>
                             <div class="bg-[#050510] p-6 rounded-2xl border border-white/5 mb-8">
                                 <p class="text-xs text-white font-bold mb-2 uppercase tracking-wide">Reportado por: <span class="text-gray-400">{{ $tabTicketModel->creador->name ?? 'N/A' }}</span></p>
                                 <p class="text-[10px] text-gray-300 italic">"{{ $tabTicketModel->descripcion }}"</p>
@@ -2916,7 +2886,7 @@
 
                             <form wire:submit.prevent="guardarFinalizacionDesdeTab" class="space-y-6">
                                 <div>
-                                    <label class="text-[9px] font-black text-green-500 uppercase tracking-widest ml-1 mb-2 block">Causa de Solución</label>
+                                    <label class="text-[9px] font-black text-green-500 uppercase tracking-widest ml-1 mb-2 block">Causa de Soluci├│n</label>
                                     <select wire:model="causaSolucionId" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-green-500 transition-all">
                                         <option value="">Seleccione una causa...</option>
                                         @foreach($causasSolucion as $causa)
@@ -2926,7 +2896,7 @@
                                     @error('causaSolucionId') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
-                                    <label class="text-[9px] font-black text-green-500 uppercase tracking-widest ml-1 mb-2 block">Detalles de la Solución</label>
+                                    <label class="text-[9px] font-black text-green-500 uppercase tracking-widest ml-1 mb-2 block">Detalles de la Soluci├│n</label>
                                     <textarea wire:model="detallesResolucion" rows="4" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-green-500 transition-all"></textarea>
                                     @error('detallesResolucion') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
                                 </div>
@@ -2947,8 +2917,8 @@
             <template x-if="activeTab === 'motivos'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8 max-w-4xl mx-auto">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Motivos de Cancelación</h3>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Cancelación de Tickets</p>
+                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Motivos de Cancelaci├│n</h3>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Cancelaci├│n de Tickets</p>
                     </div>
                     
                     <div class="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
@@ -2967,7 +2937,7 @@
                         </select>
 
                         @if($tabSelectedTicketId && $tabTicketModel)
-                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">2. Información del Ticket</h4>
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">2. Informaci├│n del Ticket</h4>
                             <div class="bg-[#050510] p-6 rounded-2xl border border-white/5 mb-8">
                                 <p class="text-xs text-white font-bold mb-2 uppercase tracking-wide">Reportado por: <span class="text-gray-400">{{ $tabTicketModel->creador->name ?? 'N/A' }}</span></p>
                                 <p class="text-[10px] text-gray-300 italic">"{{ $tabTicketModel->descripcion }}"</p>
@@ -2975,7 +2945,7 @@
 
                             <form wire:submit.prevent="guardarCancelacionDesdeTab" class="space-y-6">
                                 <div>
-                                    <label class="text-[9px] font-black text-red-500 uppercase tracking-widest ml-1 mb-2 block">Motivo de Cancelación</label>
+                                    <label class="text-[9px] font-black text-red-500 uppercase tracking-widest ml-1 mb-2 block">Motivo de Cancelaci├│n</label>
                                     <select wire:model="motivoCancelacionId" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-red-500 transition-all">
                                         <option value="">Seleccione un motivo...</option>
                                         @foreach($motivosCancelacion as $motivo)
@@ -2985,14 +2955,14 @@
                                     @error('motivoCancelacionId') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
-                                    <label class="text-[9px] font-black text-red-500 uppercase tracking-widest ml-1 mb-2 block">Detalles de Cancelación</label>
+                                    <label class="text-[9px] font-black text-red-500 uppercase tracking-widest ml-1 mb-2 block">Detalles de Cancelaci├│n</label>
                                     <textarea wire:model="detallesResolucion" rows="4" class="w-full bg-[#07071c] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-red-500 transition-all"></textarea>
                                     @error('detallesResolucion') <span class="text-red-400 text-[10px]">{{ $message }}</span> @enderror
                                 </div>
                                 
                                 <div class="flex items-center gap-3 bg-[#07071c] p-4 rounded-xl border border-white/5">
                                     <input type="checkbox" wire:model="visibleAlUsuario" id="visibleUsuarioTab" class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-500 focus:ring-red-500">
-                                    <label for="visibleUsuarioTab" class="text-xs font-bold text-gray-300 uppercase tracking-wider cursor-pointer">Mostrar cancelación al usuario</label>
+                                    <label for="visibleUsuarioTab" class="text-xs font-bold text-gray-300 uppercase tracking-wider cursor-pointer">Mostrar cancelaci├│n al usuario</label>
                                 </div>
 
                                 <div>
@@ -3012,7 +2982,7 @@
             <template x-if="activeTab === 'users'">
                 <div class="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-12">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                         <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Gestión de Usuarios</h3>
+                         <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">Gesti├│n de Usuarios</h3>
                          <div class="flex items-center gap-4 w-full md:w-auto">
                              <div class="relative w-full md:w-80">
                                  <input type="text" wire:model.live="searchUser" placeholder="Buscar usuario..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 pl-11 text-xs text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600 uppercase tracking-wider font-bold">
@@ -3045,7 +3015,7 @@
                                              <button wire:click="openUserModal({{ $user->id }})" class="text-blue-500 hover:text-white transition-colors bg-blue-500/10 p-2 rounded-xl">
                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                              </button>
-                                             <button @click="confirm('¿Eliminar?') && $wire.deleteUser({{ $user->id }})" class="text-red-500 hover:text-white transition-colors bg-red-500/10 p-2 rounded-xl">
+                                             <button @click="confirm('┬┐Eliminar?') && $wire.deleteUser({{ $user->id }})" class="text-red-500 hover:text-white transition-colors bg-red-500/10 p-2 rounded-xl">
                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                              </button>
                                          </div>
@@ -3066,7 +3036,7 @@
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
         <div class="w-full max-w-md bg-[#0a0a1a] rounded-[2rem] border border-blue-500/20 shadow-2xl overflow-hidden flex flex-col relative">
 
-            {{-- Botón Cerrar --}}
+            {{-- Bot├│n Cerrar --}}
             <button wire:click="$set('showingAddEquipment', false)" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all z-20 border border-white/5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6"/></svg>
             </button>
@@ -3093,7 +3063,7 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Categoría</label>
+                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Categor├¡a</label>
                         <div class="relative">
                             <select wire:model="equipmentCategory" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-all">
                                 <option value="Pantalla">Pantalla</option>
@@ -3117,14 +3087,14 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">S/N (Número de Serie)</label>
+                    <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">S/N (N├║mero de Serie)</label>
                     <input type="text" wire:model="equipmentBarcode"
                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
                            placeholder="Ej. SN-2024-0001">
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Ubicación Física</label>
+                    <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Ubicaci├│n F├¡sica</label>
                     <div class="relative">
                         <select wire:model="equipmentPhysLocation" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-all">
                             <option value="-- Bodega --">-- Bodega --</option>
@@ -3173,7 +3143,7 @@
                         @error('userName') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Teléfono / WhatsApp</label>
+                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Tel├®fono / WhatsApp</label>
                         <input type="text" wire:model="userTelefono"
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
                             placeholder="Ej. 1234567890">
@@ -3183,7 +3153,7 @@
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Código de Acceso</label>
+                        <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">C├│digo de Acceso</label>
                         <input type="text" wire:model="userCodigoAcceso" required
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
                             placeholder="Ej. US-0001">
@@ -3201,9 +3171,9 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Contraseña (Opcional)</label>
+                    <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Contrase├▒a (Opcional)</label>
                     <input type="password" wire:model="userPassword"
-                        placeholder="Dejar en blanco para usar código de acceso"
+                        placeholder="Dejar en blanco para usar c├│digo de acceso"
                         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
                     @error('userPassword') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                 </div>
@@ -3260,14 +3230,14 @@
                         @error('ticketCategory') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- Subcategoría --}}
+                    {{-- Subcategor├¡a --}}
                     @if($ticketCategory)
                     <div class="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Detalle Específico</label>
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Detalle Espec├¡fico</label>
                         <div class="grid grid-cols-2 gap-3">
                             @php
                                 $options = $ticketCategory === 'Software'
-                                    ? ['Problemas para iniciar sesión','Virus o malware','Aplicaciones que se congelan','Sistema lento','Otro (Software)']
+                                    ? ['Problemas para iniciar sesi├│n','Virus o malware','Aplicaciones que se congelan','Sistema lento','Otro (Software)']
                                     : ['Impresora no imprime','Teclado no responde','Mouse no funciona','Computadora no enciende','Cable desconectado','Otro (Hardware)'];
                             @endphp
                             @foreach($options as $option)
@@ -3282,18 +3252,18 @@
                     </div>
                     @endif
 
-                    {{-- Título --}}
+                    {{-- T├¡tulo --}}
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Título del Ticket</label>
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">T├¡tulo del Ticket</label>
                         <input type="text" wire:model="ticketTitle" required
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-teal-500/60 transition-all placeholder:text-gray-600"
                             placeholder="Describe brevemente el problema">
                         @error('ticketTitle') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- Descripción --}}
+                    {{-- Descripci├│n --}}
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Descripción del Problema</label>
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Descripci├│n del Problema</label>
                         <textarea wire:model="ticketDescription" required rows="3"
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-teal-500/60 transition-all resize-none placeholder:text-gray-600"
                             placeholder="Describe con detalle lo ocurrido..."></textarea>
@@ -3302,7 +3272,7 @@
 
                     {{-- Adjuntar Archivos --}}
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Adjuntar Archivos (PDF, Word, Imágenes)</label>
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Adjuntar Archivos (PDF, Word, Im├ígenes)</label>
                         <div class="relative w-full h-14 border border-dashed border-white/10 hover:border-teal-500/40 rounded-xl bg-white/[0.03] flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
                             <input type="file" multiple wire:model="ticketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10"/>
                             <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 group-hover:text-teal-400 transition-colors">
@@ -3352,9 +3322,9 @@
                         @error('ticketPlanta') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- Ubicación / Máquina --}}
+                    {{-- Ubicaci├│n / M├íquina --}}
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Ubicación / Máquina</label>
+                        <label class="text-[10px] font-black text-teal-400 uppercase tracking-widest">Ubicaci├│n / M├íquina</label>
                         <select wire:model="ticketLocation" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none focus:border-teal-500/60 transition-all">
                             <option value="">(Ninguna)</option>
                             @foreach($maquinas as $maquina)
@@ -3394,14 +3364,14 @@
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#04040a]/95 backdrop-blur-xl animate-in zoom-in duration-300">
         <div class="w-full max-w-lg bg-[#0a0a1a] rounded-[2rem] border border-blue-500/20 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col relative">
             
-            {{-- Botón Cerrar (Absoluto) --}}
+            {{-- Bot├│n Cerrar (Absoluto) --}}
             <button wire:click="$set('showingAdminTicket', false)" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all z-20 border border-white/5 hover:border-white/20">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6" /></svg>
             </button>
 
             <div class="px-8 py-6 border-b border-white/5 sticky top-0 bg-[#0a0a1a]/95 backdrop-blur-sm z-10 shrink-0">
                 <h3 class="text-xl font-black text-white uppercase tracking-tighter">Gestionar Ticket #{{ $aTicketId }}</h3>
-                <p class="text-[9px] text-blue-500 uppercase font-bold tracking-widest mt-1">Configuración y Asignación</p>
+                <p class="text-[9px] text-blue-500 uppercase font-bold tracking-widest mt-1">Configuraci├│n y Asignaci├│n</p>
             </div>
             
             <div class="overflow-y-auto custom-scrollbar flex-1">
@@ -3410,7 +3380,7 @@
                     @if($adminTicketModel)
                     <div class="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5 text-xs">
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-400 font-bold uppercase tracking-wider">Quién lo hizo:</span>
+                            <span class="text-gray-400 font-bold uppercase tracking-wider">Qui├®n lo hizo:</span>
                             <span class="text-white font-black uppercase tracking-tight">{{ $adminTicketModel->creador?->nombre_completo ?? 'N/A' }}</span>
                         </div>
                         <div class="flex items-center justify-between">
@@ -3427,7 +3397,7 @@
                             <p class="text-white font-black uppercase tracking-tight text-xs leading-relaxed">{{ $adminTicketModel->titulo }}</p>
                         </div>
                         <div class="space-y-1.5 mt-2">
-                            <span class="text-gray-400 font-bold uppercase tracking-wider block">Descripción del Usuario:</span>
+                            <span class="text-gray-400 font-bold uppercase tracking-wider block">Descripci├│n del Usuario:</span>
                             <p class="text-gray-300 font-medium tracking-tight whitespace-pre-wrap leading-relaxed bg-[#0b0b1a] p-3 rounded-xl border border-white/5">{{ $adminTicketModel->descripcion }}</p>
                         </div>
                         @if($adminTicketModel->archivosAdjuntos && $adminTicketModel->archivosAdjuntos->count() > 0)
@@ -3435,11 +3405,9 @@
                             <span class="text-gray-400 font-bold uppercase tracking-wider block">Archivos del Usuario:</span>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($adminTicketModel->archivosAdjuntos as $adj)
-                                    <div class="inline-flex items-center gap-1 bg-blue-600/10 border border-blue-500/20 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase text-blue-400">
-                                        📎 {{ Str::limit($adj->nombre_archivo, 20) }}
-                                        <button type="button" wire:click="viewAttachment({{ $adj->id }})" class="ml-2 hover:text-white px-1 py-0.5 rounded bg-teal-500/20 text-teal-300 transition-colors cursor-pointer">Ver</button>
-                                        <button type="button" wire:click="downloadAttachment({{ $adj->id }})" class="ml-1 hover:text-white px-1 py-0.5 rounded bg-blue-500/20 text-blue-300 transition-colors cursor-pointer">Bajar</button>
-                                    </div>
+                                    <button type="button" wire:click="downloadAttachment({{ $adj->id }})" class="inline-flex items-center gap-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase transition-all">
+                                        ­ƒôÄ {{ Str::limit($adj->nombre_archivo, 20) }}
+                                    </button>
                                 @endforeach
                             </div>
                         </div>
@@ -3492,13 +3460,13 @@
                             <input type="text" wire:model="aTicketHoraVisita" placeholder="Ej. 10:00 am o 2:00 pm" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
                         </div>
                         <div class="space-y-3">
-                            <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Tiempo de Resolución (Minutos)</label>
+                            <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Tiempo de Resoluci├│n (Minutos)</label>
                             <input type="number" wire:model="aTicketTiempoResolucion" placeholder="Ej. 15, 30, 60" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all placeholder:text-gray-600">
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Adjuntar Documentos/Evidencia Resolución</label>
+                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Adjuntar Documentos/Evidencia Resoluci├│n</label>
                         <div class="relative w-full h-14 border border-dashed border-white/10 hover:border-blue-500/50 rounded-xl bg-white/5 flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
                             <input type="file" multiple wire:model="aTicketFiles" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                             <div class="flex items-center gap-1.5 text-[10px] font-black text-gray-500 group-hover:text-blue-400 transition-colors uppercase tracking-wider">
@@ -3524,14 +3492,17 @@
                                         <i class="{{ $iconClass }} text-[12px]"></i>
                                         <span>{{ Str::limit($file->getClientOriginalName(), 15) }}</span>
                                         <span class="text-[7px] font-black uppercase bg-white/10 px-1 py-0.5 rounded text-blue-300">{{ $ext }}</span>
-                                        <button type="button" wire:click="removeAdminTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 font-bold ml-1 text-[11px] focus:outline-none">✕</button>
+                                        <button type="button" wire:click="removeAdminTicketFile({{ $index }})" class="text-rose-400 hover:text-rose-300 font-bold ml-1 text-[11px] focus:outline-none">Ô£ò</button>
                                     </div>
                                 @endforeach
                             </div>
                         @endif
                     </div>
 
-
+                    <div class="space-y-3">
+                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">Anotaci├│n / Notificar Usuario</label>
+                        <textarea wire:model="aTicketKoment" rows="3" placeholder="Mensaje opcional. Se notificar├í al usuario de los cambios de estado." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 transition-all"></textarea>
+                    </div>
                     
 
                     <div class="pt-3 border-t border-white/5">
@@ -3658,11 +3629,11 @@
              <svg class="anim-path" width="320" height="180">
                  <path d="M40 130 Q150 10 280 70" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="8 8" opacity="0.3"/>
              </svg>
-             <div class="anim-plane" :class="step >= 1 ? 'anim-fly' : ''">🛩️</div>
+             <div class="anim-plane" :class="step >= 1 ? 'anim-fly' : ''">­ƒø®´©Å</div>
              
-             <div class="anim-check" :class="step >= 2 ? 'anim-showCheck' : ''">✔</div>
+             <div class="anim-check" :class="step >= 2 ? 'anim-showCheck' : ''">Ô£ö</div>
              
-             <h2 class="anim-text anim-title" :class="step >= 2 ? 'anim-showText' : ''">¡Ticket enviado con éxito!</h2>
+             <h2 class="anim-text anim-title" :class="step >= 2 ? 'anim-showText' : ''">┬íTicket enviado con ├®xito!</h2>
              <p class="anim-text anim-subtitle" :class="step >= 2 ? 'anim-showText' : ''">Tu solicitud fue enviada correctamente.</p>
          </div>
      </div>
@@ -3685,7 +3656,7 @@
                 </div>
                 <div class="p-6 flex-1 overflow-y-auto space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Causa de Solución</label>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Causa de Soluci├│n</label>
                         <select wire:model="causaSolucionId" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             <option value="">-- Seleccionar --</option>
                             @foreach($causasSolucion as $causa)
@@ -3705,8 +3676,8 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Solución</label>
-                        <textarea wire:model="detallesResolucion" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none" placeholder="Describe cómo se solucionó..."></textarea>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Soluci├│n</label>
+                        <textarea wire:model="detallesResolucion" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none" placeholder="Describe c├│mo se solucion├│..."></textarea>
                         @error('detallesResolucion') <span class="text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                     </div>
                     <div>
@@ -3744,7 +3715,7 @@
                 </div>
                 <div class="p-6 flex-1 overflow-y-auto space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Motivo de Cancelación</label>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Motivo de Cancelaci├│n</label>
                         <select wire:model="motivoCancelacionId" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500">
                             <option value="">-- Seleccionar --</option>
                             @foreach($motivosCancelacion as $motivo)
@@ -3765,7 +3736,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detalles / Motivo</label>
-                        <textarea wire:model="detallesResolucion" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none" placeholder="Explica el motivo de cancelación..."></textarea>
+                        <textarea wire:model="detallesResolucion" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none" placeholder="Explica el motivo de cancelaci├│n..."></textarea>
                         @error('detallesResolucion') <span class="text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                     </div>
                     <div>
@@ -3774,7 +3745,7 @@
                     </div>
                     <div class="flex items-center gap-2 mt-2 bg-gray-800 p-3 rounded-lg border border-gray-700">
                         <input type="checkbox" wire:model="visibleAlUsuario" id="visible_user" class="w-4 h-4 text-red-600 bg-gray-900 border-gray-600 rounded focus:ring-red-500 focus:ring-2">
-                        <label for="visible_user" class="text-xs text-gray-300 font-bold uppercase tracking-wider">Mostrar cancelación al usuario</label>
+                        <label for="visible_user" class="text-xs text-gray-300 font-bold uppercase tracking-wider">Mostrar cancelaci├│n al usuario</label>
                     </div>
                 </div>
                 <div class="bg-gray-800/50 px-6 py-4 border-t border-gray-700 flex justify-end gap-3">
@@ -3789,7 +3760,7 @@
         </div>
     @endif
 
-    {{-- Script de Notificaciones y Partículas --}}
+    {{-- Script de Notificaciones y Part├¡culas --}}
     <script>
         function playChime() {
             try {
@@ -3887,7 +3858,7 @@
             }
         };
 
-        // 1. CHART TENDENCIA (Línea / Barra Mixta)
+        // 1. CHART TENDENCIA (L├¡nea / Barra Mixta)
         destroyChart('trendChart');
         const ctxTrend = document.getElementById('trendChart');
         if (ctxTrend) {
@@ -3981,7 +3952,7 @@
             });
         }
 
-        // 3. CHART ÁREAS (Barras Horizontales)
+        // 3. CHART ├üREAS (Barras Horizontales)
         destroyChart('areaChart');
         const ctxArea = document.getElementById('areaChart');
         if (ctxArea) {
@@ -3993,7 +3964,7 @@
                 data: {
                     labels: labels.length ? labels : ['Sin datos'],
                     datasets: [{
-                        label: 'Número de Solicitudes',
+                        label: 'N├║mero de Solicitudes',
                         data: counts.length ? counts : [0],
                         backgroundColor: 'rgba(168, 85, 247, 0.65)',
                         borderColor: '#a855f7',
@@ -4040,7 +4011,7 @@
         }
     };
 
-    // --- LÓGICA DE WIDGETS PANEL DE INICIO ---
+    // --- L├ôGICA DE WIDGETS PANEL DE INICIO ---
     window.initInicioWidgets = function() {
         if (!document.getElementById('clock-hours')) return; // Solo ejecutar si los elementos existen
 
@@ -4082,7 +4053,7 @@
             if (hour >= 6 && hour < 12) {
                 temp = 19; desc = "Despejado y Fresco"; iconClass = "fa-solid fa-sun text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]";
             } else if (hour >= 12 && hour < 18) {
-                temp = 27; desc = "Cálido y Despejado"; iconClass = "fa-solid fa-sun text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)] animate-spin";
+                temp = 27; desc = "C├ílido y Despejado"; iconClass = "fa-solid fa-sun text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)] animate-spin";
             } else if (hour >= 18 && hour < 22) {
                 temp = 21; desc = "Templado / Nublado"; iconClass = "fa-solid fa-cloud-sun text-gray-300";
             } else {
@@ -4091,7 +4062,7 @@
 
             const wTemp = document.getElementById('weather-temp');
             if(wTemp) {
-                wTemp.innerText = `${temp}°C`;
+                wTemp.innerText = `${temp}┬░C`;
                 document.getElementById('weather-desc').innerText = desc;
                 const iconElement = document.getElementById('weather-icon');
                 iconElement.className = `${iconClass} text-4xl`;
@@ -4160,7 +4131,7 @@
             renderCalendar();
         };
 
-        // Limpiar intervalos previos para evitar múltiples ejecuciones y parpadeos
+        // Limpiar intervalos previos para evitar m├║ltiples ejecuciones y parpadeos
         if (window.inicioClockInterval) clearInterval(window.inicioClockInterval);
         if (window.inicioWeatherInterval) clearInterval(window.inicioWeatherInterval);
 
@@ -4174,13 +4145,13 @@
         renderCalendar();
     };
 
-    // Asegurar que se inicie al cargar la página si la pestaña es inicio
+    // Asegurar que se inicie al cargar la p├ígina si la pesta├▒a es inicio
     document.addEventListener('livewire:initialized', () => {
         if(Livewire.first().activeTab === 'inicio') {
             setTimeout(window.initInicioWidgets, 100);
         }
         
-        // Escuchar cambios de pestaña para inicializar el reloj cuando cambien a inicio
+        // Escuchar cambios de pesta├▒a para inicializar el reloj cuando cambien a inicio
         Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
             succeed(({ snapshot, effect }) => {
                 const activeTab = component.ephemeral.activeTab || snapshot.data.activeTab;
@@ -4191,332 +4162,4 @@
         });
     });
 </script>
-
-{{-- GLOBAL CHAT BUBBLE WIDGET (DARK THEME) --}}
-@if($chatWidgetTicketModel && $isChatWidgetMinimized)
-    {{-- BUBBLE MODE (Facebook Chat Head style) --}}
-    <div x-data="{
-            x: 0,
-            y: 0,
-            dragging: false,
-            isDragAction: false,
-            startX: 0,
-            startY: 0,
-            startDrag(e) {
-                if (e.target.closest('.no-drag')) return;
-                this.dragging = true;
-                this.isDragAction = false;
-                this.startX = (e.type === 'touchstart' ? e.touches[0].clientX : e.clientX) - this.x;
-                this.startY = (e.type === 'touchstart' ? e.touches[0].clientY : e.clientY) - this.y;
-                
-                const moveHandler = (e) => this.drag(e);
-                const upHandler = (e) => {
-                    this.dragging = false;
-                    window.removeEventListener('mousemove', moveHandler);
-                    window.removeEventListener('mouseup', upHandler);
-                    window.removeEventListener('touchmove', moveHandler);
-                    window.removeEventListener('touchend', upHandler);
-                };
-                window.addEventListener('mousemove', moveHandler);
-                window.addEventListener('mouseup', upHandler);
-                window.addEventListener('touchmove', moveHandler, { passive: false });
-                window.addEventListener('touchend', upHandler);
-            },
-            drag(e) {
-                if (!this.dragging) return;
-                const currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-                const currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-                
-                if (Math.abs(currentX - this.startX - this.x) > 5 || Math.abs(currentY - this.startY - this.y) > 5) {
-                    this.isDragAction = true;
-                }
-                if (e.type === 'touchmove' && this.isDragAction) e.preventDefault();
-                this.x = currentX - this.startX;
-                this.y = currentY - this.startY;
-            }
-         }"
-         :style="`transform: translate(${x}px, ${y}px);`"
-         class="fixed bottom-4 right-4 z-[9999] transition-opacity duration-300 flex flex-col items-end"
-         style="will-change: transform;">
-         
-        <div @mousedown="startDrag" @touchstart="startDrag" @click="if(!isDragAction) $wire.toggleMinimizeChat()"
-             class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-[0_10px_25px_rgba(37,99,235,0.5)] flex items-center justify-center cursor-move hover:scale-105 transition-transform border-4 border-[#0b0c16] relative group animate-in zoom-in">
-            <div class="text-white font-black text-xl uppercase pointer-events-none">
-                @if(auth()->user()->role === 'user')
-                    {{ substr(optional($chatWidgetTicketModel->agente)->nombre ?? 'S', 0, 1) }}
-                @else
-                    {{ substr(optional($chatWidgetTicketModel->creador)->name ?? 'U', 0, 1) }}
-                @endif
-            </div>
-
-            {{-- Expand Button Overlay (Visual) --}}
-            <div class="absolute inset-0 w-full h-full rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center bg-black/40 transition-opacity pointer-events-none">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
-            </div>
-            
-            {{-- Close Button --}}
-            <button wire:click.stop="closeChatWidget" class="absolute -top-1 -right-1 w-6 h-6 bg-rose-500 rounded-full text-white flex items-center justify-center hover:bg-rose-600 shadow-md no-drag border-2 border-[#0b0c16] focus:outline-none z-10" title="Cerrar Chat">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-    </div>
-@endif
-
-{{-- SINGLE RIGHT SIDEBAR (Chat List & Active Chat) --}}
-<aside x-show="chatListSidebarOpen || ($wire.chatWidgetTicketId && !$wire.isChatWidgetMinimized)" x-cloak style="display: none;"
-       class="w-80 sm:w-80 md:w-[400px] bg-[#050510] flex flex-col h-full border-l border-white/10 shadow-[-15px_0_40px_rgba(0,0,0,0.6)] z-40 relative shrink-0 transition-all duration-300 origin-right"
-       x-transition:enter="transition ease-out duration-300"
-       x-transition:enter-start="translate-x-full opacity-0"
-       x-transition:enter-end="translate-x-0 opacity-100"
-       x-transition:leave="transition ease-in duration-200"
-       x-transition:leave-start="translate-x-0 opacity-100"
-       x-transition:leave-end="translate-x-full opacity-0">
-       
-@if(auth()->user()->role === 'user')
-    {{-- AI CHATBOT MODE (User Only) --}}
-    <div class="flex flex-col h-full w-full animate-in fade-in duration-200">
-        {{-- Header --}}
-        <div class="bg-white/5 backdrop-blur-xl px-4 py-3 flex items-center text-white shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.1)] z-10 border-b border-white/10 relative">
-            <div class="flex items-center gap-3 ml-2">
-                <div class="relative group cursor-default">
-                    <div class="absolute -inset-0.5 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-300"></div>
-                    <img src="https://ui-avatars.com/api/?name=B+C&background=1e1f38&color=4ade80&bold=true&font-size=0.4" class="relative w-10 h-10 rounded-full object-cover border-2 border-[#16172b] shadow-xl">
-                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0f101f] rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-                </div>
-                <div>
-                    <h4 class="font-bold text-sm leading-tight text-white tracking-wide truncate max-w-[150px]">
-                        Bryan C. (Soporte TI)
-                    </h4>
-                    <p class="text-[10px] text-green-400 font-bold tracking-widest mt-0.5">
-                        En línea - Asistente IA
-                    </p>
-                </div>
-            </div>
-            <div class="flex items-center ml-auto gap-1">
-                <button @click="chatListSidebarOpen = false" class="hover:bg-white/10 p-1.5 rounded-lg transition-colors focus:outline-none text-gray-400 hover:text-white" title="Cerrar">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-        </div>
-
-        {{-- Chat Body --}}
-        <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-transparent flex flex-col custom-scrollbar relative" id="ai-chat-body" x-data x-init="$nextTick(() => { $el.scrollTop = $el.scrollHeight; })" @scroll-bottom.window="$el.scrollTop = $el.scrollHeight">
-            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
-            @foreach($aiChatMessages as $c)
-            @php 
-                $isMine = $c['sender'] === 'user'; 
-                $time = \Carbon\Carbon::parse($c['created_at'])->format('H:i');
-            @endphp
-            <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }} relative z-10 group">
-                <div class="max-w-[75%] px-3 py-2 text-[12.5px] leading-snug shadow-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_4px_15px_rgba(37,99,235,0.2)]' : 'bg-white/5 text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)]' }} relative backdrop-blur-md">{!! nl2br(e(trim($c['message']))) !!}</div>
-                <span class="text-[9px] text-gray-500/80 font-bold uppercase tracking-widest mt-1.5 {{ $isMine ? 'pr-2' : 'pl-2' }} opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ $time }}</span>
-            </div>
-            @endforeach
-            <div wire:loading wire:target="sendAiMessage" class="flex flex-col items-start relative z-10 animate-in fade-in slide-in-from-bottom-2">
-                <div class="px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center gap-1.5 backdrop-blur-md">
-                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0ms"></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 150ms"></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 300ms"></span>
-                </div>
-            </div>
-        </div>
-
-        {{-- Chat Footer (Input) --}}
-        <div class="p-3 bg-white/5 backdrop-blur-md border-t border-white/10 shrink-0 relative z-10" x-data="{ showEmoji: false }">
-            <form wire:submit.prevent="sendAiMessage" class="relative flex items-center bg-black/20 border border-white/10 rounded-[1.25rem] focus-within:border-blue-500/50 focus-within:bg-black/40 transition-all shadow-inner pr-2">
-                <button type="button" @click="showEmoji = !showEmoji" class="px-3 text-gray-400 hover:text-white transition-colors focus:outline-none">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </button>
-                <textarea wire:model="aiChatMessageInput" wire:keydown.enter.prevent="sendAiMessage" rows="1" placeholder="Escribe tu mensaje..." class="flex-1 bg-transparent py-3.5 pr-2 text-xs text-white outline-none resize-none custom-scrollbar placeholder:text-gray-500" style="min-height: 44px;"></textarea>
-                <div class="flex items-center justify-center pl-1">
-                    <button type="submit" class="w-8 h-8 bg-blue-600 text-white hover:bg-blue-500 transition-colors rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group focus:outline-none">
-                        <svg class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform ml-0.5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                    </button>
-                </div>
-                
-                {{-- Emoji Picker Popup --}}
-                <div x-show="showEmoji" @click.away="showEmoji = false" class="absolute bottom-14 left-0 z-50 shadow-2xl" x-cloak>
-                    <emoji-picker @emoji-click="
-                        $wire.set('aiChatMessageInput', $wire.get('aiChatMessageInput') + $event.detail.unicode); 
-                        showEmoji = false;
-                    " class="dark"></emoji-picker>
-                </div>
-            </form>
-        </div>
-    </div>
-@else
-
-    @if($chatWidgetTicketModel && !$isChatWidgetMinimized)
-        
-        {{-- FULL CHAT MODE --}}
-        <div class="flex flex-col h-full w-full animate-in fade-in duration-200">
-            {{-- Header --}}
-            <div class="bg-white/5 backdrop-blur-xl px-3 py-3 flex items-center text-white shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.1)] z-10 border-b border-white/10 relative">
-                
-                {{-- Back button --}}
-                <div class="flex items-center gap-1 no-drag" wire:ignore>
-                    <button wire:click.stop="closeChatWidget" @click="chatListSidebarOpen = true" class="hover:bg-white/10 p-2 rounded-xl transition-colors focus:outline-none text-blue-400 hover:text-blue-300" title="Volver">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                </div>
-
-                {{-- User Info --}}
-                @php
-                    $otherUser = (auth()->user()->role === 'user') ? $chatWidgetTicketModel->agente : $chatWidgetTicketModel->creador;
-                    $isOnline = $otherUser ? $otherUser->isOnline() : false;
-                @endphp
-                <div class="flex items-center gap-3 ml-2 pointer-events-none">
-                    <div class="relative group">
-                        <div class="absolute -inset-0.5 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full blur opacity-40"></div>
-                        <img src="{{ $otherUser ? $otherUser->profile_photo_url : 'https://ui-avatars.com/api/?name=U&background=1e1f38&color=4ade80' }}" class="relative w-10 h-10 rounded-full object-cover border-2 border-[#16172b] shadow-xl">
-                        <div class="absolute bottom-0 right-0 w-3 h-3 {{ $isOnline ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-500' }} border-2 border-[#0f101f] rounded-full"></div>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-sm leading-tight text-white tracking-wide truncate max-w-[150px]">
-                            {{ $otherUser ? $otherUser->nombre_completo : 'Soporte TI' }}
-                        </h4>
-                        <p class="text-[10px] {{ $isOnline ? 'text-green-400' : 'text-gray-500' }} font-bold tracking-widest mt-0.5">
-                            {{ $isOnline ? 'En línea' : 'Fuera de línea' }}
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Options / Minimize --}}
-                <div class="flex items-center ml-auto gap-1 no-drag" wire:ignore>
-                    <button wire:click.stop="toggleMinimizeChat" class="hover:bg-white/10 p-1.5 rounded-lg transition-colors focus:outline-none text-gray-400 hover:text-white" title="Minimizar">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Chat Body --}}
-            <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-transparent flex flex-col custom-scrollbar relative" id="chat-messages-container" x-data x-init="$nextTick(() => { $el.scrollTop = $el.scrollHeight; })">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
-                <div class="text-center mb-2 relative z-10">
-                    <span class="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] bg-blue-900/30 border border-blue-500/20 px-3 py-1 rounded-full shadow-inner">Inicio de conversación</span>
-                </div>
-                @foreach($chatWidgetTicketModel->comentarios ?? [] as $c)
-                @php
-                    $isMine = (auth()->user()->role === 'user' && $c->es_cliente) || (auth()->user()->role !== 'user' && !$c->es_cliente);
-                @endphp
-                <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2 relative z-10 group">
-                    <div class="max-w-[75%] px-3 py-2 text-[12.5px] leading-snug shadow-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_4px_15px_rgba(37,99,235,0.2)]' : 'bg-white/5 text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)]' }} relative backdrop-blur-md"><span class="font-medium">{!! nl2br(e(trim($c->mensaje))) !!}</span></div>
-                    <span class="text-[9px] text-gray-500/80 font-bold uppercase tracking-widest mt-1.5 {{ $isMine ? 'pr-2' : 'pl-2' }} opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ $c->created_at->format('H:i') }}</span>
-                </div>
-                @endforeach
-            </div>
-
-            {{-- Chat Footer (Input) --}}
-            <div class="p-3 bg-white/5 backdrop-blur-md border-t border-white/10 shrink-0 relative z-10" x-data="{ showEmoji: false }">
-                @php
-                    $hasAgentComment = $chatWidgetTicketModel->comentarios->where('es_cliente', false)->count() > 0;
-                    $canReply = (auth()->user()->role !== 'user') || $hasAgentComment;
-                @endphp
-                
-                @if($canReply)
-                <form wire:submit.prevent="sendWidgetMessage" class="relative flex items-center bg-black/20 border border-white/10 rounded-[1.25rem] focus-within:border-blue-500/50 focus-within:bg-black/40 transition-all shadow-inner pr-2">
-                    <button type="button" @click="showEmoji = !showEmoji" class="px-3 text-gray-400 hover:text-white transition-colors focus:outline-none">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </button>
-                    <textarea wire:model="chatWidgetMessage" wire:keydown.enter.prevent="sendWidgetMessage" rows="1" placeholder="Escribe tu mensaje..." class="flex-1 bg-transparent py-3.5 pr-2 text-xs text-white outline-none resize-none custom-scrollbar placeholder:text-gray-500" style="min-height: 44px;"></textarea>
-                    <div class="flex items-center justify-center pl-1">
-                        <button type="submit" class="w-8 h-8 bg-blue-600 text-white hover:bg-blue-500 transition-colors rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group focus:outline-none">
-                            <svg class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform ml-0.5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                        </button>
-                    </div>
-                    
-                    {{-- Emoji Picker Popup --}}
-                    <div x-show="showEmoji" @click.away="showEmoji = false" class="absolute bottom-14 left-0 z-50 shadow-2xl" x-cloak>
-                        <emoji-picker @emoji-click="
-                            $wire.set('chatWidgetMessage', $wire.get('chatWidgetMessage') + $event.detail.unicode); 
-                            showEmoji = false;
-                        " class="dark"></emoji-picker>
-                    </div>
-                </form>
-                @else
-                <div class="text-center p-2 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-inner">
-                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
-                        Esperando respuesta del Agente de TI.
-                    </p>
-                </div>
-                @endif
-            </div>
-        </div>
-
-    @else
-        
-        {{-- CHAT LIST SIDEBAR --}}
-        <div class="flex flex-col h-full w-full animate-in fade-in duration-200 relative">
-            {{-- Loading Overlay --}}
-            <div wire:loading wire:target="openChatWidget" class="absolute inset-0 bg-[#0b0c16]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in">
-                <svg class="animate-spin w-8 h-8 text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Abriendo chat...</span>
-            </div>
-
-            {{-- Header --}}
-            <div class="px-5 py-4 flex items-center justify-between border-b border-white/5 shrink-0 bg-[#0f101f]">
-                <h3 class="text-xl font-black text-white tracking-tight">Chats</h3>
-                <button @click="chatListSidebarOpen = false" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            {{-- Search --}}
-            <div class="px-4 py-3 shrink-0">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
-                    <input type="text" wire:model.live.debounce.300ms="chatSearch" placeholder="Búsqueda" class="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/10 transition-all">
-                </div>
-            </div>
-
-            {{-- Accordion Sections --}}
-            <div class="flex-1 overflow-y-auto custom-scrollbar pb-4" x-data="{ openPrivado: true }">
-                {{-- Privado Section Header --}}
-                <button @click="openPrivado = !openPrivado" class="w-full px-5 py-3 flex items-center justify-between text-gray-400 hover:text-white transition-colors bg-[#101026]/50">
-                    <span class="text-xs font-bold uppercase tracking-wider">Privado ({{ count($chatNotificationsList) }})</span>
-                    <svg class="w-4 h-4 transition-transform duration-200" :class="openPrivado ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                
-                <div x-show="openPrivado" x-collapse>
-                    @forelse($chatNotificationsList as $chatNotif)
-                        <button wire:click="openChatWidget({{ $chatNotif['id'] }})" class="w-full text-left px-5 py-3.5 hover:bg-white/5 transition-all flex items-center gap-4 group relative border-b border-white/5 last:border-0">
-                            
-                            {{-- Avatar --}}
-                            <div class="relative shrink-0">
-                                <img src="{{ $chatNotif['avatar'] }}" alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-white/10 group-hover:border-blue-500/50 transition-colors">
-                                @if($chatNotif['is_online'])
-                                    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#0b0c16] rounded-full"></div>
-                                @endif
-                            </div>
-
-                            {{-- Chat Info --}}
-                            <div class="flex-1 min-w-0 pr-6">
-                                <div class="flex items-center justify-between mb-1">
-                                    <p class="text-sm font-bold text-white truncate">{{ $chatNotif['name'] }}</p>
-                                    <span class="text-[10px] font-medium text-gray-500 shrink-0">{{ $chatNotif['time'] }}</span>
-                                </div>
-                                <p class="text-xs text-gray-400 truncate group-hover:text-gray-300 transition-colors">{{ $chatNotif['msg'] }}</p>
-                            </div>
-                        </button>
-                    @empty
-                        <div class="px-5 py-10 text-center">
-                            <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
-                            </div>
-                            <p class="text-xs font-bold text-gray-500">No hay chats activos</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-    @endif
-@endif
-</aside>
-
-
 </div>
-
-<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>

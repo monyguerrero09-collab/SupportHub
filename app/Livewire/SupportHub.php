@@ -77,6 +77,10 @@ class SupportHub extends Component
     public $chatWidgetTicketModel = null;
     public $chatWidgetMessage = '';
     public $isChatWidgetMinimized = false;
+
+    // AI Chat for Users
+    public $aiChatMessages = [];
+    public $aiChatMessageInput = '';
     
     // Admin Ticket Modal properties
     public $showingAdminTicket = false;
@@ -657,6 +661,100 @@ class SupportHub extends Component
     public function toggleMinimizeChat()
     {
         $this->isChatWidgetMinimized = !$this->isChatWidgetMinimized;
+    }
+
+    public function openAiChat()
+    {
+        $this->loadAiChatMessages();
+        if (empty($this->aiChatMessages)) {
+            $welcomeText = "¡Hola! 👋 Soy Bryan C., tu Asistente Virtual de Soporte TI. ¿En qué puedo ayudarte hoy? Puedes hacerme preguntas sobre fallas, contraseñas, VPN o software.";
+            \App\Models\AiChatMessage::create([
+                'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                'sender' => 'ai',
+                'message' => $welcomeText
+            ]);
+            $this->loadAiChatMessages();
+        }
+    }
+
+    public function loadAiChatMessages()
+    {
+        $this->aiChatMessages = \App\Models\AiChatMessage::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    public function sendAiMessage()
+    {
+        $this->validate(['aiChatMessageInput' => 'required|string']);
+
+        $userMessage = $this->aiChatMessageInput;
+        $this->aiChatMessageInput = '';
+
+        // Guardar mensaje del usuario
+        \App\Models\AiChatMessage::create([
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'sender' => 'user',
+            'message' => $userMessage
+        ]);
+
+        $this->loadAiChatMessages();
+        $this->dispatch('scroll-bottom');
+
+        // Preparar historial para Gemini
+        $history = collect($this->aiChatMessages)->map(function ($msg) {
+            return [
+                'role' => $msg['sender'] === 'user' ? 'user' : 'model',
+                'parts' => [['text' => $msg['message']]]
+            ];
+        })->toArray();
+
+        $systemInstruction = "Eres Bryan C., un Asistente Virtual de Soporte Técnico (Help Desk Nivel 1).
+Tu misión es ayudar a los usuarios a resolver problemas comunes antes de generar un ticket.
+IMPORTANTE:
+- Nunca des soluciones avanzadas desde el inicio.
+- Primero realiza un diagnóstico.
+- Haz máximo una o dos preguntas por respuesta.
+- Da instrucciones sencillas.
+- Habla como una persona amable.
+- Usa emojis moderadamente.
+- Si el usuario resuelve el problema, felicítalo.
+- Si después de varios intentos no se resuelve, recomienda generar un ticket.
+Tu conocimiento incluye: Windows 10 y 11, Office, Outlook, Teams, VPN, Internet, Impresoras, Monitores, Mouse, Teclado, Contraseñas, Correo, Carpetas compartidas, Red, Navegadores, Computadoras lentas, Pantallas azules, Actualizaciones, Antivirus, BitLocker, Microsoft 365.
+Siempre responde en español. Nunca inventes información. Si el problema puede solucionarlo el usuario, guíalo paso por paso. Si requiere permisos de administrador o intervención física del área TI, indícalo. Siempre intenta evitar crear un ticket si el usuario puede solucionarlo.";
+
+        $payload = [
+            'contents' => $history,
+            'systemInstruction' => ['parts' => [['text' => $systemInstruction]]]
+        ];
+
+        try {
+            $apiKey = env('GEMINI_API_KEY');
+            if (empty($apiKey)) {
+                throw new \Exception("Falta configurar la variable GEMINI_API_KEY en el archivo .env");
+            }
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", $payload);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                $aiText = $data['candidates'][0]['content']['parts'][0]['text'] ?? "Lo siento, no pude procesar tu solicitud.";
+            } else {
+                $aiText = "Hubo un error de conexión con la API de Google Gemini (Código: " . $response->status() . "): " . $response->body();
+            }
+        } catch (\Exception $e) {
+            $aiText = "Error interno: " . $e->getMessage() . ". Revisa la consola o configuración.";
+        }
+
+        // Guardar mensaje de la IA
+        \App\Models\AiChatMessage::create([
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'sender' => 'ai',
+            'message' => $aiText
+        ]);
+
+        $this->loadAiChatMessages();
+        $this->dispatch('scroll-bottom');
     }
 
     public function sendWidgetMessage()
