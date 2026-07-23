@@ -4241,6 +4241,13 @@
          
         <div @mousedown="startDrag" @touchstart="startDrag" @click="if(!isDragAction) $wire.toggleMinimizeChat()"
              class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-[0_10px_25px_rgba(37,99,235,0.5)] flex items-center justify-center cursor-move hover:scale-105 transition-transform border-4 border-[#0b0c16] relative group animate-in zoom-in">
+            
+            @if($notifCount > 0)
+            <div class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center border-2 border-[#0b0c16] animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.6)] z-30">
+                <span class="text-white text-[10px] font-bold">{{ $notifCount > 99 ? '99+' : $notifCount }}</span>
+            </div>
+            @endif
+
             <div class="text-white font-black text-xl uppercase pointer-events-none">
                 @if(auth()->user()->role === 'user')
                     {{ substr(optional($chatWidgetTicketModel->agente)->nombre ?? 'S', 0, 1) }}
@@ -4272,7 +4279,7 @@
        x-transition:leave-start="translate-x-0 opacity-100"
        x-transition:leave-end="translate-x-full opacity-0">
        
-@if(auth()->user()->role === 'user')
+@if(auth()->user()->role === 'user' && !($chatWidgetTicketModel && !$isChatWidgetMinimized))
     {{-- AI CHATBOT MODE (User Only) --}}
     <div class="flex flex-col h-full w-full animate-in fade-in duration-200">
         {{-- Header --}}
@@ -4293,7 +4300,7 @@
                 </div>
             </div>
             <div class="flex items-center ml-auto gap-1">
-                <button @click="chatListSidebarOpen = false" class="hover:bg-white/10 p-1.5 rounded-lg transition-colors focus:outline-none text-gray-400 hover:text-white" title="Cerrar">
+                <button wire:click.stop="clearAiChat" @click="chatListSidebarOpen = false" class="hover:bg-white/10 p-1.5 rounded-lg transition-colors focus:outline-none text-gray-400 hover:text-white" title="Cerrar">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -4409,11 +4416,19 @@
             {{-- Chat Footer (Input) --}}
             <div class="p-3 bg-white/5 backdrop-blur-md border-t border-white/10 shrink-0 relative z-10" x-data="{ showEmoji: false }">
                 @php
+                    $isTicketClosed = in_array(optional($chatWidgetTicketModel->estado)->nombre, ['Completado', 'Cerrado']);
                     $hasAgentComment = $chatWidgetTicketModel->comentarios->where('es_cliente', false)->count() > 0;
                     $canReply = (auth()->user()->role !== 'user') || $hasAgentComment;
                 @endphp
                 
-                @if($canReply)
+                @if($isTicketClosed)
+                <div class="text-center p-3 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-inner">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed">
+                        Este ticket ha finalizado.<br>
+                        <span class="text-blue-400 cursor-pointer hover:underline mt-1 block" wire:click.stop="closeChatWidget" @click="chatListSidebarOpen = true">Regresar al Chatbot IA</span>
+                    </p>
+                </div>
+                @elseif($canReply)
                 <form wire:submit.prevent="sendWidgetMessage" class="relative flex items-center bg-black/20 border border-white/10 rounded-[1.25rem] focus-within:border-blue-500/50 focus-within:bg-black/40 transition-all shadow-inner pr-2">
                     <button type="button" @click="showEmoji = !showEmoji" class="px-3 text-gray-400 hover:text-white transition-colors focus:outline-none">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -4456,7 +4471,7 @@
             {{-- Header --}}
             <div class="px-5 py-4 flex items-center justify-between border-b border-white/5 shrink-0 bg-[#0f101f]">
                 <h3 class="text-xl font-black text-white tracking-tight">Chats</h3>
-                <button @click="chatListSidebarOpen = false" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                <button wire:click="clearAllChatsOnClose" @click="chatListSidebarOpen = false" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>

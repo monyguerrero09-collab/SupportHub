@@ -242,6 +242,25 @@ class SupportHub extends Component
                 $this->notifCount = Ticket::where('usuario_creador_id', Auth::id())
                     ->whereNotIn('id', $dismissedIds)
                     ->count();
+
+                // Limpiar el chat automáticamente al iniciar sesión o cargar la página
+                \App\Models\AiChatMessage::where('user_id', Auth::id())->delete();
+                
+                // Borrar mensajes de tickets cerrados o completados para mantener el chat limpio
+                \App\Models\Comentario::whereHas('ticket', function($q) {
+                    $q->where('usuario_creador_id', Auth::id())
+                      ->whereHas('estado', function($q2) {
+                          $q2->whereIn('nombre', ['Completado', 'Cerrado', 'Resuelto']);
+                      });
+                })->delete();
+
+                // Inicializar el último comentario visto para notificaciones burbuja
+                if (!\Illuminate\Support\Facades\Session::has('last_seen_agent_comment_id')) {
+                    $maxComment = \App\Models\Comentario::where('es_cliente', false)
+                        ->whereHas('ticket', function($q) { $q->where('usuario_creador_id', Auth::id()); })
+                        ->max('id');
+                    \Illuminate\Support\Facades\Session::put('last_seen_agent_comment_id', $maxComment ?? 0);
+                }
             } else {
                 $this->notifCount = Ticket::whereNotIn('id', $dismissedIds)->count();
             }
@@ -652,10 +671,25 @@ class SupportHub extends Component
 
     public function closeChatWidget()
     {
+        // El usuario solicitó explícitamente que los mensajes no se guarden y se borren al cerrar
+        if ($this->chatWidgetTicketId) {
+            \App\Models\Comentario::where('ticket_id', $this->chatWidgetTicketId)->delete();
+        }
+
         $this->chatWidgetTicketId = null;
         $this->chatWidgetTicketModel = null;
         $this->chatWidgetMessage = '';
         $this->isChatWidgetMinimized = false;
+    }
+
+    public function clearAllChatsOnClose()
+    {
+        // Petición expresa del usuario: borrar TODO registro temporal de chat para mantener la BDD completamente en 0
+        if ($this->chatWidgetTicketId) {
+            \App\Models\Comentario::where('ticket_id', $this->chatWidgetTicketId)->delete();
+        }
+        $this->chatWidgetTicketId = null;
+        $this->chatWidgetTicketModel = null;
     }
 
     public function toggleMinimizeChat()
@@ -755,6 +789,12 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
 
         $this->loadAiChatMessages();
         $this->dispatch('scroll-bottom');
+    }
+
+    public function clearAiChat()
+    {
+        \App\Models\AiChatMessage::where('user_id', \Illuminate\Support\Facades\Auth::id())->delete();
+        $this->aiChatMessages = [];
     }
 
     public function sendWidgetMessage()
@@ -1303,6 +1343,27 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
                 $this->dispatch('play-notification-sound');
             }
             $this->notifCount = $currentCount;
+
+            // Auto-pop bubble logic for users when receiving new admin messages
+            if ($userRole === 'user') {
+                $lastCommentId = \Illuminate\Support\Facades\Session::get('last_seen_agent_comment_id', 0);
+                $newAgentComment = \App\Models\Comentario::where('es_cliente', false)
+                    ->whereHas('ticket', function($q) {
+                        $q->where('usuario_creador_id', Auth::id());
+                    })
+                    ->where('id', '>', $lastCommentId)
+                    ->latest()
+                    ->first();
+
+                if ($newAgentComment) {
+                    \Illuminate\Support\Facades\Session::put('last_seen_agent_comment_id', $newAgentComment->id);
+                    if ($this->chatWidgetTicketId !== $newAgentComment->ticket_id || $this->isChatWidgetMinimized) {
+                        $this->openChatWidget($newAgentComment->ticket_id);
+                        $this->isChatWidgetMinimized = true; // Empieza minimizado como burbuja flotante
+                        $this->dispatch('play-notification-sound');
+                    }
+                }
+            }
         } else {
             $this->notificationsList = [];
             $this->notifCount = 0;
