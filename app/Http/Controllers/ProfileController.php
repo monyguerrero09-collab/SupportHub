@@ -57,4 +57,23 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Update the user's profile photo.
+     */
+    public function updatePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+        $fileName = 'perfil_' . $user->id . '.jpg';
+        
+        // Guardar/sobrescribir en storage/app/public/avatars/
+        // Usamos storeAs que guardará en el disco local y usará el nombre dado
+        $request->file('photo')->storeAs('avatars', $fileName, 'public');
+
+        return Redirect::route('profile.edit')->with('status', 'photo-updated');
+    }
 }

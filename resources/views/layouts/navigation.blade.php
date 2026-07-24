@@ -40,7 +40,15 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-4 py-2 border border-white/10 text-sm leading-4 font-bold rounded-xl text-white bg-white/5 hover:text-purple-300 hover:border-purple-500/50 hover:bg-white/10 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] focus:outline-none transition ease-in-out duration-300 backdrop-blur-md">
-                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-inner text-white flex items-center justify-center mr-2 text-[10px] border border-white/20">{{ substr(Auth::user()->name, 0, 1) }}</div>
+                            @php
+                                $navAvatarPath = 'storage/avatars/perfil_' . Auth::id() . '.jpg';
+                                $hasNavAvatar = file_exists(public_path($navAvatarPath));
+                            @endphp
+                            @if($hasNavAvatar)
+                                <img src="{{ asset($navAvatarPath) }}?v={{ filemtime(public_path($navAvatarPath)) }}" class="w-6 h-6 rounded-full object-cover mr-2 border border-white/20" alt="Avatar">
+                            @else
+                                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-inner text-white flex items-center justify-center mr-2 text-[10px] border border-white/20">{{ substr(Auth::user()->name, 0, 1) }}</div>
+                            @endif
                             <div class="uppercase tracking-wider text-[10px] sm:text-xs mr-1">{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
