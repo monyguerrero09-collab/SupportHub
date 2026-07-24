@@ -2455,7 +2455,7 @@
      STATISTICS TAB — uses x-show so canvases always exist in DOM
      Charts are initialised in the <script> block below.
 ═══════════════════════════════════════════════════════════ --}}
-<div x-show="activeTab === 'statistics'"
+<div x-show="activeTab === 'statistics'" style="display: none;"
      wire:poll.15s
      id="statistics-container"
      data-stats="{{ json_encode([
@@ -4406,9 +4406,22 @@
                 @php
                     $isMine = (auth()->user()->role === 'user' && $c->es_cliente) || (auth()->user()->role !== 'user' && !$c->es_cliente);
                 @endphp
-                <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2 relative z-10 group">
-                    <div class="max-w-[75%] px-3 py-2 text-[12.5px] leading-snug shadow-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_4px_15px_rgba(37,99,235,0.2)]' : 'bg-white/5 text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)]' }} relative backdrop-blur-md"><span class="font-medium">{!! nl2br(e(trim($c->mensaje))) !!}</span></div>
-                    <span class="text-[9px] text-gray-500/80 font-bold uppercase tracking-widest mt-1.5 {{ $isMine ? 'pr-2' : 'pl-2' }} opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ $c->created_at->format('H:i') }}</span>
+                <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2 relative z-10 group mb-2">
+                    <div class="flex items-end gap-2 {{ $isMine ? 'flex-row-reverse' : 'flex-row' }}">
+                        @if(!$isMine)
+                            @php
+                                $cAvatarPath = 'storage/avatars/perfil_' . $c->usuario_id . '.jpg';
+                                $cHasAvatar = file_exists(public_path($cAvatarPath));
+                            @endphp
+                            @if($cHasAvatar)
+                                <img src="{{ asset($cAvatarPath) }}?v={{ filemtime(public_path($cAvatarPath)) }}" class="w-7 h-7 rounded-full object-cover shadow-sm mb-0.5" alt="Avatar">
+                            @else
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-inner text-white flex items-center justify-center text-[10px] mb-0.5">{{ substr(optional($c->usuario)->name ?? 'U', 0, 1) }}</div>
+                            @endif
+                        @endif
+                        <div class="max-w-[85%] px-3.5 py-2.5 text-[13.5px] leading-snug shadow-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_4px_15px_rgba(37,99,235,0.2)]' : 'bg-white/5 text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)]' }} relative backdrop-blur-md" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;"><span class="font-medium">{!! nl2br(e(trim($c->mensaje))) !!}</span></div>
+                    </div>
+                    <span class="text-[9px] text-gray-500/80 font-bold uppercase tracking-widest mt-1.5 {{ $isMine ? 'pr-2' : 'pl-9' }} opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ $c->created_at->format('H:i') }}</span>
                 </div>
                 @endforeach
             </div>
