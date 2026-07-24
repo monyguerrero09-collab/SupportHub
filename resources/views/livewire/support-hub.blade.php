@@ -244,7 +244,7 @@
                     <div x-show="sidebarOpen" class="min-w-0 flex-1">
                         <p class="text-xs font-bold truncate text-white tracking-tight">{{ Auth::user()->name }}</p>
                         <p class="text-[9px] text-gray-500 truncate tracking-widest uppercase mt-0.5">
-                            {{ auth()->user()->role === 'user' ? 'Operativo' : (auth()->user()->role === 'admin' ? 'Administrador' : 'Agente TI') }}
+                            {{ auth()->user()->role === 'user' ? 'Operativo' : (auth()->user()->role === 'admin' ? 'Administrador' : (auth()->user()->role === 'gestor' ? 'Gestor de Stocks' : 'Agente TI')) }}
                         </p>
                     </div>
                     <svg x-show="sidebarOpen" class="w-3.5 h-3.5 text-gray-600 transition-transform duration-200 shrink-0" :class="profileMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
@@ -3335,6 +3335,7 @@
                         <select wire:model="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none">
                             <option value="user">Usuario</option>
                             <option value="agente">Agente TI</option>
+                            <option value="gestor">Gestor de Stocks</option>
                             <option value="admin">Administrador</option>
                         </select>
                         @error('userRole') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror

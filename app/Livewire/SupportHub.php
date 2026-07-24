@@ -942,7 +942,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
         $rules = [
             'userName' => 'required|string|max:255',
             'userTelefono' => 'nullable|string|max:20',
-            'userRole' => 'required|in:admin,agente,user',
+            'userRole' => 'required|in:admin,agente,gestor,user',
             'userCodigoAcceso' => 'required|string|max:50|unique:usuarios,codigo_acceso,' . ($this->selectedUserId ?? 'NULL'),
         ];
         $this->validate($rules);
@@ -950,6 +950,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
         $rolNombre = match($this->userRole) {
             'admin' => 'Admin',
             'agente' => 'Agente TI',
+            'gestor' => 'Gestor de Stocks',
             'user' => 'Usuario',
             default => 'Usuario',
         };
