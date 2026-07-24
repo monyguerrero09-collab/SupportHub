@@ -1085,6 +1085,17 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
             }
         }
 
+        $agenteAsignadoId = null;
+        if (Auth::user()->role === 'agente') {
+            $admin = \App\Models\User::whereHas('rol', function($q) {
+                $q->where('nombre', 'Admin');
+            })->first();
+            
+            if ($admin) {
+                $agenteAsignadoId = $admin->id;
+            }
+        }
+
         $ticket = Ticket::create([
             'titulo' => $fullTitle,
             'descripcion' => $finalDescription,
@@ -1093,6 +1104,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
             'sector_id' => $sectorId ?: null,
             'estado_id' => 1,
             'usuario_creador_id' => Auth::id(),
+            'agente_asignado_id' => $agenteAsignadoId,
             'tipo_ticket_id' => 1,
             'planta' => $this->ticketPlanta,
         ]);
@@ -1335,7 +1347,8 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
                     'is_online' => $isOnline,
                     'msg' => \Illuminate\Support\Str::limit($t->comentarios->first()->mensaje, 50),
                     'time' => $t->comentarios->first()->created_at->format('d/m/y'),
-                    'time_full' => $t->comentarios->first()->created_at->diffForHumans()
+                    'time_full' => $t->comentarios->first()->created_at->diffForHumans(),
+                    'user_id' => $otherUser ? $otherUser->id : null,
                 ];
             })->values()->toArray();
             $currentCount = count($this->notificationsList);

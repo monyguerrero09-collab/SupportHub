@@ -849,7 +849,7 @@
                 <div class="animate-in fade-in duration-500 w-full block text-left" 
                      style="background: linear-gradient(135deg, #020210 0%, #06051a 40%, #030318 70%, #010108 100%); position: relative;"
                      x-data="{
-                        mode: 'selection',
+                        mode: '{{ auth()->user()->role === 'agente' ? 'manual' : 'selection' }}',
                         step: 1,
                         selectedSector: null,
                         selectedSectorName: '',
@@ -1024,7 +1024,7 @@
                             }
                         }
                      }"
-                     @clear-ticket-form.window="clearAll(); mode = 'selection';">
+                     @clear-ticket-form.window="clearAll(); mode = '{{ auth()->user()->role === 'agente' ? 'manual' : 'selection' }}';">
                      <div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
                          <div style="position:absolute;width:60vw;height:60vh;top:-10vh;right:-10vw;border-radius:50%;filter:blur(90px);background:radial-gradient(circle, rgba(45,27,150,0.25) 0%, rgba(30,15,100,0.1) 40%, transparent 70%);animation:nebulaDrift 28s ease-in-out infinite alternate;"></div>
                          <div style="position:absolute;width:50vw;height:50vh;bottom:-10vh;left:-5vw;border-radius:50%;filter:blur(80px);background:radial-gradient(circle, rgba(10,50,150,0.2) 0%, transparent 70%);animation:nebulaDrift 22s ease-in-out infinite alternate;animation-delay:-10s;"></div>
@@ -1207,10 +1207,134 @@
                                  </div>
                              </div>
                          </div>
+                          @if(auth()->user()->role === 'agente')
+                          <!-- ULTRA PROFESSIONAL AGENT MANUAL FORM -->
+                          <div x-show="mode === 'manual'" class="w-full max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500" style="display:none;">
+                              <div class="relative w-full rounded-2xl p-[1px] bg-gradient-to-br from-indigo-500/40 via-purple-500/10 to-blue-500/40 shadow-[0_15px_50px_rgba(79,70,229,0.2)]">
+                                  <div class="bg-[#070b14]/95 backdrop-blur-3xl rounded-2xl w-full h-full overflow-hidden flex flex-col md:flex-row border border-white/5">
+                                      
+                                      <!-- Left Panel: Context -->
+                                      <div class="w-full md:w-5/12 bg-gradient-to-b from-[#0e1526] to-[#070a13] p-8 md:p-10 border-b md:border-b-0 md:border-r border-white/5 relative overflow-hidden flex flex-col">
+                                          <div class="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                                          <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                                          
+                                          <div class="relative z-10">
+                                              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-blue-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-8 text-2xl shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                                                  <i class="fa-solid fa-shield-halved"></i>
+                                              </div>
+                                              <h3 class="text-2xl font-black text-white tracking-tight mb-3 leading-tight">Escalación<br><span class="text-indigo-400">Administrativa</span></h3>
+                                              <p class="text-xs text-gray-400 mb-8 font-medium leading-relaxed">
+                                                  Portal de uso exclusivo para Soporte TI. 
+                                                  Al generar este ticket, se omiten las reglas estándar de ruteo y el caso se asigna de manera <strong class="text-indigo-300">directa y confidencial</strong> al Administrador General del sistema.
+                                              </p>
+                                          </div>
+                                          
+                                          <div class="mt-auto relative z-10 space-y-4">
+                                              <div class="flex items-center gap-3 text-[10px] text-gray-500 font-bold tracking-widest uppercase bg-white/5 px-4 py-3 rounded-xl border border-white/5">
+                                                  <i class="fa-solid fa-bolt text-amber-400 text-sm"></i> Prioridad Máxima Forzada
+                                              </div>
+                                              <div class="flex items-center gap-3 text-[10px] text-gray-500 font-bold tracking-widest uppercase bg-white/5 px-4 py-3 rounded-xl border border-white/5">
+                                                  <i class="fa-solid fa-user-tie text-blue-400 text-sm"></i> Canal Administrador
+                                              </div>
+                                          </div>
+                                      </div>
+
+                                      <!-- Right Panel: Form Fields -->
+                                      <div class="w-full md:w-7/12 p-8 md:p-10 flex flex-col relative">
+                                          <div class="space-y-6 flex-1">
+                                              <!-- Asunto -->
+                                              <div class="space-y-2">
+                                                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span class="text-indigo-500 mr-1">01.</span> Asunto Técnico *</label>
+                                                  <input type="text" x-model="manualProblem" required placeholder="Ej. Falla crítica en servidor de base de datos..."
+                                                      class="w-full px-4 py-3.5 rounded-xl border border-white/5 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 bg-black/40 text-white placeholder:text-gray-600 transition-all text-xs outline-none font-medium shadow-inner">
+                                              </div>
+                                              
+                                              <!-- Descripción -->
+                                              <div class="space-y-2">
+                                                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span class="text-blue-500 mr-1">02.</span> Reporte Detallado *</label>
+                                                  <textarea x-model="manualDescription" required rows="4" placeholder="Ingresa los logs, diagnóstico previo, o pasos para reproducir la falla..."
+                                                      class="w-full px-4 py-3.5 rounded-xl border border-white/5 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 bg-black/40 text-white placeholder:text-gray-600 transition-all text-xs outline-none resize-none font-medium leading-relaxed shadow-inner"></textarea>
+                                              </div>
+
+                                              <!-- Location Grid -->
+                                              <div class="space-y-2">
+                                                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3"><span class="text-purple-500 mr-1">03.</span> Origen de la Falla</label>
+                                                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                      <select x-model="manualPlanta" required class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 bg-black/40 text-white transition-all text-xs outline-none font-bold">
+                                                          <option class="bg-[#0f172a] text-gray-400" value="">Planta *</option>
+                                                          <option class="bg-[#0f172a]" value="1">Planta 1</option>
+                                                          <option class="bg-[#0f172a]" value="2">Planta 2</option>
+                                                      </select>
+                                                      <select x-model="manualSector" required class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 bg-black/40 text-white transition-all text-xs outline-none font-bold">
+                                                          <option class="bg-[#0f172a] text-gray-400" value="">Sector *</option>
+                                                          <template x-for="sec in sectors" :key="sec.id"><option class="bg-[#0f172a]" :value="sec.id" x-text="sec.name"></option></template>
+                                                      </select>
+                                                      <input type="text" x-model="manualStation" required placeholder="Estación *" class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 bg-black/40 text-white placeholder:text-gray-600 transition-all text-xs outline-none font-medium">
+                                                  </div>
+                                              </div>
+
+                                              <!-- File Upload -->
+                                              <div class="space-y-2">
+                                                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span class="text-green-500 mr-1">04.</span> Evidencia (Opcional)</label>
+                                                  <label class="relative w-full h-12 border border-dashed border-white/10 hover:border-indigo-500/50 rounded-xl bg-black/20 flex items-center justify-center cursor-pointer transition-all group overflow-hidden">
+                                                      <input type="file" multiple wire:model="ticketFiles" class="hidden" />
+                                                      <div class="flex items-center gap-2 text-[11px] font-bold text-gray-500 group-hover:text-indigo-400 transition-colors">
+                                                          <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                                                          <span>Subir capturas o archivos de log...</span>
+                                                      </div>
+                                                  </label>
+                                                  <!-- File List -->
+                                                  @if(!empty($ticketFiles))
+                                                      <div class="mt-2 space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                                                          @foreach($ticketFiles as $index => $file)
+                                                              @if($file)
+                                                              @php
+                                                                  $ext = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+                                                                  $iconClass = match($ext) {
+                                                                      'pdf' => 'fa-solid fa-file-pdf text-red-400',
+                                                                      'doc', 'docx' => 'fa-solid fa-file-word text-blue-400',
+                                                                      'xls', 'xlsx' => 'fa-solid fa-file-excel text-green-400',
+                                                                      'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp' => 'fa-solid fa-file-image text-purple-400',
+                                                                      default => 'fa-solid fa-file text-gray-400',
+                                                                  };
+                                                              @endphp
+                                                              <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-300">
+                                                                  <div class="flex items-center gap-2 truncate">
+                                                                      <i class="{{ $iconClass }} text-sm shrink-0"></i>
+                                                                      <span class="truncate font-medium text-[10px]">{{ $file->getClientOriginalName() }}</span>
+                                                                      <span class="text-[8px] font-black uppercase bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-1">{{ $ext }}</span>
+                                                                  </div>
+                                                                  <button type="button" wire:click.prevent="removeTicketFile({{ $index }})" class="text-rose-500 hover:text-rose-400 ml-2 shrink-0 transition-colors">
+                                                                      <i class="fa-solid fa-xmark"></i>
+                                                                  </button>
+                                                              </div>
+                                                              @endif
+                                                          @endforeach
+                                                      </div>
+                                                  @endif
+                                              </div>
+                                          </div>
+
+                                          <!-- Submit -->
+                                          <div class="mt-8 pt-6 border-t border-white/5 relative z-10">
+                                              <button @click="submitManualTicket"
+                                                  :disabled="!isManualReady"
+                                                  :class="isManualReady ? 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:scale-[1.02] active:scale-95' : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'"
+                                                  class="w-full font-black py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-3 text-xs border border-indigo-400/20 uppercase tracking-widest group">
+                                                  <span>PROCEDER CON LA ESCALACIÓN</span>
+                                                  <i class="fa-solid fa-paper-plane group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" x-show="isManualReady"></i>
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          @else
+                          <!-- STANDARD USER MANUAL FORM -->
                           <div x-show="mode === 'manual'" class="w-full max-w-xl mx-auto animate-in fade-in duration-300" style="display:none;">
                               <button @click="mode = 'selection'" class="mb-3 flex items-center text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i> Volver</button>
                               <div class="bg-[#0b1221]/90 backdrop-blur-2xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden">
-                                  {{-- Header compacto --}}
+                                  {{-- Header --}}
                                   <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-4">
                                       <div class="flex items-center gap-3">
                                           <span class="p-2 bg-white/10 rounded-xl text-lg"><i class="fa-solid fa-file-pen text-white"></i></span>
@@ -1322,6 +1446,7 @@
                                   </div>
                               </div>
                           </div>
+                          @endif
                          <div x-show="mode === 'intuitive'" class="w-full animate-in fade-in duration-500" style="display:none;">
                               <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-8 items-start w-full">
                                   {{-- Left Column: Stepper Indicators --}}
