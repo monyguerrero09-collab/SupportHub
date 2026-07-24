@@ -130,7 +130,19 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Crear Ticket</span>
                 </button>
+                @if(auth()->user()->role === 'gestor')
+                <button @click="activeTab = 'mis_tickets'"
+                    :class="activeTab === 'mis_tickets' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <i class="fa-solid fa-ticket group-hover:scale-110 transition-transform text-lg"></i>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Mis Tickets</span>
+                </button>
+                @endif
                 
+                @if(auth()->user()->role !== 'gestor')
                 {{-- Dropdown TICKETS --}}
                 <div x-data="{ ticketsOpen: false }">
                     <button @click="ticketsOpen = !ticketsOpen; if(!sidebarOpen) sidebarOpen = true;"
@@ -168,6 +180,7 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Reporte tickets</span>
                 </button>
+                @endif
                 
             @endif
             @if(auth()->user()->role === 'admin')
@@ -187,6 +200,7 @@
                 <div x-show="sidebarOpen" class="px-4 py-2 mt-2 border-t border-white/5 pt-4">
                     <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Herramientas</p>
                 </div>
+                @if(in_array(auth()->user()->role, ['admin', 'gestor']))
                 <button @click="activeTab = 'inventory'"
                     :class="activeTab === 'inventory' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -196,6 +210,7 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Inventario</span>
                 </button>
+                @endif
                 <button @click="activeTab = 'gestion_archivos'"
                     :class="activeTab === 'gestion_archivos' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -1207,7 +1222,7 @@
                                  </div>
                              </div>
                          </div>
-                          @if(auth()->user()->role === 'agente')
+                          @if(in_array(auth()->user()->role, ['agente', 'gestor']))
                           <!-- ULTRA PROFESSIONAL AGENT MANUAL FORM -->
                           <div x-show="mode === 'manual'" class="w-full max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500" style="display:none;">
                               <div class="relative w-full rounded-2xl p-[1px] bg-gradient-to-br from-indigo-500/40 via-purple-500/10 to-blue-500/40 shadow-[0_15px_50px_rgba(79,70,229,0.2)]">
@@ -1329,7 +1344,8 @@
                                   </div>
                               </div>
                           </div>
-                          @else
+                          @endif
+                          @if(!in_array(auth()->user()->role, ['agente', 'gestor']))
                           <!-- STANDARD USER MANUAL FORM -->
                           <div x-show="mode === 'manual'" class="w-full max-w-xl mx-auto animate-in fade-in duration-300" style="display:none;">
                               <button @click="mode = 'selection'" class="mb-3 flex items-center text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i> Volver</button>

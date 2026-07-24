@@ -1086,7 +1086,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
         }
 
         $agenteAsignadoId = null;
-        if (Auth::user()->role === 'agente') {
+        if (in_array(Auth::user()->role, ['agente', 'gestor'])) {
             $admin = \App\Models\User::whereHas('rol', function($q) {
                 $q->where('nombre', 'Admin');
             })->first();

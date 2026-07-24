@@ -30,13 +30,13 @@
                 <p class="text-gray-500 text-sm">Selecciona tu perfil para acceder al sistema</p>
             </div>
 
-            <!-- Profile Grid: 3 Buttons -->
-            <div class="flex flex-col sm:flex-row w-full gap-4 justify-center items-stretch">
+            <!-- Profile Grid: 4 Buttons -->
+            <div class="grid grid-cols-2 w-full gap-4 justify-center items-stretch">
                 <!-- Usuario Button -->
                 <button
                     type="button"
                     @click="setRole('Usuario')"
-                    class="group relative flex-1 bg-white/[0.02] hover:bg-blue-600/[0.04] p-6 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(37,99,235,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    class="group relative flex-1 bg-white/[0.02] hover:bg-blue-600/[0.04] p-5 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(37,99,235,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
                     <div class="flex flex-col items-center space-y-3">
                         <div class="p-3.5 bg-blue-500/10 rounded-xl group-hover:bg-blue-500/20 group-hover:scale-110 transition-all duration-300">
@@ -44,7 +44,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <span class="text-base font-bold text-gray-200 group-hover:text-blue-400 transition-colors">Usuario</span>
+                        <span class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition-colors">Usuario</span>
                     </div>
                 </button>
 
@@ -52,7 +52,7 @@
                 <button
                     type="button"
                     @click="setRole('Agente TI')"
-                    class="group relative flex-1 bg-white/[0.02] hover:bg-purple-600/[0.04] p-6 rounded-2xl border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(124,58,237,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    class="group relative flex-1 bg-white/[0.02] hover:bg-purple-600/[0.04] p-5 rounded-2xl border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(124,58,237,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 >
                     <div class="flex flex-col items-center space-y-3">
                         <div class="p-3.5 bg-purple-500/10 rounded-xl group-hover:bg-purple-500/20 group-hover:scale-110 transition-all duration-300">
@@ -60,7 +60,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                             </svg>
                         </div>
-                        <span class="text-base font-bold text-gray-200 group-hover:text-purple-400 transition-colors">Agente TI</span>
+                        <span class="text-sm font-bold text-gray-200 group-hover:text-purple-400 transition-colors">Agente TI</span>
                     </div>
                 </button>
 
@@ -68,7 +68,7 @@
                 <button
                     type="button"
                     @click="setRole('Administrador')"
-                    class="group relative flex-1 bg-white/[0.02] hover:bg-emerald-600/[0.04] p-6 rounded-2xl border border-white/10 hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    class="group relative flex-1 bg-white/[0.02] hover:bg-emerald-600/[0.04] p-5 rounded-2xl border border-white/10 hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 >
                     <div class="flex flex-col items-center space-y-3">
                         <div class="p-3.5 bg-emerald-500/10 rounded-xl group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all duration-300">
@@ -76,7 +76,23 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
-                        <span class="text-base font-bold text-gray-200 group-hover:text-emerald-400 transition-colors">Administrador</span>
+                        <span class="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition-colors">Admin</span>
+                    </div>
+                </button>
+
+                <!-- Gestor de Stocks Button -->
+                <button
+                    type="button"
+                    @click="setRole('Gestor de Stocks')"
+                    class="group relative flex-1 bg-white/[0.02] hover:bg-amber-600/[0.04] p-5 rounded-2xl border border-white/10 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                >
+                    <div class="flex flex-col items-center space-y-3">
+                        <div class="p-3.5 bg-amber-500/10 rounded-xl group-hover:bg-amber-500/20 group-hover:scale-110 transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </div>
+                        <span class="text-sm font-bold text-gray-200 group-hover:text-amber-400 transition-colors leading-tight text-center">Gestor Stock</span>
                     </div>
                 </button>
             </div>
@@ -105,11 +121,11 @@
                 
                 <!-- Dynamic Title -->
                 <h2 class="text-3xl font-black text-white tracking-tight uppercase">
-                    Acceso <span :class="selectedRole === 'Usuario' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" x-text="selectedRole"></span>
+                    Acceso <span :class="selectedRole === 'Usuario' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : (selectedRole === 'Gestor de Stocks' ? 'text-amber-400' : 'text-emerald-400'))" x-text="selectedRole === 'Gestor de Stocks' ? 'Gestor' : selectedRole"></span>
                 </h2>
                 <!-- Dynamic Subtitle -->
                 <p class="text-gray-500 text-xs mt-1"
-                   x-text="selectedRole === 'Usuario' ? 'Ingresa tu ID de Empleado' : (selectedRole === 'Agente TI' ? 'Ingresa tu Código de Acceso' : 'Ingresa tu Código de Administrador')">
+                   x-text="selectedRole === 'Usuario' ? 'Ingresa tu ID de Empleado' : (selectedRole === 'Agente TI' ? 'Ingresa tu Código de Acceso' : (selectedRole === 'Gestor de Stocks' ? 'Ingresa tu Código de Gestor' : 'Ingresa tu Código de Administrador'))">
                 </p>
             </div>
 
@@ -123,12 +139,12 @@
                 <div>
                     <!-- Dynamic Label -->
                     <label for="codigo_acceso" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1"
-                           x-text="selectedRole === 'Usuario' ? 'ID de Usuario' : (selectedRole === 'Agente TI' ? 'PIN / Credencial TI' : 'Código de Administrador')">
+                           x-text="selectedRole === 'Usuario' ? 'ID de Usuario' : (selectedRole === 'Agente TI' ? 'PIN / Credencial TI' : (selectedRole === 'Gestor de Stocks' ? 'Código de Gestor' : 'Código de Administrador'))">
                     </label>
                     <div class="relative bg-[#131b2f] border border-[#1e293b]/50 rounded-[0.75rem] flex items-center p-2.5 focus-within:border-blue-500/80 transition-all">
                         <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
                             <!-- Dynamic Icon Color -->
-                            <svg class="w-4 h-4" :class="selectedRole === 'Usuario' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : 'text-emerald-400')" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" :class="selectedRole === 'Usuario' ? 'text-blue-400' : (selectedRole === 'Agente TI' ? 'text-purple-400' : (selectedRole === 'Gestor de Stocks' ? 'text-amber-400' : 'text-emerald-400'))" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
@@ -158,7 +174,7 @@
                 <!-- Submit Button -->
                 <div class="pt-2">
                     <button type="submit" 
-                        :class="selectedRole === 'Usuario' ? 'bg-blue-600 hover:bg-blue-700 shadow-[0_8px_25px_rgba(37,99,235,0.3)]' : (selectedRole === 'Agente TI' ? 'bg-purple-600 hover:bg-purple-700 shadow-[0_8px_25px_rgba(124,58,237,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 shadow-[0_8px_25px_rgba(16,185,129,0.3)]')"
+                        :class="selectedRole === 'Usuario' ? 'bg-blue-600 hover:bg-blue-700 shadow-[0_8px_25px_rgba(37,99,235,0.3)]' : (selectedRole === 'Agente TI' ? 'bg-purple-600 hover:bg-purple-700 shadow-[0_8px_25px_rgba(124,58,237,0.3)]' : (selectedRole === 'Gestor de Stocks' ? 'bg-amber-600 hover:bg-amber-700 shadow-[0_8px_25px_rgba(245,158,11,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 shadow-[0_8px_25px_rgba(16,185,129,0.3)]'))"
                         class="w-full py-4 rounded-xl text-white font-bold text-xs uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-95 text-center flex items-center justify-center">
                         Entrar al Sistema
                     </button>

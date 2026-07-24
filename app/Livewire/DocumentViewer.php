@@ -66,8 +66,8 @@ class DocumentViewer extends Component
 
     public function mount()
     {
-        // Restrict access: only admin, agente, and user roles
-        if (!in_array(auth()->user()->role, ['admin', 'agente', 'user'])) {
+        // Restrict access: only admin, agente, gestor and user roles
+        if (!in_array(auth()->user()->role, ['admin', 'agente', 'gestor', 'user'])) {
             abort(403, 'No autorizado.');
         }
 
@@ -193,8 +193,8 @@ class DocumentViewer extends Component
 
     public function uploadGeneralFile()
     {
-        // Restrict upload access: only admin and agente
-        if (!in_array(auth()->user()->role, ['admin', 'agente'])) {
+        // Restrict upload access: only admin, agente, and gestor
+        if (!in_array(auth()->user()->role, ['admin', 'agente', 'gestor'])) {
             abort(403, 'No autorizado.');
         }
 

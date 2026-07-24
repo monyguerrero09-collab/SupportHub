@@ -113,6 +113,7 @@ class User extends Authenticatable
         return match($nombreRol) {
             'Admin' => 'admin',
             'Agente TI' => 'agente',
+            'Gestor de Stocks' => 'gestor',
             'Usuario' => 'user',
             default => 'user'
         };
