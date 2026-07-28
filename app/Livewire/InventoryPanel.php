@@ -738,6 +738,15 @@ class InventoryPanel extends Component
                 ]);
             }
 
+            Equipment::where('barcode', $code)->update([
+                'name' => trim($this->stagedName),
+                'type' => $this->stagedType,
+                'model' => trim($this->stagedModel),
+                'description' => trim($this->stagedDescription) ?: 'Ingreso por escáner',
+                'min_stock' => $this->stagedMinStock,
+                'max_stock' => $this->stagedMaxStock,
+            ]);
+
             $modelName = trim($this->stagedName);
             $newQty = Equipment::where(function($q) use ($code, $modelName) {
                 $q->where('barcode', $code)->orWhere('model', $modelName);
@@ -754,6 +763,13 @@ class InventoryPanel extends Component
         } elseif ($this->scannerMode === 'deduct') {
             $modelName = trim($this->stagedName);
             
+            Equipment::where('barcode', $code)->update([
+                'name' => trim($this->stagedName),
+                'type' => $this->stagedType,
+                'model' => trim($this->stagedModel),
+                'description' => trim($this->stagedDescription) ?: 'Salida por escáner',
+            ]);
+
             $itemsToRemove = Equipment::where(function($q) use ($code, $modelName) {
                     $q->where('barcode', $code)->orWhere('model', $modelName);
                 })
