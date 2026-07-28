@@ -15,8 +15,29 @@ class InventoryPanel extends Component
     public $pdfFiles = [];
 
     // Navigation sub-tab
-    public $subTab = 'bodega'; // 'bodega', 'equipos', 'assignments', 'logs'
+    public $subTab = 'bodega'; // 'bodega', 'equipos', 'assignments', 'logs', 'scanner'
     public $searchTerm = '';
+
+    // Plant Filter
+    public $globalPlantFilter = 'Todas'; // 'Todas', 'Planta 1', 'Planta 2'
+
+    // Scanner functionality
+    public $scannerActivePlant = 'Planta 1';
+    public $scannerMode = 'add'; // 'add', 'deduct', 'verify'
+    public $scannedBarcode = '';
+    public $scanSoundEnabled = true;
+    public $lastScanFeedback = null;
+    
+    // Scanner Staging
+    public $stagedBarcode = null;
+    public $stagedName = '';
+    public $stagedModel = '';
+    public $stagedDescription = '';
+    public $stagedType = 'Equipos';
+    public $stagedQty = 1;
+    public $stagedIsNew = false;
+    public $stagedMinStock = 5;
+    public $stagedMaxStock = 25;
 
     // React style stock filters
     public $selectedCategory = 'Todas';
@@ -151,6 +172,7 @@ class InventoryPanel extends Component
                 'description' => $this->newMaterialNotes ?: 'Ingreso manual',
                 'min_stock' => $this->newMaterialMin,
                 'max_stock' => $this->newMaterialMax,
+                'planta' => $this->globalPlantFilter === 'Todas' ? 'Planta 1' : $this->globalPlantFilter,
                 'created_at' => $this->newMaterialAcquisitionDate ?: now(),
             ]);
         }
@@ -233,6 +255,7 @@ class InventoryPanel extends Component
                     'description' => 'Ajuste de stock manual',
                     'min_stock' => $this->editNewMin,
                     'max_stock' => $this->editNewMax,
+                    'planta' => $this->globalPlantFilter === 'Todas' ? 'Planta 1' : $this->globalPlantFilter,
                 ]);
             }
             \App\Models\InventoryMovement::create([
@@ -261,8 +284,9 @@ class InventoryPanel extends Component
         $this->dispatch('refresh-inventory');
     }
 
-    public function incrementStock($type, $model)
+    public function incrementStock($type, $model, $planta = null)
     {
+        $targetPlanta = $planta ?: ($this->globalPlantFilter === 'Todas' ? 'Planta 1' : $this->globalPlantFilter);
         $barcode = strtoupper(substr($type, 0, 3)) . '-' . strtoupper(substr($model, 0, 3)) . '-' . rand(1000, 9999);
         
         $first = Equipment::where('type', $type)->where('model', $model)->first();
@@ -278,22 +302,26 @@ class InventoryPanel extends Component
             'description' => 'Ajuste rápido (+1)',
             'min_stock' => $min,
             'max_stock' => $max,
+            'planta' => $targetPlanta,
         ]);
 
         $newQty = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock')->count();
         \App\Models\InventoryMovement::create([
             'action' => 'Ajuste',
-            'details' => "Se incrementó el stock de \"{$model}\" en 1 unidad. Stock actual: {$newQty}.",
+            'details' => "Se incrementó el stock de \"{$model}\" (+1 en {$targetPlanta}). Stock actual total: {$newQty}.",
         ]);
 
         $this->dispatch('notify', 'Stock incrementado.');
         $this->dispatch('refresh-inventory');
     }
 
-    public function decrementStock($type, $model)
+    public function decrementStock($type, $model, $planta = null)
     {
+        $targetPlanta = $planta ?: ($this->globalPlantFilter === 'Todas' ? 'Planta 1' : $this->globalPlantFilter);
+        
         $item = Equipment::where('type', $type)
             ->where('model', $model)
+            ->where('planta', $targetPlanta)
             ->where('status', 'in-stock')
             ->first();
 
@@ -302,18 +330,23 @@ class InventoryPanel extends Component
             $newQty = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock')->count();
             \App\Models\InventoryMovement::create([
                 'action' => 'Ajuste',
-                'details' => "Se redujo el stock de \"{$model}\" en 1 unidad. Stock actual: {$newQty}.",
+                'details' => "Se redujo el stock de \"{$model}\" (-1 en {$targetPlanta}). Stock actual total: {$newQty}.",
             ]);
             $this->dispatch('notify', 'Stock reducido.');
         } else {
-            $this->dispatch('notify', 'No hay unidades disponibles en bodega.');
+            $this->dispatch('notify', "No hay unidades disponibles de ese modelo en {$targetPlanta}.");
         }
         $this->dispatch('refresh-inventory');
     }
 
     public function deleteStockGroup($type, $model)
     {
-        $items = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock')->get();
+        $itemsQuery = Equipment::where('type', $type)->where('model', $model)->where('status', 'in-stock');
+        if ($this->globalPlantFilter !== 'Todas') {
+            $itemsQuery->where('planta', $this->globalPlantFilter);
+        }
+        
+        $items = $itemsQuery->get();
         foreach ($items as $item) {
             $item->delete();
         }
@@ -605,6 +638,168 @@ class InventoryPanel extends Component
         }
     }
 
+    public function processScan()
+    {
+        $code = trim($this->scannedBarcode);
+        if (!$code) return;
+
+        $this->scannedBarcode = ''; // Reset input
+
+        $itemTpl = Equipment::where('barcode', $code)->orWhere('model', $code)->first();
+        $modelName = $itemTpl ? $itemTpl->model : '';
+
+        // Si es modo Verify, mostramos la info de inmediato (no hay staging)
+        if ($this->scannerMode === 'verify') {
+            if (!$itemTpl) {
+                $this->showScanFeedback("Código No Encontrado", "El código '{$code}' no existe.", "rose");
+                if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'error']);
+                return;
+            }
+            
+            $p1 = Equipment::where(function($q) use ($code, $modelName) {
+                    $q->where('barcode', $code)->orWhere('model', $modelName);
+                })->where('planta', 'Planta 1')->where('status', 'in-stock')->count();
+            $p2 = Equipment::where(function($q) use ($code, $modelName) {
+                    $q->where('barcode', $code)->orWhere('model', $modelName);
+                })->where('planta', 'Planta 2')->where('status', 'in-stock')->count();
+            $total = $p1 + $p2;
+            
+            \App\Models\InventoryMovement::create([
+                'action' => 'Verificación',
+                'details' => "Escáner Auto: Verificación de [{$code}]",
+            ]);
+
+            $this->showScanFeedback("Info Multi-Planta", "{$modelName} | P1: {$p1} | P2: {$p2} | Total: {$total}", "blue");
+            if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'info']);
+            return;
+        }
+
+        // Para Entrada o Salida, entramos al Staging
+        $this->stagedBarcode = $code;
+        $this->stagedQty = 1;
+
+        if ($itemTpl) {
+            // Producto existe
+            $this->stagedIsNew = false;
+            $this->stagedName = $itemTpl->name;
+            $this->stagedModel = $itemTpl->model;
+            $this->stagedDescription = $itemTpl->description ?? '';
+            $this->stagedType = $itemTpl->type;
+            $this->stagedMinStock = $itemTpl->min_stock;
+            $this->stagedMaxStock = $itemTpl->max_stock;
+            
+            if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'info']);
+        } else {
+            // Producto nuevo
+            $this->stagedIsNew = true;
+            $this->stagedName = '';
+            $this->stagedModel = '';
+            $this->stagedDescription = '';
+            $this->stagedType = 'Equipos';
+            $this->stagedMinStock = 5;
+            $this->stagedMaxStock = 25;
+            
+            if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'info']);
+        }
+    }
+
+    public function cancelScan()
+    {
+        $this->stagedBarcode = null;
+        $this->stagedName = '';
+        $this->stagedModel = '';
+        $this->stagedDescription = '';
+        $this->stagedQty = 1;
+    }
+
+    public function commitScan()
+    {
+        $code = $this->stagedBarcode;
+        $qty = (int) $this->stagedQty;
+        
+        if (!$code || $qty <= 0 || trim($this->stagedName) === '') {
+            $this->showScanFeedback("Datos Inválidos", "Revisa la cantidad y el nombre del producto.", "rose");
+            if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'error']);
+            return;
+        }
+
+        if ($this->scannerMode === 'add') {
+            for ($i = 0; $i < $qty; $i++) {
+                Equipment::create([
+                    'name' => trim($this->stagedName),
+                    'type' => $this->stagedType,
+                    'model' => trim($this->stagedModel),
+                    'barcode' => $code,
+                    'status' => 'in-stock',
+                    'description' => trim($this->stagedDescription) ?: 'Ingreso por escáner',
+                    'min_stock' => $this->stagedMinStock,
+                    'max_stock' => $this->stagedMaxStock,
+                    'planta' => $this->scannerActivePlant,
+                ]);
+            }
+
+            $modelName = trim($this->stagedName);
+            $newQty = Equipment::where(function($q) use ($code, $modelName) {
+                $q->where('barcode', $code)->orWhere('model', $modelName);
+            })->where('planta', $this->scannerActivePlant)->where('status', 'in-stock')->count();
+            
+            \App\Models\InventoryMovement::create([
+                'action' => 'Ingreso',
+                'details' => "Escáner Auto: Entrada +{$qty} de [{$code}] en {$this->scannerActivePlant}.",
+            ]);
+
+            $this->showScanFeedback("Stock Incrementado (+{$qty} en {$this->scannerActivePlant})", "{$modelName} -> Stock: {$newQty}", "emerald");
+            if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'success']);
+            
+        } elseif ($this->scannerMode === 'deduct') {
+            $modelName = trim($this->stagedName);
+            
+            $itemsToRemove = Equipment::where(function($q) use ($code, $modelName) {
+                    $q->where('barcode', $code)->orWhere('model', $modelName);
+                })
+                ->where('planta', $this->scannerActivePlant)
+                ->where('status', 'in-stock')
+                ->limit($qty)
+                ->get();
+
+            $removedCount = $itemsToRemove->count();
+
+            if ($removedCount > 0) {
+                foreach ($itemsToRemove as $item) {
+                    $item->delete();
+                }
+
+                $newQty = Equipment::where(function($q) use ($code, $modelName) {
+                    $q->where('barcode', $code)->orWhere('model', $modelName);
+                })->where('planta', $this->scannerActivePlant)->where('status', 'in-stock')->count();
+
+                \App\Models\InventoryMovement::create([
+                    'action' => 'Salida',
+                    'details' => "Escáner Auto: Salida -{$removedCount} de [{$code}] en {$this->scannerActivePlant}.",
+                ]);
+
+                $this->showScanFeedback("Stock Reducido (-{$removedCount} en {$this->scannerActivePlant})", "{$modelName} -> Stock: {$newQty}", "amber");
+                if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'success']);
+            } else {
+                $this->showScanFeedback("Sin Stock en {$this->scannerActivePlant}", "No hay unidades en esta planta.", "rose");
+                if ($this->scanSoundEnabled) $this->dispatch('play-sound', ['type' => 'error']);
+            }
+        }
+
+        $this->cancelScan();
+        $this->dispatch('refresh-inventory');
+    }
+
+    public function showScanFeedback($title, $detail, $color)
+    {
+        $this->lastScanFeedback = [
+            'title' => $title,
+            'detail' => $detail,
+            'color' => $color,
+            'time' => now()->format('H:i:s'),
+        ];
+    }
+
     public function render()
     {
         // 1. Grouped Stock Query
@@ -622,9 +817,16 @@ class InventoryPanel extends Component
         if ($this->selectedCategory !== 'Todas') {
             $stockQuery->where('type', $this->selectedCategory);
         }
+        
+        if ($this->globalPlantFilter !== 'Todas') {
+            $stockQuery->where('planta', $this->globalPlantFilter);
+        }
 
         $stockGroupedRaw = $stockQuery
-            ->selectRaw('type, model, count(*) as quantity, MIN(created_at) as date_added, MIN(description) as notes, MAX(min_stock) as min_stock, MAX(max_stock) as max_stock')
+            ->selectRaw('type, model, count(*) as quantity, 
+                         SUM(CASE WHEN planta = "Planta 1" THEN 1 ELSE 0 END) as stockP1, 
+                         SUM(CASE WHEN planta = "Planta 2" THEN 1 ELSE 0 END) as stockP2,
+                         MIN(created_at) as date_added, MIN(description) as notes, MAX(min_stock) as min_stock, MAX(max_stock) as max_stock')
             ->groupBy('type', 'model')
             ->get();
 
@@ -673,7 +875,12 @@ class InventoryPanel extends Component
         $inventory = $inventoryQuery->latest()->get();
 
         // Compute summary metrics for all items in stock
-        $allGrouped = Equipment::where('status', 'in-stock')
+        $allGroupedQuery = Equipment::where('status', 'in-stock');
+        if ($this->globalPlantFilter !== 'Todas') {
+            $allGroupedQuery->where('planta', $this->globalPlantFilter);
+        }
+        
+        $allGrouped = $allGroupedQuery
             ->selectRaw('type, model, count(*) as quantity, MAX(min_stock) as min_stock, MAX(max_stock) as max_stock')
             ->groupBy('type', 'model')
             ->get();
@@ -692,10 +899,22 @@ class InventoryPanel extends Component
             elseif ($status['code'] === 'red') $summary['red']++;
         }
 
-        $pantallaCount = Equipment::where('type', 'Pantalla')->where('status', 'in-stock')->count();
-        $cpuCount = Equipment::where('type', 'CPU')->where('status', 'in-stock')->count();
-        $impresoraCount = Equipment::where('type', 'Impresora')->where('status', 'in-stock')->count();
-        $totalInStock = Equipment::where('status', 'in-stock')->count();
+        $pantallaCountQ = Equipment::where('type', 'Pantalla')->where('status', 'in-stock');
+        $cpuCountQ = Equipment::where('type', 'CPU')->where('status', 'in-stock');
+        $impresoraCountQ = Equipment::where('type', 'Impresora')->where('status', 'in-stock');
+        $totalInStockQ = Equipment::where('status', 'in-stock');
+        
+        if ($this->globalPlantFilter !== 'Todas') {
+            $pantallaCountQ->where('planta', $this->globalPlantFilter);
+            $cpuCountQ->where('planta', $this->globalPlantFilter);
+            $impresoraCountQ->where('planta', $this->globalPlantFilter);
+            $totalInStockQ->where('planta', $this->globalPlantFilter);
+        }
+
+        $pantallaCount = $pantallaCountQ->count();
+        $cpuCount = $cpuCountQ->count();
+        $impresoraCount = $impresoraCountQ->count();
+        $totalInStock = $totalInStockQ->count();
 
         // Low stock count (Rojo state)
         $lowStockAlerts = $summary['red'];

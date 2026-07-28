@@ -7,17 +7,24 @@
             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Sistemas de stock unificado en tiempo real</p>
         </div>
         
-        {{-- Search Input --}}
-        <div class="relative w-full md:w-80">
-            <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            </span>
-            <input
-                type="text"
-                placeholder="Buscar en inventario..."
-                wire:model.live.debounce.250ms="searchTerm"
-                class="w-full pl-10 pr-4 py-3 bg-[#0b0b1e]/90 border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 focus:ring-0 text-xs text-white placeholder:text-gray-600 transition-all font-semibold"
-            />
+        {{-- Search & Plant Filter --}}
+        <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+            <div class="flex bg-[#101026]/80 border border-white/10 rounded-2xl p-1 shadow-inner">
+                <button wire:click="$set('globalPlantFilter', 'Todas')" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ $globalPlantFilter === 'Todas' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Todas</button>
+                <button wire:click="$set('globalPlantFilter', 'Planta 1')" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ $globalPlantFilter === 'Planta 1' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Planta 1</button>
+                <button wire:click="$set('globalPlantFilter', 'Planta 2')" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ $globalPlantFilter === 'Planta 2' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Planta 2</button>
+            </div>
+            <div class="relative w-full md:w-72">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input
+                    type="text"
+                    placeholder="Buscar en inventario..."
+                    wire:model.live.debounce.250ms="searchTerm"
+                    class="w-full pl-10 pr-4 py-3 bg-[#0b0b1e]/90 border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 focus:ring-0 text-xs text-white placeholder:text-gray-600 transition-all font-semibold"
+                />
+            </div>
         </div>
     </div>
 
@@ -89,6 +96,10 @@
             <button wire:click="$set('subTab', 'equipos')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'equipos' ? 'bg-blue-600 border-blue-500/30 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 <span>Equipos Físicos</span>
+            </button>
+            <button wire:click="$set('subTab', 'scanner')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'scanner' ? 'bg-emerald-600 border-emerald-500/30 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Escáner / Pistola</span>
             </button>
         </div>
 
@@ -251,20 +262,41 @@
                                 {{-- Body: Min, Actual, Max and Progress Bar --}}
                                 <div class="p-6 space-y-5 flex-grow">
                                     {{-- Values grid --}}
-                                    <div class="grid grid-cols-3 gap-3 text-center">
-                                        <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
-                                            <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Mínimo</span>
-                                            <span class="text-sm font-black text-rose-500">{{ $item->min_stock }}</span>
+                                    @if($globalPlantFilter === 'Todas')
+                                        <div class="grid grid-cols-4 gap-2 text-center">
+                                            <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5 flex flex-col justify-center">
+                                                <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Mín</span>
+                                                <span class="text-xs font-black text-rose-500">{{ $item->min_stock }}</span>
+                                            </div>
+                                            <div class="p-2.5 bg-indigo-500/10 rounded-xl border border-indigo-500/20 flex flex-col justify-center">
+                                                <span class="block text-[8px] uppercase font-black text-indigo-400 tracking-wider">P1</span>
+                                                <span class="text-sm font-black text-indigo-300">{{ $item->stockP1 }}</span>
+                                            </div>
+                                            <div class="p-2.5 bg-teal-500/10 rounded-xl border border-teal-500/20 flex flex-col justify-center">
+                                                <span class="block text-[8px] uppercase font-black text-teal-400 tracking-wider">P2</span>
+                                                <span class="text-sm font-black text-teal-300">{{ $item->stockP2 }}</span>
+                                            </div>
+                                            <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5 flex flex-col justify-center">
+                                                <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Total</span>
+                                                <span class="text-base font-black {{ $status['textClass'] }}">{{ $item->quantity }}</span>
+                                            </div>
                                         </div>
-                                        <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
-                                            <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Actual</span>
-                                            <span class="text-base font-black {{ $status['textClass'] }}">{{ $item->quantity }}</span>
+                                    @else
+                                        <div class="grid grid-cols-3 gap-3 text-center">
+                                            <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
+                                                <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Mínimo</span>
+                                                <span class="text-sm font-black text-rose-500">{{ $item->min_stock }}</span>
+                                            </div>
+                                            <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
+                                                <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Actual</span>
+                                                <span class="text-base font-black {{ $status['textClass'] }}">{{ $item->quantity }}</span>
+                                            </div>
+                                            <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
+                                                <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Máximo</span>
+                                                <span class="text-sm font-black text-emerald-500">{{ $item->max_stock }}</span>
+                                            </div>
                                         </div>
-                                        <div class="p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
-                                            <span class="block text-[8px] uppercase font-black text-gray-500 tracking-wider">Máximo</span>
-                                            <span class="text-sm font-black text-emerald-500">{{ $item->max_stock }}</span>
-                                        </div>
-                                    </div>
+                                    @endif
 
                                     {{-- Visual Progress Bar --}}
                                     <div class="space-y-2">
@@ -330,6 +362,202 @@
                         @endforeach
                     </div>
                 @endif
+            </div>
+            @endif
+
+            {{-- SUB-TAB 5: SCANNER --}}
+            @if($subTab === 'scanner')
+            <div class="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                <div>
+                    <h4 class="text-xl font-black text-white uppercase tracking-tight">Escáner Auto Multi-Planta</h4>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Control de inventario rápido mediante pistola de código de barras</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="bg-[#101026]/40 backdrop-blur-3xl border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                            
+                            {{-- Plant Selector --}}
+                            <div class="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 p-4 rounded-2xl border border-indigo-500/20 mb-6 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        Planta Destino
+                                    </span>
+                                    <span class="bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase">
+                                        {{ $scannerActivePlant }}
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-xs">
+                                    <button wire:click="$set('scannerActivePlant', 'Planta 1')" class="py-2.5 px-4 rounded-xl font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 {{ $scannerActivePlant === 'Planta 1' ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10' }}">
+                                        Planta 1
+                                    </button>
+                                    <button wire:click="$set('scannerActivePlant', 'Planta 2')" class="py-2.5 px-4 rounded-xl font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 {{ $scannerActivePlant === 'Planta 2' ? 'bg-teal-600 text-white shadow-[0_0_15px_rgba(13,148,136,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10' }}">
+                                        Planta 2
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Mode Selector --}}
+                            <div class="mb-6 bg-white/[0.02] p-2 rounded-2xl border border-white/5 grid grid-cols-3 gap-2 text-center">
+                                <button wire:click="$set('scannerMode', 'add')" class="py-3 px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all {{ $scannerMode === 'add' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                    <svg class="w-5 h-5 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    + Entrada
+                                </button>
+                                <button wire:click="$set('scannerMode', 'deduct')" class="py-3 px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all {{ $scannerMode === 'deduct' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                    <svg class="w-5 h-5 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    - Salida
+                                </button>
+                                <button wire:click="$set('scannerMode', 'verify')" class="py-3 px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all {{ $scannerMode === 'verify' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                    <svg class="w-5 h-5 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                    Verificar
+                                </button>
+                            </div>
+
+                            @if(!$stagedBarcode)
+                                {{-- Scanner Input --}}
+                                <div class="mt-4">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Lectura por Pistola (Apunta y Dispara)</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-indigo-400">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        </span>
+                                        <input 
+                                            type="text" 
+                                            wire:model="scannedBarcode" 
+                                            wire:keydown.enter="processScan"
+                                            autofocus
+                                            placeholder="Escanea con pistola o escribe código y presiona Enter..." 
+                                            class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-sm rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-mono font-bold"
+                                        >
+                                    </div>
+                                </div>
+
+                                {{-- Settings Toggles --}}
+                                <div class="mt-6 pt-5 border-t border-white/5 grid grid-cols-1 gap-4">
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <input type="checkbox" wire:model="scanSoundEnabled" class="w-4 h-4 rounded border-gray-600 text-indigo-600 focus:ring-indigo-600 bg-gray-700">
+                                        <span class="text-xs font-bold text-gray-400 group-hover:text-gray-200 transition">Sonido al Escanear</span>
+                                    </label>
+                                </div>
+                            @else
+                                {{-- Staging Form --}}
+                                <div class="mt-6 border border-indigo-500/30 bg-indigo-900/10 rounded-2xl p-5 shadow-inner">
+                                    <h5 class="text-xs font-black uppercase text-indigo-400 mb-4 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Confirmar Acción: {{ $scannerMode === 'add' ? 'Entrada' : 'Salida' }}
+                                    </h5>
+                                    
+                                    <div class="space-y-4">
+                                        {{-- Barcode (Readonly) --}}
+                                        <div>
+                                            <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Código</label>
+                                            <div class="px-4 py-3 bg-[#0b0b1e]/60 border border-white/5 rounded-xl text-gray-400 font-mono text-xs">
+                                                {{ $stagedBarcode }}
+                                                @if($stagedIsNew) <span class="ml-2 text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">(Nuevo)</span> @endif
+                                            </div>
+                                        </div>
+                                        
+                                        {{-- Row 1: Producto and Modelo --}}
+                                        <div class="grid grid-cols-2 gap-4">
+                                            {{-- Producto/Name --}}
+                                            <div>
+                                                <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Producto</label>
+                                                <input type="text" wire:model="stagedName" placeholder="Ej: Toner, Teclado..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'readonly' : '' }}>
+                                            </div>
+                                            {{-- Model --}}
+                                            <div>
+                                                <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Modelo</label>
+                                                <input type="text" wire:model="stagedModel" placeholder="Ej: TB330FU..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'readonly' : '' }}>
+                                            </div>
+                                        </div>
+
+                                        {{-- Row 2: Description --}}
+                                        <div>
+                                            <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Descripción</label>
+                                            <input type="text" wire:model="stagedDescription" placeholder="Ej: CARTUCHO LEON..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'readonly' : '' }}>
+                                        </div>
+
+                                        {{-- Row 3: Category and Quantity --}}
+                                        <div class="grid grid-cols-2 gap-4">
+                                            {{-- Category --}}
+                                            <div>
+                                                <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Categoría</label>
+                                                <select wire:model="stagedType" class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'disabled' : '' }}>
+                                                    @foreach($categories as $cat)
+                                                        <option value="{{ $cat }}">{{ $cat }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            {{-- Quantity --}}
+                                            <div>
+                                                <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Cantidad (Unidades)</label>
+                                                <input type="number" wire:model="stagedQty" min="1" class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold text-center">
+                                            </div>
+                                        </div>
+                                        
+                                        {{-- Actions --}}
+                                        <div class="flex items-center gap-3 pt-3">
+                                            <button wire:click="cancelScan" class="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 font-black text-[10px] uppercase tracking-widest transition-all">
+                                                Cancelar
+                                            </button>
+                                            <button wire:click="commitScan" class="flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg {{ $scannerMode === 'add' ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30' }}">
+                                                Confirmar {{ $scannerMode === 'add' ? '+' : '-' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Feedback Alert --}}
+                            @if($lastScanFeedback)
+                                <div class="mt-6 p-4 rounded-2xl border flex items-center justify-between transition-all animate-in zoom-in-95 {{ $lastScanFeedback['color'] === 'emerald' ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : ($lastScanFeedback['color'] === 'amber' ? 'bg-amber-950/40 border-amber-500/40 text-amber-300' : ($lastScanFeedback['color'] === 'rose' ? 'bg-rose-950/40 border-rose-500/40 text-rose-300' : 'bg-blue-950/40 border-blue-500/40 text-blue-300')) }}">
+                                    <div class="flex items-start gap-3">
+                                        <div class="mt-1">
+                                            @if($lastScanFeedback['color'] === 'emerald')
+                                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @elseif($lastScanFeedback['color'] === 'amber')
+                                                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                            @elseif($lastScanFeedback['color'] === 'rose')
+                                                <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @else
+                                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <p class="font-black tracking-tight text-sm">{{ $lastScanFeedback['title'] }}</p>
+                                            <p class="text-xs opacity-80 mt-0.5">{{ $lastScanFeedback['detail'] }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold opacity-50 uppercase tracking-widest shrink-0">{{ $lastScanFeedback['time'] }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        {{-- Quick History for Scanner --}}
+                        <div class="bg-[#101026]/40 backdrop-blur-3xl border border-white/5 rounded-[2rem] p-6 shadow-2xl">
+                            <h4 class="text-xs font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Últimos Movimientos Escáner
+                            </h4>
+                            <div class="space-y-4">
+                                @forelse(collect($movements)->filter(fn($m) => str_contains($m->details, 'Escáner Auto'))->take(5) as $m)
+                                    <div class="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-black {{ $m->action === 'Ingreso' ? 'text-emerald-400' : ($m->action === 'Salida' ? 'text-amber-400' : 'text-blue-400') }} uppercase tracking-widest">{{ $m->action }}</span>
+                                            <span class="text-[9px] text-gray-500 font-bold">{{ $m->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <p class="text-xs text-gray-300 font-semibold">{{ $m->details }}</p>
+                                    </div>
+                                @empty
+                                    <p class="text-xs text-gray-500 text-center py-4 font-bold uppercase tracking-widest">Sin escaneos recientes</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             @endif
 
