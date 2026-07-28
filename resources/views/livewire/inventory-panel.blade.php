@@ -9,10 +9,10 @@
         
         {{-- Search & Plant Filter --}}
         <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-            <div class="flex bg-[#101026]/80 border border-white/10 rounded-2xl p-1 shadow-inner">
-                <button wire:click="$set('globalPlantFilter', 'Todas')" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ $globalPlantFilter === 'Todas' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Todas</button>
-                <button wire:click="$set('globalPlantFilter', 'Planta 1')" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ $globalPlantFilter === 'Planta 1' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Planta 1</button>
-                <button wire:click="$set('globalPlantFilter', 'Planta 2')" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ $globalPlantFilter === 'Planta 2' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Planta 2</button>
+            <div class="flex w-full sm:w-auto overflow-x-auto hide-scrollbar bg-[#101026]/80 border border-white/10 rounded-2xl p-1 shadow-inner">
+                <button wire:click="$set('globalPlantFilter', 'Todas')" class="shrink-0 flex-1 sm:flex-none px-5 py-3 sm:px-4 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 {{ $globalPlantFilter === 'Todas' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Todas</button>
+                <button wire:click="$set('globalPlantFilter', 'Planta 1')" class="shrink-0 flex-1 sm:flex-none px-5 py-3 sm:px-4 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 {{ $globalPlantFilter === 'Planta 1' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Planta 1</button>
+                <button wire:click="$set('globalPlantFilter', 'Planta 2')" class="shrink-0 flex-1 sm:flex-none px-5 py-3 sm:px-4 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 {{ $globalPlantFilter === 'Planta 2' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Planta 2</button>
             </div>
             <div class="relative w-full md:w-72">
                 <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
@@ -79,26 +79,32 @@
     <div class="flex flex-col lg:flex-row gap-8">
         
         {{-- Left Navigation Menu --}}
-        <div class="w-full lg:w-64 bg-[#101026]/40 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-6 space-y-2.5 shrink-0 shadow-2xl">
-            <button wire:click="$set('subTab', 'bodega')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'bodega' ? 'bg-blue-600 border-blue-500/30 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
+        <style>
+            .hide-scrollbar::-webkit-scrollbar { display: none; }
+            .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+        <div class="w-full lg:w-64 bg-[#0a0f1c] lg:bg-[#0a0f1c]/80 backdrop-blur-3xl border border-white/5 rounded-3xl lg:rounded-[2.5rem] p-3 lg:p-6 flex flex-row lg:flex-col gap-2 lg:gap-3 shrink-0 shadow-2xl overflow-x-auto lg:overflow-x-visible hide-scrollbar snap-x snap-mandatory">
+            <button wire:click="$set('subTab', 'bodega')" class="shrink-0 snap-start lg:w-full flex items-center gap-4 px-5 py-4 rounded-[1.15rem] transition-all duration-300 active:scale-95 font-black text-[10px] uppercase tracking-[0.15em] {{ $subTab === 'bodega' ? 'bg-[#2962ff] text-white shadow-[0_8px_25px_rgba(41,98,255,0.4)]' : 'bg-transparent text-[#8a94a6] hover:bg-white/[0.04] hover:text-white' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                 <span>Stock de Bodega</span>
             </button>
-            <button wire:click="$set('subTab', 'assignments')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'assignments' ? 'bg-blue-600 border-blue-500/30 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <button wire:click="$set('subTab', 'assignments')" class="shrink-0 snap-start lg:w-full flex items-center gap-4 px-5 py-4 rounded-[1.15rem] transition-all duration-300 active:scale-95 font-black text-[10px] uppercase tracking-[0.15em] {{ $subTab === 'assignments' ? 'bg-[#2962ff] text-white shadow-[0_8px_25px_rgba(41,98,255,0.4)]' : 'bg-transparent text-[#8a94a6] hover:bg-white/[0.04] hover:text-white' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 <span>Asignaciones</span>
             </button>
-            <button wire:click="$set('subTab', 'logs')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'logs' ? 'bg-blue-600 border-blue-500/30 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <button wire:click="$set('subTab', 'logs')" class="shrink-0 snap-start lg:w-full flex items-center gap-4 px-5 py-4 rounded-[1.15rem] transition-all duration-300 active:scale-95 font-black text-[10px] uppercase tracking-[0.15em] {{ $subTab === 'logs' ? 'bg-[#2962ff] text-white shadow-[0_8px_25px_rgba(41,98,255,0.4)]' : 'bg-transparent text-[#8a94a6] hover:bg-white/[0.04] hover:text-white' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span>Movimientos / Logs</span>
             </button>
-            <div class="h-px bg-white/5 my-4"></div>
-            <button wire:click="$set('subTab', 'equipos')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'equipos' ? 'bg-blue-600 border-blue-500/30 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            
+            <div class="w-px lg:h-px lg:w-auto h-auto bg-white/[0.04] my-1 mx-2 lg:mx-2 lg:my-3 shrink-0"></div>
+            
+            <button wire:click="$set('subTab', 'equipos')" class="shrink-0 snap-start lg:w-full flex items-center gap-4 px-5 py-4 rounded-[1.15rem] transition-all duration-300 active:scale-95 font-black text-[10px] uppercase tracking-[0.15em] {{ $subTab === 'equipos' ? 'bg-[#2962ff] text-white shadow-[0_8px_25px_rgba(41,98,255,0.4)]' : 'bg-transparent text-[#8a94a6] hover:bg-white/[0.04] hover:text-white' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 <span>Equipos Físicos</span>
             </button>
-            <button wire:click="$set('subTab', 'scanner')" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest border {{ $subTab === 'scanner' ? 'bg-emerald-600 border-emerald-500/30 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <button wire:click="$set('subTab', 'scanner')" class="shrink-0 snap-start lg:w-full flex items-center gap-4 px-5 py-4 rounded-[1.15rem] transition-all duration-300 active:scale-95 font-black text-[10px] uppercase tracking-[0.15em] {{ $subTab === 'scanner' ? 'bg-[#00c853] text-white shadow-[0_8px_25px_rgba(0,200,83,0.4)]' : 'bg-transparent text-[#8a94a6] hover:bg-white/[0.04] hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m-8 7h1m14 0h1M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 <span>Escáner / Pistola</span>
             </button>
         </div>
@@ -115,12 +121,12 @@
                         <h4 class="text-xl font-black text-white uppercase tracking-tight font-black">Material en Resguardo (Bodega)</h4>
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Define mínimos y máximos manualmente por cada equipo para gestionar alertas visuales automáticas</p>
                     </div>
-                    <div class="flex gap-3">
-                        <button wire:click="$set('showAddMaterialModal', true)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-indigo-600/20 transition-all focus:outline-none">
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
+                        <button wire:click="$set('showAddMaterialModal', true)" class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 sm:py-3 min-h-[44px] rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg>
                             Ingresar Material
                         </button>
-                        <button wire:click="$set('showAssignItemModal', true)" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-blue-600/20 transition-all focus:outline-none">
+                        <button wire:click="$set('showAssignItemModal', true)" class="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 sm:py-3 min-h-[44px] rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-blue-600/20 transition-all active:scale-95 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                             Asignar Equipo
                         </button>
@@ -217,7 +223,7 @@
                         @if($searchTerm || $selectedCategory !== 'Todas' || $selectedStatus !== 'Todos')
                             <button
                                 wire:click="$set('searchTerm', ''); $set('selectedCategory', 'Todas'); $set('selectedStatus', 'Todos');"
-                                class="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-wider focus:outline-none"
+                                class="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-wider focus:outline-none active:scale-95 py-2"
                             >
                                 Limpiar Filtros
                             </button>
@@ -400,15 +406,15 @@
 
                             {{-- Mode Selector --}}
                             <div class="mb-6 bg-white/[0.02] p-2 rounded-2xl border border-white/5 grid grid-cols-3 gap-2 text-center">
-                                <button wire:click="$set('scannerMode', 'add')" class="py-3 px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all {{ $scannerMode === 'add' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                <button wire:click="$set('scannerMode', 'add')" class="py-3 min-h-[44px] px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all active:scale-95 {{ $scannerMode === 'add' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
                                     <svg class="w-5 h-5 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     + Entrada
                                 </button>
-                                <button wire:click="$set('scannerMode', 'deduct')" class="py-3 px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all {{ $scannerMode === 'deduct' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                <button wire:click="$set('scannerMode', 'deduct')" class="py-3 min-h-[44px] px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all active:scale-95 {{ $scannerMode === 'deduct' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
                                     <svg class="w-5 h-5 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     - Salida
                                 </button>
-                                <button wire:click="$set('scannerMode', 'verify')" class="py-3 px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all {{ $scannerMode === 'verify' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                <button wire:click="$set('scannerMode', 'verify')" class="py-3 min-h-[44px] px-2 rounded-xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] transition-all active:scale-95 {{ $scannerMode === 'verify' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
                                     <svg class="w-5 h-5 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                     Verificar
                                 </button>
@@ -459,31 +465,31 @@
                                         </div>
                                         
                                         {{-- Row 1: Producto and Modelo --}}
-                                        <div class="grid grid-cols-2 gap-4">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {{-- Producto/Name --}}
                                             <div>
                                                 <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Producto</label>
-                                                <input type="text" wire:model="stagedName" placeholder="Ej: Toner, Teclado..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'readonly' : '' }}>
+                                                <input type="text" wire:model="stagedName" placeholder="Ej: Toner, Teclado..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 min-h-[44px] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold">
                                             </div>
                                             {{-- Model --}}
                                             <div>
                                                 <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Modelo</label>
-                                                <input type="text" wire:model="stagedModel" placeholder="Ej: TB330FU..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'readonly' : '' }}>
+                                                <input type="text" wire:model="stagedModel" placeholder="Ej: TB330FU..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 min-h-[44px] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold">
                                             </div>
                                         </div>
 
                                         {{-- Row 2: Description --}}
                                         <div>
                                             <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Descripción</label>
-                                            <input type="text" wire:model="stagedDescription" placeholder="Ej: CARTUCHO LEON..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'readonly' : '' }}>
+                                            <input type="text" wire:model="stagedDescription" placeholder="Ej: CARTUCHO LEON..." class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 min-h-[44px] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold">
                                         </div>
 
                                         {{-- Row 3: Category and Quantity --}}
-                                        <div class="grid grid-cols-2 gap-4">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {{-- Category --}}
                                             <div>
                                                 <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Categoría</label>
-                                                <select wire:model="stagedType" class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition font-bold" {{ $scannerMode === 'deduct' && !$stagedIsNew ? 'disabled' : '' }}>
+                                                <select wire:model="stagedType" class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 min-h-[44px] focus:outline-none focus:border-indigo-500 transition font-bold">
                                                     @foreach($categories as $cat)
                                                         <option value="{{ $cat }}">{{ $cat }}</option>
                                                     @endforeach
@@ -492,16 +498,16 @@
                                             {{-- Quantity --}}
                                             <div>
                                                 <label class="block text-[9px] font-black text-gray-500 uppercase mb-1">Cantidad (Unidades)</label>
-                                                <input type="number" wire:model="stagedQty" min="1" class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold text-center">
+                                                <input type="number" wire:model="stagedQty" min="1" class="w-full bg-[#0b0b1e]/90 border border-white/10 text-white text-xs rounded-xl px-4 py-3 min-h-[44px] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition font-bold text-center">
                                             </div>
                                         </div>
                                         
                                         {{-- Actions --}}
-                                        <div class="flex items-center gap-3 pt-3">
-                                            <button wire:click="cancelScan" class="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 font-black text-[10px] uppercase tracking-widest transition-all">
+                                        <div class="flex flex-col sm:flex-row items-center gap-3 pt-3">
+                                            <button wire:click="cancelScan" class="w-full sm:flex-1 py-3.5 min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
                                                 Cancelar
                                             </button>
-                                            <button wire:click="commitScan" class="flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg {{ $scannerMode === 'add' ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30' }}">
+                                            <button wire:click="commitScan" class="w-full sm:flex-1 py-3.5 min-h-[44px] rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg {{ $scannerMode === 'add' ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30' }}">
                                                 Confirmar {{ $scannerMode === 'add' ? '+' : '-' }}
                                             </button>
                                         </div>
@@ -569,7 +575,7 @@
                         <h4 class="text-xl font-black text-white uppercase tracking-tight">Equipos Asignados (Estaciones o Usuarios)</h4>
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Equipos en uso activo en el floor o asignados a personal</p>
                     </div>
-                    <button wire:click="$set('showAssignItemModal', true)" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-blue-600/20 transition-all">
+                    <button wire:click="$set('showAssignItemModal', true)" class="w-full sm:w-auto justify-center mt-4 sm:mt-0 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 sm:py-3 min-h-[44px] rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-blue-600/20 transition-all active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                         Asignar Equipo
                     </button>
@@ -577,7 +583,7 @@
 
                 {{-- Assignments Table --}}
                 <div class="bg-[#1a1a2e]/60 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
                         <table class="w-full text-left border-collapse min-w-[1200px]">
                             <thead>
                                 <tr class="bg-white/5 border-b border-white/5">

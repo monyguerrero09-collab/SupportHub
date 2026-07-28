@@ -220,6 +220,15 @@
                     </div>
                     <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Gestión de Archivos</span>
                 </button>
+                <button @click="activeTab = 'staff_chat'"
+                    :class="activeTab === 'staff_chat' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-[0_0_25px_rgba(34,197,94,0.5)] ring-1 ring-green-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center rounded-xl transition-all duration-200 group"
+                    :class="sidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'">
+                    <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                        <i class="fa-brands fa-whatsapp group-hover:scale-110 transition-transform text-lg"></i>
+                    </div>
+                    <span x-show="sidebarOpen" class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Staff Chat</span>
+                </button>
                 <button @click="activeTab = 'map'"
                     :class="activeTab === 'map' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] ring-1 ring-cyan-400/50' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
                     class="w-full flex items-center rounded-xl transition-all duration-200 group"
@@ -2585,6 +2594,10 @@
                 <livewire:document-viewer wire:key="document-viewer-core" />
             </template>
 
+            <template x-if="activeTab === 'staff_chat'">
+                <livewire:staff-chat wire:key="staff-chat-core" />
+            </template>
+
             @if(auth()->user()->role !== 'user')
             <div x-show="activeTab === 'map'" class="h-full">
                 <livewire:station-map wire:key="station-map-core" />
@@ -3332,13 +3345,20 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Rol</label>
-                        <select wire:model="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none">
+                        <select wire:model.live="userRole" required class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none appearance-none">
                             <option value="user">Usuario</option>
                             <option value="agente">Agente TI</option>
                             <option value="gestor">Gestor de Stocks</option>
                             <option value="admin">Administrador</option>
                         </select>
                         @error('userRole') <span class="text-xs text-red-400 font-bold">{{ $message }}</span> @enderror
+                        
+                        @if($userRole === 'gestor')
+                            <div class="mt-4 flex items-center">
+                                <input type="checkbox" id="canTagStaff" wire:model="userCanTagStaff" class="w-4 h-4 text-indigo-600 bg-gray-800 border-gray-600 rounded focus:ring-indigo-500">
+                                <label for="canTagStaff" class="ml-2 text-sm text-gray-300">Permitir etiquetar a Agente de TI / Admin</label>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -4127,8 +4147,8 @@
         destroyChart('areaChart');
         const ctxArea = document.getElementById('areaChart');
         if (ctxArea) {
-            const labels = Object.keys(data.categoryData || {});
-            const counts = Object.values(data.categoryData || {});
+            const labels = Object.keys(data.frequentIncidents || {});
+            const counts = Object.values(data.frequentIncidents || {});
             
             ctxArea.__chartInstance = new Chart(ctxArea, {
                 type: 'bar',
@@ -4550,20 +4570,26 @@
                 @endphp
                 <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }} animate-in fade-in slide-in-from-bottom-2 relative z-10 group mb-2">
                     <div class="flex items-end gap-2 {{ $isMine ? 'flex-row-reverse' : 'flex-row' }}">
-                        @if(!$isMine)
-                            @php
-                                $cAvatarPath = 'storage/avatars/perfil_' . $c->usuario_id . '.jpg';
-                                $cHasAvatar = file_exists(public_path($cAvatarPath));
-                            @endphp
-                            @if($cHasAvatar)
-                                <img src="{{ asset($cAvatarPath) }}?v={{ filemtime(public_path($cAvatarPath)) }}" class="w-7 h-7 rounded-full object-cover shadow-sm mb-0.5" alt="Avatar">
+                        @php
+                            $msgUser = $c->usuario;
+                            $hasAvatar = $msgUser && $msgUser->profile_photo_path;
+                            $userName = $msgUser ? ($msgUser->nombre_completo ?? $msgUser->name) : 'Usuario';
+                        @endphp
+                        
+                        <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white shadow-sm mb-0.5 {{ $isMine ? 'bg-indigo-600' : 'bg-gradient-to-br from-indigo-500 to-purple-600' }}">
+                            @if($hasAvatar)
+                                <img src="{{ asset('storage/' . $msgUser->profile_photo_path) }}" class="w-full h-full rounded-full object-cover">
                             @else
-                                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-inner text-white flex items-center justify-center text-[10px] mb-0.5">{{ substr(optional($c->usuario)->name ?? 'U', 0, 1) }}</div>
+                                {{ strtoupper(substr($userName, 0, 1)) }}
                             @endif
-                        @endif
-                        <div class="max-w-[85%] px-3.5 py-2.5 text-[13.5px] leading-snug shadow-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_4px_15px_rgba(37,99,235,0.2)]' : 'bg-white/5 text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)]' }} relative backdrop-blur-md" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;"><span class="font-medium">{!! nl2br(e(trim($c->mensaje))) !!}</span></div>
+                        </div>
+
+                        <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }}">
+                            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1 px-1">{{ $userName }}</span>
+                            <div class="max-w-full px-3.5 py-2.5 text-[13.5px] leading-snug shadow-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm shadow-[0_4px_15px_rgba(37,99,235,0.2)]' : 'bg-white/5 text-gray-200 border border-white/10 rounded-2xl rounded-bl-sm shadow-[0_4px_15px_rgba(0,0,0,0.1)]' }} relative backdrop-blur-md" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;"><span class="font-medium">{!! nl2br(e(trim($c->mensaje))) !!}</span></div>
+                        </div>
                     </div>
-                    <span class="text-[9px] text-gray-500/80 font-bold uppercase tracking-widest mt-1.5 {{ $isMine ? 'pr-2' : 'pl-9' }} opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ $c->created_at->format('H:i') }}</span>
+                    <span class="text-[9px] text-gray-500/80 font-bold uppercase tracking-widest mt-1.5 {{ $isMine ? 'pr-9' : 'pl-9' }} opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ $c->created_at->format('H:i') }}</span>
                 </div>
                 @endforeach
             </div>

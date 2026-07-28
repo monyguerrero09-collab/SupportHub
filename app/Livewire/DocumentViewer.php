@@ -198,6 +198,15 @@ class DocumentViewer extends Component
             abort(403, 'No autorizado.');
         }
 
+        if (auth()->user()->role === 'gestor' && $this->generalDestinatarioId) {
+            $destinatario = \App\Models\User::find($this->generalDestinatarioId);
+            if ($destinatario && in_array($destinatario->role, ['admin', 'agente']) && !auth()->user()->can_tag_staff) {
+                $this->addError('generalDestinatarioId', 'Requiere permiso para enviar archivos directamente a Administración o Soporte TI.');
+                $this->dispatch('notify', 'No tienes permiso para etiquetar al Agente de TI o al Admin.');
+                return;
+            }
+        }
+
         $this->validate();
 
         $path = $this->generalFile->store('general_documents', 'public');

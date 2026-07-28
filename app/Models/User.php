@@ -44,6 +44,7 @@ class User extends Authenticatable
         'departamento_id',
         'profile_photo_path',
         'last_seen_at',
+        'can_tag_staff',
     ];
 
     /**

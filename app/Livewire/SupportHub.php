@@ -284,6 +284,7 @@ class SupportHub extends Component
     public $userPassword;
     public $userRole = 'user';
     public $userCodigoAcceso;
+    public $userCanTagStaff = false;
     public $selectedUserId = null;
 
     protected $listeners = [
@@ -898,7 +899,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
             $this->dispatch('notify', 'No tienes permisos para editar usuarios');
             return;
         }
-        $this->reset(['userName', 'userEmail', 'userTelefono', 'userPassword', 'userRole', 'userCodigoAcceso', 'selectedUserId']);
+        $this->resetUserForm();
         if ($id) {
             $user = User::find($id);
             $this->selectedUserId = $id;
@@ -907,8 +908,14 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
             $this->userTelefono = $user->telefono;
             $this->userRole = $user->role ?? 'user';
             $this->userCodigoAcceso = $user->codigo_acceso;
+            $this->userCanTagStaff = $user->can_tag_staff ?? false;
         }
         $this->showingUserModal = true;
+    }
+    
+    public function resetUserForm()
+    {
+        $this->reset(['userName', 'userEmail', 'userTelefono', 'userPassword', 'userRole', 'userCodigoAcceso', 'selectedUserId', 'userCanTagStaff']);
     }
 
     public function updateMyProfile()
@@ -944,6 +951,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
             'userTelefono' => 'nullable|string|max:20',
             'userRole' => 'required|in:admin,agente,gestor,user',
             'userCodigoAcceso' => 'required|string|max:50|unique:usuarios,codigo_acceso,' . ($this->selectedUserId ?? 'NULL'),
+            'userCanTagStaff' => 'boolean',
         ];
         $this->validate($rules);
 
@@ -971,6 +979,7 @@ Siempre responde en español. Nunca inventes información. Si el problema puede 
             'telefono' => $this->userTelefono,
             'rol_id' => $rol ? $rol->id : 3,
             'codigo_acceso' => $this->userCodigoAcceso,
+            'can_tag_staff' => $this->userCanTagStaff,
         ];
         
         if ($this->userPassword) {
