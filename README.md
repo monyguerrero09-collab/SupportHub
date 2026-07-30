@@ -1,3 +1,4 @@
+<img width="922" height="450" alt="Captura de pantalla 2026-07-29 152855" src="https://github.com/user-attachments/assets/49876ca6-2fef-4f24-a815-f9dc6d73f3ce" />
 # 🎫 SupportHub — Sistema Inteligente de Gestión de Tickets para Soporte TI
 
 [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/)
@@ -15,6 +16,8 @@
 La aplicación centraliza el flujo de vida completo de las incidencias (registro, asignación, seguimiento y resolución), facilitando la interacción fluida entre los colaboradores y el departamento de Tecnologías de la Información (TI). Asimismo, integra un microservicio de notificaciones automáticas vía **WhatsApp**, garantizando actualizaciones en tiempo real sobre el estado de las solicitudes.
 
 Su diseño web adaptativo (*Responsive Design*) asegura una **experiencia de usuario fluida e intuitiva desde cualquier dispositivo**, ya sean teléfonos inteligentes, tablets, laptops o computadoras de escritorio.
+
+<img width="922" height="450" alt="Captura de pantalla 2026-07-29 152855" src="https://github.com/user-attachments/assets/4486024f-a8f8-4160-8ea4-b42e0ad245c7" />
 
 ---
 
@@ -41,6 +44,7 @@ SupportHub fue diseñado bajo el paradigma **Mobile-First / Fully Responsive**, 
 | 📱 **Smartphones** | Interfaz táctil adaptada, navegación simplificada e integración fluida con notificaciones de WhatsApp. |
 | 📱 **Tablets** | Vistas de paneles adaptables para revisiones rápidas y gestión sobre la marcha. |
 | 💻 **Laptops / Desktops** | Panel de control multinivel completo, reportes extendidos y gestión avanzada de configuraciones. |
+<img width="728" height="1600" alt="image" src="https://github.com/user-attachments/assets/aed7a5b3-29f6-42dd-8708-17e262775175" />
 
 ---
 
