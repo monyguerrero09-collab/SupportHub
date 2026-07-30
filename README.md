@@ -1,5 +1,3 @@
-<img width="922" height="450" alt="Captura de pantalla 2026-07-29 152855" src="https://github.com/user-attachments/assets/49876ca6-2fef-4f24-a815-f9dc6d73f3ce" />
-# 🎫 SupportHub — Sistema Inteligente de Gestión de Tickets para Soporte TI
 
 [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
