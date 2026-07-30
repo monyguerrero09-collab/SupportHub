@@ -1,59 +1,100 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎫 SupportHub — Sistema Inteligente de Gestión de Tickets para Soporte TI
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Livewire](https://img.shields.io/badge/Livewire-48B02C?style=for-the-badge&logo=livewire&logoColor=white)](https://livewire.laravel.com/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📖 Descripción
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**SupportHub** es una plataforma web integral desarrollada para **CGR de México** como parte de un proyecto de transformación digital orientado a optimizar la gestión de incidencias y solicitudes de soporte técnico interno.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+La aplicación centraliza el flujo de vida completo de las incidencias (registro, asignación, seguimiento y resolución), facilitando la interacción fluida entre los colaboradores y el departamento de Tecnologías de la Información (TI). Asimismo, integra un microservicio de notificaciones automáticas vía **WhatsApp**, garantizando actualizaciones en tiempo real sobre el estado de las solicitudes.
 
-## Learning Laravel
+Su diseño web adaptativo (*Responsive Design*) asegura una **experiencia de usuario fluida e intuitiva desde cualquier dispositivo**, ya sean teléfonos inteligentes, tablets, laptops o computadoras de escritorio.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ✨ Funcionalidades Principales
 
-## Laravel Sponsors
+- 📱 **Diseño Multiplataforma & Adaptativo:** Interfaz totalmente optimizada y fluida para celulares, tablets y desktops.
+- 🎫 **Gestión Integral de Tickets:** Registro, clasificación, asignación y resolución de incidencias.
+- 👥 **Control de Acceso (RBAC):** Administración centralizada de usuarios, roles y permisos específicos.
+- 📌 **Seguimiento y Priorización:** Trazabilidad en tiempo real del progreso de cada solicitud.
+- 💬 **Módulo de Comunicación Directa:** Hilos de interacción y respuestas dentro de cada ticket entre usuario y agente.
+- 📲 **Notificaciones Automáticas vía WhatsApp:** Alertamiento inmediato sobre creación, cambios de estado y respuestas.
+- 📊 **Dashboard Administrativo:** Indicadores técnicos y métricas para el monitoreo general del área de TI.
+- 📂 **Historial & Log de Actividades:** Auditoría detallada del ciclo de vida de cada ticket.
+- ⚡ **Reactividad e Interactividad:** Actualización dinámica de vistas sin recargar la página gracias a Livewire.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 📱 Compatibilidad y Diseño Adaptativo
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+SupportHub fue diseñado bajo el paradigma **Mobile-First / Fully Responsive**, lo que permite a los técnicos y colaboradores interactuar con el sistema sin barreras de hardware:
 
-## Contributing
+| Dispositivo | Optimización |
+| :--- | :--- |
+| 📱 **Smartphones** | Interfaz táctil adaptada, navegación simplificada e integración fluida con notificaciones de WhatsApp. |
+| 📱 **Tablets** | Vistas de paneles adaptables para revisiones rápidas y gestión sobre la marcha. |
+| 💻 **Laptops / Desktops** | Panel de control multinivel completo, reportes extendidos y gestión avanzada de configuraciones. |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🛠️ Tecnologías Utilizadas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Backend & Frameworks
+- **PHP 8.2** / **Laravel 10+**
+- **Laravel Livewire** (Reactividad en el servidor)
 
-## Security Vulnerabilities
+### Frontend & UI/UX
+- **Blade Templating Engine**
+- **Tailwind CSS** (Diseño responsivo y utilitario)
+- **JavaScript (ES6+)** / HTML5 / CSS3
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Base de Datos
+- **PostgreSQL**
 
-## License
+### Microservicio de Notificaciones
+- **Node.js** & **Express.js**
+- **Baileys** (API Web de WhatsApp)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Herramientas & Entorno de Desarrollo
+- **Git** & **GitHub**
+- **Composer** (PHP) / **NPM** (Node)
+- **Visual Studio Code**
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+El sistema utiliza una arquitectura desacoplada para la comunicación y la gestión de procesos:
+
+1. **Aplicación Web Principal (Laravel + PostgreSQL):** Gestiona la lógica de negocio, autenticación, control de roles, almacenamiento persistente de datos e interfaz dinámica.
+2. **Servicio de Alertamiento (Node.js + Baileys):** Escucha eventos desencadenados por el backend para procesar y enviar mensajes automáticos a través de la API Web de WhatsApp.
+
+---
+
+## 🏢 Entorno Empresarial
+
+Desarrollado para **CGR de México**, empresa del sector automotriz especializada en la fabricación de componentes mecatrónicos de alta precisión, como parte de sus iniciativas de mejora continua, digitalización de procesos e innovación en infraestructura TI.
+
+---
+
+## 🎯 Objetivo
+
+Optimizar los tiempos de atención y respuesta del departamento de TI mediante la centralización de requerimientos, automatización de canales de comunicación directos y la entrega de una herramienta accesible **desde cualquier lugar y dispositivo**.
+
+---
+
+## 📌 Características Destacadas
+
+- 📱 **Multiplataforma y 100% Responsivo** (móviles, tablets y PC).
+- ⚡ **Reactividad en tiempo real** mediante la integración de Livewire.
+- 🗄️ **Base de datos relacional robusta** sobre PostgreSQL.
+- 📲 **Integración transparente con WhatsApp Web API**.
+- 🔐 **Seguridad y control de usuarios basado en roles**.
+- 🚀 **Escalabilidad arquitectónica** lista para futuras integraciones.
