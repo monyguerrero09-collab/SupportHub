@@ -44,7 +44,7 @@ SupportHub fue diseñado bajo el paradigma **Mobile-First / Fully Responsive**, 
 | 📱 **Tablets** | Vistas de paneles adaptables para revisiones rápidas y gestión sobre la marcha. |
 | 💻 **Laptops / Desktops** | Panel de control multinivel completo, reportes extendidos y gestión avanzada de configuraciones. |
 
-<img width="815" height="1200" alt="image" src="https://github.com/user-attachments/assets/0127ce28-313c-4347-b159-820d89b7b91a" />
+<img width="815" height="900" alt="image" src="https://github.com/user-attachments/assets/0127ce28-313c-4347-b159-820d89b7b91a" />
 
 ---
 
